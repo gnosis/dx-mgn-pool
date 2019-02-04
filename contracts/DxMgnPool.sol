@@ -100,8 +100,8 @@ contract DxMgnPool {
             sellToken = address(depositToken);
             buyToken = address(secondaryToken); 
         }
-
-        dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
+        if (lastParticipatedAuctionIndex != 0)
+            dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
         uint amount = dx.balances(address(sellToken), address(this));
         (lastParticipatedAuctionIndex, ) = dx.postSellOrder(sellToken, buyToken, 0, amount);
         isPrimiaryTokenTurn = !isPrimiaryTokenTurn;
