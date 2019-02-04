@@ -28,5 +28,13 @@
   "bugs": {
     "url": "https://github.com/gnosis/dx-mgn-pool/issues"
   },
-  "homepage": "https://github.com/gnosis/dx-mgn-pool#readme"
+  "homepage": "https://github.com/gnosis/dx-mgn-pool#readme",
+  "dependencies": {
+    "@gnosis.pm/mock-contract": "^3.0.7",
+    "openzeppelin-solidity": "^2.1.2",
+    "truffle-assertions": "^0.7.2"
+  },
+  "devDependencies": {
+    "solidity-coverage": "^0.5.11"
+  }
 }
