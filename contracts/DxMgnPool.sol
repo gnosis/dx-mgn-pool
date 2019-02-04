@@ -8,12 +8,12 @@ contract DxMgnPool {
     struct Participation {
         uint startAuctionCount; // how many auction passed when this participation started contributing
         uint poolShares; // number of shares this participation accounts for (absolute)
-        uint amount; // Amount of depostTokens in this participation
+        uint amount; // Amount of depositTokens in this participation
     }
 
     mapping (address => Participation[]) public participationsByAddress;
-    uint public totalPoolShares = 0;
-    uint public totalPoolSharesCummulative = 0;
+    uint public totalPoolShares = 0; // total number of shares in this pool
+    uint public totalPoolSharesCummulative = 0; // over all auctions, the rolling sum of all shares participated
     uint public totalDeposit = 0;
     uint public totalMgn = 0;
     uint public lastParticipatedAuctionIndex = 0;
@@ -57,8 +57,27 @@ contract DxMgnPool {
         require(depositToken.transferFrom(msg.sender, address(this), amount), "Failed to transfer deposit");
     }
 
+    function withdraw() public {
+        require(hasPoolingEnded(), "Pooling period is not over, yet");
+        
+        uint totalDepositAmount = 0;
+        uint totalMgnClaimed = 0;
+        Participation[] memory participations = participationsByAddress[msg.sender];
+        for (uint i = 0; i < participations.length; i++) {
+            totalDepositAmount += participations[i].amount;
+            totalMgnClaimed += calculateClaimableMgn(participations[i]);
+        }
+        delete participationsByAddress[msg.sender];
+
+        require(depositToken.transfer(msg.sender, totalDepositAmount), "Failed to transfer deposit");
+        
+        // Don't require MGN transfer so we don't lock funds if MGN transfer fails
+        // TODO maybe provide a force flag as parameter instead
+        mgnToken.transfer(msg.sender, totalMgnClaimed);
+    }
+
     function participateInAuction() public {
-        require(!poolingEnded(), "Pooling period is over.");
+        require(!hasPoolingEnded(), "Pooling period is over.");
 
         uint auctionIndex = dx.getAuctionIndex(address(depositToken), address(secondaryToken));
         require(auctionIndex > lastParticipatedAuctionIndex, "Has to wait for new auction to start");
@@ -92,8 +111,16 @@ contract DxMgnPool {
             return (amount / totalDeposit) * totalPoolShares;
         }
     }
+    
+    function calculateClaimableMgn(Participation memory participation) private returns (uint) {
+        if (totalMgn == 0) {
+            totalMgn = mgnToken.balanceOf(address(this));
+        }
+        uint duration = auctionCount - participation.startAuctionCount;
+        return totalMgn * participation.poolShares * duration / totalPoolSharesCummulative;
+    }
 
-    function poolingEnded() private view returns (bool) {
+    function hasPoolingEnded() private view returns (bool) {
         return block.number > poolingPeriodEndBlockNumber;
     }
 }
