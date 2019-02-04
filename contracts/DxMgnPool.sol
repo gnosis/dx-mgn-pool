@@ -1,10 +1,12 @@
 pragma solidity ^0.5.0;
 
+
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "./interfaces/IDutchExchange.sol";
 
 
 contract DxMgnPool {
+
     struct Participation {
         uint startAuctionCount; // how many auction passed when this participation started contributing
         uint poolShares; // number of shares this participation accounts for (absolute)
@@ -22,6 +24,8 @@ contract DxMgnPool {
     ERC20 public secondaryToken;
     ERC20 public mgnToken;
     IDutchExchange public dx;
+
+    bool isPrimiaryTokenTurn = true;
 
     uint public poolingPeriodEndBlockNumber;
 
@@ -80,9 +84,29 @@ contract DxMgnPool {
         uint auctionIndex = dx.getAuctionIndex(address(depositToken), address(secondaryToken));
         require(auctionIndex > lastParticipatedAuctionIndex, "Has to wait for new auction to start");
 
-        // ... super call into trader to participate in next auction
+        address sellToken;
+        address buyToken;
+        if (isPrimiaryTokenTurn){
+            //depositng new tokens
+            uint amount = depositToken.balanceOf(address(this));
+            if(amount > 0) {
+                require(depositToken.approve(address(dx), amount), "Token transfer from Pool to dx was not approved");
+                dx.deposit(address(depositToken), amount);
+            }
 
-        lastParticipatedAuctionIndex = auctionIndex;
+            sellToken = address(secondaryToken);
+            buyToken = address(depositToken);
+        }
+        else {
+            sellToken = address(depositToken);
+            buyToken = address(secondaryToken); 
+        }
+
+        dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
+        uint amount = dx.balances(address(sellToken), address(this));
+        (lastParticipatedAuctionIndex, ) = dx.postSellOrder(sellToken, buyToken, 0, amount);
+        isPrimiaryTokenTurn = !isPrimiaryTokenTurn;
+
         auctionCount += 1;
         totalPoolSharesCummulative += totalPoolShares;
     }
