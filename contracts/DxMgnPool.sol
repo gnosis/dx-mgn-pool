@@ -11,12 +11,12 @@ contract DxMgnPool {
         uint amount; // Amount of depostTokens in this participation
     }
 
-    mapping (address => Participation[]) private participationsByAddress;
+    mapping (address => Participation[]) public participationsByAddress;
     uint public totalPoolShares = 0;
     uint public totalDeposit = 0;
-    ERC20 private depositToken;
-    ERC20 private secondaryToken;
-    IDutchExchange private dx;
+    ERC20 public depositToken;
+    ERC20 public secondaryToken;
+    IDutchExchange public dx;
 
     constructor (ERC20 _depositToken, ERC20 _secondaryToken, IDutchExchange _dx) public {
         depositToken = _depositToken;
