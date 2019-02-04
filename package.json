@@ -1,0 +1,32 @@
+{
+  "name": "dx-mgn-pool",
+  "version": "1.0.0",
+  "description": "Smart contracts and migration scripts for the MGN-pool for trading at the dutch-Exchange",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gnosis/dx-mgn-pool.git"
+  },
+  "keywords": [
+    "mgn",
+    "dx",
+    "dao",
+    "smart-contract",
+    "ethereum",
+    "gnosis",
+    "pool",
+    "gno"
+  ],
+  "author": "Gnosis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gnosis/dx-mgn-pool/issues"
+  },
+  "homepage": "https://github.com/gnosis/dx-mgn-pool#readme"
+}
