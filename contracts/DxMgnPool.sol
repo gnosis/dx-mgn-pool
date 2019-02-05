@@ -24,7 +24,7 @@ contract DxMgnPool {
     ERC20 public mgnToken;
     IDutchExchange public dx;
 
-    bool isPrimiaryTokenTurn = true;
+    bool isDepositTokenTurn = true;
 
     uint public poolingPeriodEndBlockNumber;
 
@@ -86,7 +86,7 @@ contract DxMgnPool {
         (address sellToken, address buyToken) =  assignBuyAndSellTokens();
 
         uint depositAmount = depositToken.balanceOf(address(this));
-        if (isPrimiaryTokenTurn && depositAmount > 0){
+        if (isDepositTokenTurn && depositAmount > 0){
             //depositng new tokens
             require(depositToken.approve(address(dx), depositAmount), "Token transfer from Pool to dx was not approved");
             dx.deposit(address(depositToken), depositAmount);
@@ -97,7 +97,7 @@ contract DxMgnPool {
 
         uint amount = dx.balances(address(sellToken), address(this));
         (lastParticipatedAuctionIndex, ) = dx.postSellOrder(sellToken, buyToken, 0, amount);
-        isPrimiaryTokenTurn = !isPrimiaryTokenTurn;
+        isDepositTokenTurn = !isDepositTokenTurn;
 
         auctionCount += 1;
         totalPoolSharesCummulative += totalPoolShares;
@@ -145,7 +145,7 @@ contract DxMgnPool {
     function assignBuyAndSellTokens() 
         public returns(address buyToken, address sellToken)
     {
-        if(isPrimiaryTokenTurn) {
+        if(isDepositTokenTurn) {
             sellToken = address(secondaryToken);
             buyToken = address(depositToken);
         }

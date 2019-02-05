@@ -1,4 +1,7 @@
 const DxMgnPool = artifacts.require("DxMgnPool")
+const DutchExchange = artifacts.require("DutchExchange")
+const abi = require('ethereumjs-abi')
+
 const ERC20 = artifacts.require("ERC20")
 const MockContract = artifacts.require("MockContract")
 
@@ -63,9 +66,11 @@ contract("DxMgnPool", (accounts) => {
   describe("participateInAuction()", () => {
     it("updates auctionCount and cummulative shares", async() => {
       const depositTokenMock = await MockContract.new()
+      const depositToken = await ERC20.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
+      const dx = await DutchExchange.deployed()
       const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
       
@@ -73,6 +78,26 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenAnyReturnUint(42)
 
       await instance.deposit(10)
+  
+      const getAuctionIndex = dx.contract.methods.getAuctionIndex(accounts[0], accounts[0]).encodeABI()
+      await dxMock.givenMethodReturnUint(getAuctionIndex, 2)
+
+      const deposit = dx.contract.methods.deposit(accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturnUint(deposit, 2)
+
+      const balanceOf = depositToken.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
+
+      const approve = depositToken.contract.methods.approve(accounts[0], 0).encodeABI()
+      await depositTokenMock.givenMethodReturnBool(approve, true)
+
+      const balances = dx.contract.methods.balances(accounts[0],accounts[0]).encodeABI()
+      await dxMock.givenMethodReturnUint(balances, 10)
+
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      const reposeType = (abi.rawEncode(['uint', 'uint'], [2, 0]));
+      await dxMock.givenMethodReturn(postSellOrder, reposeType)
+
       await instance.participateInAuction()
 
       assert.equal(await instance.auctionCount.call(), 1)
@@ -90,9 +115,11 @@ contract("DxMgnPool", (accounts) => {
     })
     it("cannot participate twice with same auction id", async() => {
       const depositTokenMock = await MockContract.new()
+      const depositToken = await ERC20.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
+      const dx = await DutchExchange.deployed()
       const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
       
@@ -100,26 +127,71 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenAnyReturnUint(42)
 
       await instance.deposit(10)
-      await instance.participateInAuction()
+  
+      const getAuctionIndex = dx.contract.methods.getAuctionIndex(accounts[0], accounts[0]).encodeABI()
+      await dxMock.givenMethodReturnUint(getAuctionIndex, 2)
 
+      const deposit = dx.contract.methods.deposit(accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturnUint(deposit, 2)
+
+      const balanceOf = depositToken.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
+
+      const approve = depositToken.contract.methods.approve(accounts[0], 0).encodeABI()
+      await depositTokenMock.givenMethodReturnBool(approve, true)
+
+      const balances = dx.contract.methods.balances(accounts[0],accounts[0]).encodeABI()
+      await dxMock.givenMethodReturnUint(balances, 10)
+
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      const reposeType = (abi.rawEncode(['uint', 'uint'], [2, 0]));
+      await dxMock.givenMethodReturn(postSellOrder, reposeType)
+
+      await instance.participateInAuction()
       await truffleAssert.reverts(instance.participateInAuction(), "Has to wait for new auction to start")
     })
     it("can participate in consecutive auction", async() => {
       const depositTokenMock = await MockContract.new()
+      const depositToken = await ERC20.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
+      const dx = await DutchExchange.deployed()
       const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
       
       await depositTokenMock.givenAnyReturnBool(true)
-      await dxMock.givenAnyReturnUint(42)
-
+      
       await instance.deposit(10)
+
+      const getAuctionIndex = dx.contract.methods.getAuctionIndex(accounts[0], accounts[0]).encodeABI()
+      await dxMock.givenMethodReturnUint(getAuctionIndex, 2)
+
+      const deposit = dx.contract.methods.deposit(accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturnUint(deposit, 2)
+
+      const balanceOf = depositToken.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
+
+      const approve = depositToken.contract.methods.approve(accounts[0], 0).encodeABI()
+      await depositTokenMock.givenMethodReturnBool(approve, true)
+
+      const balances = dx.contract.methods.balances(accounts[0],accounts[0]).encodeABI()
+      await dxMock.givenMethodReturnUint(balances, 10)
+
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      const reposeType = (abi.rawEncode(['uint', 'uint'], [2, 0]));
+      await dxMock.givenMethodReturn(postSellOrder, reposeType)
+
       await instance.participateInAuction()
 
       await instance.deposit(20)
-      await dxMock.givenAnyReturnUint(43)
+
+      await dxMock.givenMethodReturnUint(getAuctionIndex, 3)
+     
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      const reposeClaim = (abi.rawEncode(['uint', 'uint'], [10, 100]));
+      await dxMock.givenMethodReturn(claimSellerFunds, reposeClaim)
       await instance.participateInAuction()
 
       assert.equal(await instance.auctionCount.call(), 2)
