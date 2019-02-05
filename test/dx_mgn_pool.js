@@ -311,7 +311,7 @@ contract("DxMgnPool", (accounts) => {
 
       await truffleAssert.reverts(instance.withdrawMagnolia(), "MGN has not been unlocked, yet")
     })
-    it("withdrawals the right amount of MGN", async () => {
+    it("withdraws the right amount of MGN", async () => {
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
