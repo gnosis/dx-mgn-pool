@@ -346,8 +346,8 @@ contract("DxMgnPool", (accounts) => {
       await mgnTokenMock.givenAnyReturnBool(true)
       await instance.withdrawMagnolia()
 
-      const mgnTransfer = mgnToken.contract.methods.transfer(accounts[0], 0).encodeABI()
-      assert.equal(await depositTokenMock.invocationCountForCalldata.call(mgnTransfer), 1)
+      const mgnTransfer = mgnToken.contract.methods.transfer(accounts[0], 100).encodeABI()
+      assert.equal(await mgnTokenMock.invocationCountForCalldata.call(mgnTransfer), 1)
     })
   })
 })
