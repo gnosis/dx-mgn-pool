@@ -1,5 +1,7 @@
 const DxMgnPool = artifacts.require("DxMgnPool")
 const DutchExchange = artifacts.require("DutchExchange")
+const TokenFRT = artifacts.require("TokenFRT")
+
 const abi = require("ethereumjs-abi")
 
 const ERC20 = artifacts.require("ERC20")
@@ -154,7 +156,7 @@ contract("DxMgnPool", (accounts) => {
   })
 
   describe("withdrawDeposit()", () => {
-    it("returns the original deposited amount and MGN share", async () => {
+    it("returns the original deposited amount", async () => {
       const token = await ERC20.new()
       const dx = await DutchExchange.new()
 
@@ -285,6 +287,19 @@ contract("DxMgnPool", (accounts) => {
       await truffleAssert.reverts(instance.withdrawDeposit(), "Failed to transfer deposit")
     })
   })
+  describe("triggerMGNunlocking()", () => {
+    it("fails if trigger is asked to early", async () => {
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const mgnToken = await TokenFRT.deployed()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+
+      await truffleAssert.reverts(instance.triggerMGNunlock(), "Pooling period is not yet over.")
+    })
+  })
   describe("withdrawMagnolia()", () => {
     it("fails if Magnolia was not unlocked", async () => {
       const depositTokenMock = await MockContract.new()
@@ -295,6 +310,44 @@ contract("DxMgnPool", (accounts) => {
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
 
       await truffleAssert.reverts(instance.withdrawMagnolia(), "MGN has not been unlocked, yet")
+    })
+    it("withdrawals the right amount of MGN", async () => {
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const mgnToken = await TokenFRT.deployed()
+      const dxMock = await MockContract.new()
+      const dx = await DutchExchange.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      
+
+      await depositTokenMock.givenAnyReturnBool(true)
+      await instance.deposit(10)
+
+      await dxMock.givenAnyReturnUint(10)
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      const reponseType = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, reponseType)
+      await instance.participateInAuction()
+
+      await waitForNBlocks(101, accounts[0])
+
+      const balanceOf = mgnToken.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await mgnTokenMock.givenMethodReturnUint(balanceOf, 100)      
+
+      await instance.withdrawMGN()
+      
+      assert.equal(await instance.totalMgn.call(), 100)
+
+      await depositTokenMock.givenAnyReturnBool(true)
+      await instance.withdrawDeposit()
+
+      await mgnTokenMock.givenAnyReturnBool(true)
+      await instance.withdrawMagnolia()
+
+      const mgnTransfer = mgnToken.contract.methods.transfer(accounts[0], 0).encodeABI()
+      assert.equal(await depositTokenMock.invocationCountForCalldata.call(mgnTransfer), 1)
     })
   })
 })

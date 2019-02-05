@@ -2,7 +2,7 @@ pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "./interfaces/IDutchExchange.sol";
-
+import "@gnosis.pm/dx-contracts/contracts/TokenFRT.sol";
 
 contract DxMgnPool {
 
@@ -28,8 +28,9 @@ contract DxMgnPool {
     
     ERC20 public depositToken;
     ERC20 public secondaryToken;
-    ERC20 public mgnToken;
+    TokenFRT public mgnToken;
     IDutchExchange public dx;
+
 
     bool isDepositTokenTurn = true;
 
@@ -38,8 +39,8 @@ contract DxMgnPool {
     constructor (
         ERC20 _depositToken, 
         ERC20 _secondaryToken, 
-        ERC20 _mgnToken, 
-        IDutchExchange _dx, 
+        TokenFRT _mgnToken, 
+        IDutchExchange _dx,
         uint _poolingPeriodEndBlockNumber
     ) public {
         depositToken = _depositToken;
@@ -121,6 +122,18 @@ contract DxMgnPool {
         totalPoolSharesCummulative += totalPoolShares;
     }
 
+    function triggerMGNunlock() public{
+        require(currentState() == State.PoolingEnded, "Pooling period is not yet over.");
+
+        mgnToken.unlockTokens();
+    }
+
+
+    function withdrawMGN() public {
+        mgnToken.withdrawUnlockedTokens();
+        totalMgn = mgnToken.balanceOf(address(this));
+    }
+
     /**
      * Public View Functions
      */
@@ -136,6 +149,7 @@ contract DxMgnPool {
     /**
      * Internal Helpers
      */
+     
     function calculatePoolShares(uint amount) private view returns (uint) {
         if (totalDeposit == 0) {
             return amount;
@@ -146,6 +160,9 @@ contract DxMgnPool {
     
     function calculateClaimableMgn(Participation memory participation) private returns (uint) {
         uint duration = auctionCount - participation.startAuctionCount;
+        if (totalPoolSharesCummulative == 0) {
+            return 0;
+        }
         return totalMgn * participation.poolShares * duration / totalPoolSharesCummulative;
     }
 

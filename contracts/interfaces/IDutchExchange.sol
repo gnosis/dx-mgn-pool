@@ -1,7 +1,10 @@
 pragma solidity ^0.5.0;
 import "@gnosis.pm/mock-contract/contracts/MockContract.sol";
+import "@gnosis.pm/dx-contracts/contracts/TokenFRT.sol";
 
 contract IDutchExchange {
+    TokenFRT public frtToken;
+
     mapping(address => mapping(address => mapping(uint => mapping(address => uint)))) public sellerBalances;
     mapping(address => mapping(address => mapping(uint => mapping(address => uint)))) public buyerBalances;
     mapping(address => mapping(address => mapping(uint => mapping(address => uint)))) public claimedAmounts;
