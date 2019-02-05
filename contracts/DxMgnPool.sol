@@ -79,7 +79,7 @@ contract DxMgnPool {
     }
 
     function withdrawMagnolia() public {
-        require(currentState() == State.MgnUnlocked, "Pooling period is not over, yet");
+        require(currentState() == State.MgnUnlocked, "MGN has not been unlocked, yet");
 
         uint totalMgnClaimed = 0;
         Participation[] memory participations = participationsByAddress[msg.sender];

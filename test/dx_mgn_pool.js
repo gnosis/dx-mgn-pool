@@ -153,7 +153,7 @@ contract("DxMgnPool", (accounts) => {
     })
   })
 
-  describe("withdraw()", () => {
+  describe("withdrawDeposit()", () => {
     it("returns the original deposited amount and MGN share", async () => {
       const token = await ERC20.new()
       const dx = await DutchExchange.new()
@@ -283,6 +283,18 @@ contract("DxMgnPool", (accounts) => {
 
       await depositTokenMock.givenAnyReturnBool(false)
       await truffleAssert.reverts(instance.withdrawDeposit(), "Failed to transfer deposit")
+    })
+  })
+  describe("withdrawMagnolia()", () => {
+    it("fails if Magnolia was not unlocked", async () => {
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) - 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+
+      await truffleAssert.reverts(instance.withdrawMagnolia(), "MGN has not been unlocked, yet")
     })
   })
 })
