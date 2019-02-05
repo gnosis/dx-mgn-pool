@@ -122,10 +122,19 @@ contract DxMgnPool {
         totalPoolSharesCummulative += totalPoolShares;
     }
 
-    function triggerMGNunlock() public{
+    function triggerMGNunlockAndClaimTokens() public {
         require(currentState() == State.PoolingEnded, "Pooling period is not yet over.");
 
         mgnToken.unlockTokens();
+
+        uint auctionIndex = dx.getAuctionIndex(address(depositToken), address(secondaryToken));
+        require(auctionIndex > lastParticipatedAuctionIndex, "Has to wait for new auction to start");
+        (address sellToken, address buyToken) = buyAndSellToken();
+        if (lastParticipatedAuctionIndex != 0) {
+            dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
+        }
+        uint amount = dx.balances(address(depositToken), address(this));
+        dx.withdraw(address(depositToken), amount);
     }
 
 
@@ -160,9 +169,6 @@ contract DxMgnPool {
     
     function calculateClaimableMgn(Participation memory participation) private returns (uint) {
         uint duration = auctionCount - participation.startAuctionCount;
-        if (totalPoolSharesCummulative == 0) {
-            return 0;
-        }
         return totalMgn * participation.poolShares * duration / totalPoolSharesCummulative;
     }
 

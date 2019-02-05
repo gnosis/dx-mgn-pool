@@ -297,7 +297,7 @@ contract("DxMgnPool", (accounts) => {
       const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
 
-      await truffleAssert.reverts(instance.triggerMGNunlock(), "Pooling period is not yet over.")
+      await truffleAssert.reverts(instance.triggerMGNunlockAndClaimTokens(), "Pooling period is not yet over.")
     })
   })
   describe("withdrawMagnolia()", () => {
@@ -321,7 +321,6 @@ contract("DxMgnPool", (accounts) => {
       const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
       
-
       await depositTokenMock.givenAnyReturnBool(true)
       await instance.deposit(10)
 
@@ -340,7 +339,6 @@ contract("DxMgnPool", (accounts) => {
       
       assert.equal(await instance.totalMgn.call(), 100)
 
-      await depositTokenMock.givenAnyReturnBool(true)
       await instance.withdrawDeposit()
 
       await mgnTokenMock.givenAnyReturnBool(true)
