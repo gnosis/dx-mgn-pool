@@ -9,6 +9,13 @@ contract DxMgnPool {
     struct Participation {
         uint startAuctionCount; // how many auction passed when this participation started contributing
         uint poolShares; // number of shares this participation accounts for (absolute)
+        bool withdrawn; // flag indicating whether the participation has been withdrawn
+    }
+
+    enum State {
+        Pooling,
+        PoolingEnded,
+        MgnUnlocked
     }
 
     mapping (address => Participation[]) public participationsByAddress;
@@ -49,7 +56,8 @@ contract DxMgnPool {
         uint poolShares = calculatePoolShares(amount);
         Participation memory participation = Participation({
             startAuctionCount: auctionCount,
-            poolShares: poolShares
+            poolShares: poolShares,
+            withdrawn: false
         });
         participationsByAddress[msg.sender].push(participation);
         totalPoolShares += poolShares;
@@ -58,24 +66,33 @@ contract DxMgnPool {
         require(depositToken.transferFrom(msg.sender, address(this), amount), "Failed to transfer deposit");
     }
 
-    function withdraw() public {
-        require(hasPoolingEnded(), "Pooling period is not over, yet");
+    function withdrawDeposit() public {
+        require(currentState() != State.Pooling, "Pooling period is not over, yet");
         
         uint totalDepositAmount = 0;
+        Participation[] storage participations = participationsByAddress[msg.sender];
+        for (uint i = 0; i < participations.length; i++) {
+            totalDepositAmount += calculateClaimableDeposit(participations[i]);
+            participations[i].withdrawn = true;
+        }
+        require(depositToken.transfer(msg.sender, totalDepositAmount), "Failed to transfer deposit");
+    }
+
+    function withdrawMagnolia() public {
+        require(currentState() == State.MgnUnlocked, "Pooling period is not over, yet");
+
         uint totalMgnClaimed = 0;
         Participation[] memory participations = participationsByAddress[msg.sender];
         for (uint i = 0; i < participations.length; i++) {
-            totalDepositAmount += calculateClaimableDeposit(participations[i]);
+            require(participations[i].withdrawn, "Withdraw deposits first");
             totalMgnClaimed += calculateClaimableMgn(participations[i]);
         }
         delete participationsByAddress[msg.sender];
-
-        require(depositToken.transfer(msg.sender, totalDepositAmount), "Failed to transfer deposit");
         require(mgnToken.transfer(msg.sender, totalMgnClaimed), "Failed to transfer MGN");
     }
 
     function participateInAuction() public {
-        require(!hasPoolingEnded(), "Pooling period is over.");
+        require(currentState() == State.Pooling, "Pooling period is over.");
 
         uint auctionIndex = dx.getAuctionIndex(address(depositToken), address(secondaryToken));
         require(auctionIndex > lastParticipatedAuctionIndex, "Has to wait for new auction to start");
@@ -128,19 +145,24 @@ contract DxMgnPool {
     }
     
     function calculateClaimableMgn(Participation memory participation) private returns (uint) {
-        if (totalMgn == 0) {
-            totalMgn = mgnToken.balanceOf(address(this));
-        }
         uint duration = auctionCount - participation.startAuctionCount;
         return totalMgn * participation.poolShares * duration / totalPoolSharesCummulative;
     }
 
     function calculateClaimableDeposit(Participation memory participation) private view returns (uint) {
+        if (participation.withdrawn) {
+            return 0;
+        }
         return totalDeposit * participation.poolShares / totalPoolShares;
     }
 
-    function hasPoolingEnded() private view returns (bool) {
-        return block.number > poolingPeriodEndBlockNumber;
+    function currentState() public view returns (State) {
+        if (block.number < poolingPeriodEndBlockNumber) {
+            return State.Pooling;
+        } else if (totalMgn > 0) {
+            return State.MgnUnlocked;
+        }
+        return State.PoolingEnded;
     }
 
     function buyAndSellToken() private view returns(address buyToken, address sellToken) {
