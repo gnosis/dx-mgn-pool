@@ -74,7 +74,7 @@ contract DxMgnPool {
         
         // Don't require MGN transfer so we don't lock funds if MGN transfer fails
         // TODO maybe provide a force flag as parameter instead
-        mgnToken.transfer(msg.sender, totalMgnClaimed);
+        require(mgnToken.transfer(msg.sender, totalMgnClaimed), "MGN transfer was not possible");
     }
 
     function participateInAuction() public {
