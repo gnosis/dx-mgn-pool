@@ -7,7 +7,7 @@ contract IDutchExchange {
     mapping(address => mapping(address => mapping(uint => mapping(address => uint)))) public claimedAmounts;
     mapping(address => mapping(address => uint)) public balances;
 
-	function deposit(address tokenAddress, uint amount) public returns (uint);
+    function deposit(address tokenAddress, uint amount) public returns (uint);
     function ethToken() public returns(address);
     function getAuctionIndex(address token1, address token2) public returns(uint256);
     function postBuyOrder(address token1, address token2, uint256 auctionIndex, uint256 amount) public returns(uint256);

@@ -10,9 +10,6 @@ module.exports = {
         },
         "ecmaVersion": 2018
     },
-    "plugins": [
-        "react"
-    ],
     "rules": {
         "indent": [
             "error",
