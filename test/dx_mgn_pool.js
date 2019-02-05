@@ -286,6 +286,8 @@ contract("DxMgnPool", (accounts) => {
       await instance.participateInAuction()
       
       await waitForNBlocks(100, accounts[0])
+      await depositTokenMock.givenAnyReturnBool(true)
+
       await instance.withdraw()
 
       const depositTransfer = token.contract.methods.transfer(accounts[0], 20).encodeABI()
@@ -335,6 +337,8 @@ contract("DxMgnPool", (accounts) => {
       await instance.participateInAuction()
       
       await waitForNBlocks(100, accounts[0])
+      await depositTokenMock.givenAnyReturnBool(true)
+
       await instance.withdraw()
       await instance.withdraw()
 
