@@ -83,25 +83,18 @@ contract DxMgnPool {
         uint auctionIndex = dx.getAuctionIndex(address(depositToken), address(secondaryToken));
         require(auctionIndex > lastParticipatedAuctionIndex, "Has to wait for new auction to start");
 
-        address sellToken;
-        address buyToken;
-        if (isPrimiaryTokenTurn){
-            //depositng new tokens
-            uint amount = depositToken.balanceOf(address(this));
-            if(amount > 0) {
-                require(depositToken.approve(address(dx), amount), "Token transfer from Pool to dx was not approved");
-                dx.deposit(address(depositToken), amount);
-            }
+        (address sellToken, address buyToken) =  assignBuyAndSellTokens();
 
-            sellToken = address(secondaryToken);
-            buyToken = address(depositToken);
+        uint depositAmount = depositToken.balanceOf(address(this));
+        if (isPrimiaryTokenTurn && depositAmount > 0){
+            //depositng new tokens
+            require(depositToken.approve(address(dx), depositAmount), "Token transfer from Pool to dx was not approved");
+            dx.deposit(address(depositToken), depositAmount);
         }
-        else {
-            sellToken = address(depositToken);
-            buyToken = address(secondaryToken); 
-        }
+
         if (lastParticipatedAuctionIndex != 0)
             dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
+
         uint amount = dx.balances(address(sellToken), address(this));
         (lastParticipatedAuctionIndex, ) = dx.postSellOrder(sellToken, buyToken, 0, amount);
         isPrimiaryTokenTurn = !isPrimiaryTokenTurn;
@@ -147,5 +140,19 @@ contract DxMgnPool {
 
     function hasPoolingEnded() private view returns (bool) {
         return block.number > poolingPeriodEndBlockNumber;
+    }
+
+    function assignBuyAndSellTokens() 
+        public returns(address buyToken, address sellToken)
+    {
+        if(isPrimiaryTokenTurn) {
+            sellToken = address(secondaryToken);
+            buyToken = address(depositToken);
+        }
+        else {
+            sellToken = address(depositToken);
+            buyToken = address(secondaryToken); 
+        }
+
     }
 }
