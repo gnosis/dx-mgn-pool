@@ -96,6 +96,10 @@ contract DxMgnPool {
             dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
 
         uint amount = dx.balances(address(sellToken), address(this));
+        if (isDepositTokenTurn) {
+            totalDeposit = amount;        
+        }
+
         (lastParticipatedAuctionIndex, ) = dx.postSellOrder(sellToken, buyToken, 0, amount);
         isDepositTokenTurn = !isDepositTokenTurn;
 
