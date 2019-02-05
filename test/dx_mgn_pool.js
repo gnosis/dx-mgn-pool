@@ -22,7 +22,6 @@ contract("DxMgnPool", (accounts) => {
       assert.equal(await instance.numberOfParticipations.call(accounts[0]), 1)
       const participation = await instance.participationAtIndex.call(accounts[0], 0)
       assert.equal(participation[1], 10)
-      assert.equal(participation[2], 10)
 
       assert.equal(await instance.totalDeposit.call(), 10)
       assert.equal(await instance.totalPoolShares.call(), 10)
@@ -55,7 +54,6 @@ contract("DxMgnPool", (accounts) => {
       assert.equal(await instance.numberOfParticipations.call(accounts[0]), 2)
       const participation = await instance.participationAtIndex.call(accounts[0], 1)
       assert.equal(participation[1], 20)
-      assert.equal(participation[2], 20)
 
       assert.equal(await instance.totalDeposit.call(), 30)
       assert.equal(await instance.totalPoolShares.call(), 30)

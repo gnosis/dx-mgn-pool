@@ -8,7 +8,6 @@ contract DxMgnPool {
     struct Participation {
         uint startAuctionCount; // how many auction passed when this participation started contributing
         uint poolShares; // number of shares this participation accounts for (absolute)
-        uint amount; // Amount of depositTokens in this participation
     }
 
     mapping (address => Participation[]) public participationsByAddress;
@@ -47,8 +46,7 @@ contract DxMgnPool {
         uint poolShares = calculatePoolShares(amount);
         Participation memory participation = Participation({
             startAuctionCount: auctionCount,
-            poolShares: poolShares,
-            amount: amount
+            poolShares: poolShares
         });
         participationsByAddress[msg.sender].push(participation);
         totalPoolShares += poolShares;
@@ -64,7 +62,7 @@ contract DxMgnPool {
         uint totalMgnClaimed = 0;
         Participation[] memory participations = participationsByAddress[msg.sender];
         for (uint i = 0; i < participations.length; i++) {
-            totalDepositAmount += participations[i].amount;
+            totalDepositAmount += calculateClaimableDeposit(participations[i]);
             totalMgnClaimed += calculateClaimableMgn(participations[i]);
         }
         delete participationsByAddress[msg.sender];
@@ -96,9 +94,9 @@ contract DxMgnPool {
         return participationsByAddress[addr].length;
     }
 
-    function participationAtIndex(address addr, uint index) public view returns (uint, uint, uint) {
+    function participationAtIndex(address addr, uint index) public view returns (uint, uint) {
         Participation memory participation = participationsByAddress[addr][index];
-        return (participation.startAuctionCount, participation.poolShares, participation.amount);
+        return (participation.startAuctionCount, participation.poolShares);
     }
 
     /**
@@ -118,6 +116,10 @@ contract DxMgnPool {
         }
         uint duration = auctionCount - participation.startAuctionCount;
         return totalMgn * participation.poolShares * duration / totalPoolSharesCummulative;
+    }
+
+    function calculateClaimableDeposit(Participation memory participation) private returns (uint) {
+        return totalDeposit * participation.poolShares / totalPoolShares;
     }
 
     function hasPoolingEnded() private view returns (bool) {
