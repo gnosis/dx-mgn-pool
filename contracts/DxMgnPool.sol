@@ -5,6 +5,7 @@ import "./interfaces/IDutchExchange.sol";
 
 
 contract DxMgnPool {
+
     struct Participation {
         uint startAuctionCount; // how many auction passed when this participation started contributing
         uint poolShares; // number of shares this participation accounts for (absolute)
@@ -22,6 +23,8 @@ contract DxMgnPool {
     ERC20 public secondaryToken;
     ERC20 public mgnToken;
     IDutchExchange public dx;
+
+    bool isDepositTokenTurn = true;
 
     uint public poolingPeriodEndBlockNumber;
 
@@ -68,10 +71,7 @@ contract DxMgnPool {
         delete participationsByAddress[msg.sender];
 
         require(depositToken.transfer(msg.sender, totalDepositAmount), "Failed to transfer deposit");
-        
-        // Don't require MGN transfer so we don't lock funds if MGN transfer fails
-        // TODO maybe provide a force flag as parameter instead
-        mgnToken.transfer(msg.sender, totalMgnClaimed);
+        require(mgnToken.transfer(msg.sender, totalMgnClaimed), "Failed to transfer MGN");
     }
 
     function participateInAuction() public {
@@ -80,9 +80,26 @@ contract DxMgnPool {
         uint auctionIndex = dx.getAuctionIndex(address(depositToken), address(secondaryToken));
         require(auctionIndex > lastParticipatedAuctionIndex, "Has to wait for new auction to start");
 
-        // ... super call into trader to participate in next auction
+        (address sellToken, address buyToken) = buyAndSellToken();
+        uint depositAmount = depositToken.balanceOf(address(this));
+        if (isDepositTokenTurn && depositAmount > 0){
+            //depositng new tokens
+            depositToken.approve(address(dx), depositAmount);
+            dx.deposit(address(depositToken), depositAmount);
+        }
 
-        lastParticipatedAuctionIndex = auctionIndex;
+        if (lastParticipatedAuctionIndex != 0) {
+            dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
+        }
+
+        uint amount = dx.balances(address(sellToken), address(this));
+        if (isDepositTokenTurn) {
+            totalDeposit = amount;
+        }
+
+        (lastParticipatedAuctionIndex, ) = dx.postSellOrder(sellToken, buyToken, 0, amount);
+        isDepositTokenTurn = !isDepositTokenTurn;
+
         auctionCount += 1;
         totalPoolSharesCummulative += totalPoolShares;
     }
@@ -118,11 +135,19 @@ contract DxMgnPool {
         return totalMgn * participation.poolShares * duration / totalPoolSharesCummulative;
     }
 
-    function calculateClaimableDeposit(Participation memory participation) private returns (uint) {
+    function calculateClaimableDeposit(Participation memory participation) private view returns (uint) {
         return totalDeposit * participation.poolShares / totalPoolShares;
     }
 
     function hasPoolingEnded() private view returns (bool) {
         return block.number > poolingPeriodEndBlockNumber;
+    }
+
+    function buyAndSellToken() private view returns(address buyToken, address sellToken) {
+        if(isDepositTokenTurn) {
+            return (address(depositToken), address(secondaryToken));
+        } else {
+            return (address(secondaryToken), address(depositToken)); 
+        }
     }
 }
