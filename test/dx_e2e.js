@@ -43,14 +43,14 @@ contract("Trading", (accounts) => {
         1,
         10
       )
-      await waitUntilPriceIsXPercentOfPreviousPrice(depositToken, secondaryTokenMock, 1);
-/*
-      await depositTokenMock.givenAnyReturnUint(10)
-      const balanceOf = erc20.contract.methods.balanceOf(instance.address).encodeABI()
-      await depositTokenMock.givenMethodReturnUint(balanceOf, 10)
-      await instance.participateInAuction()
+     //  await waitUntilPriceIsXPercentOfPreviousPrice(depositToken, secondaryTokenMock, 1);
 
-	  assert.equal(await dx.sellerBalance.call(DxMgnPool.address, 0), 10)*/
+     //  await depositTokenMock.givenAnyReturnUint(10)
+     //  const balanceOf = erc20.contract.methods.balanceOf(instance.address).encodeABI()
+     //  await depositTokenMock.givenMethodReturnUint(balanceOf, 10)
+     //  await instance.participateInAuction()
+
+  	  // assert.equal(await dx.sellerBalance.call(DxMgnPool.address, 0), 10)*/
 	});
 });
 
