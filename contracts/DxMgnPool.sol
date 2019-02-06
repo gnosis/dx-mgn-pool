@@ -7,7 +7,7 @@ import "./interfaces/IDutchExchange.sol";
 import "@gnosis.pm/dx-contracts/contracts/TokenFRT.sol";
 
 
-contract DxMgnPool {
+contract DxMgnPool is Ownable {
     using SafeMath for uint;
 
     struct Participation {
