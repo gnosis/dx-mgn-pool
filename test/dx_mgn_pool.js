@@ -43,7 +43,7 @@ contract("DxMgnPool", (accounts) => {
 
       await truffleAssert.reverts(instance.deposit(10), "Failed to transfer deposit")
     })
-    it("address can deposit multiple times", async() => {
+    it("address can make deposit smaller than total deposit thus far", async() => {
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
@@ -54,14 +54,14 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenAnyReturnUint(42)
 
       await instance.deposit(10)
-      await instance.deposit(20)
+      await instance.deposit(5)
 
       assert.equal(await instance.numberOfParticipations.call(accounts[0]), 2)
       const participation = await instance.participationAtIndex.call(accounts[0], 1)
-      assert.equal(participation[1], 20)
+      assert.equal(participation[1], 5)
 
-      assert.equal(await instance.totalDeposit.call(), 30)
-      assert.equal(await instance.totalPoolShares.call(), 30)
+      assert.equal(await instance.totalDeposit.call(), 15)
+      assert.equal(await instance.totalPoolShares.call(), 15)
     })
   })
 
@@ -117,6 +117,38 @@ contract("DxMgnPool", (accounts) => {
       const poolingEndBlock = (await web3.eth.getBlockNumber()) - 1
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
       
+      await truffleAssert.reverts(instance.participateInAuction(), "Pooling period is over")
+    })
+    it("pooling period ends only after even amount of autcions", async() => {
+      const dx = await DutchExchange.new()
+
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      
+      await depositTokenMock.givenAnyReturnBool(true)
+
+      await dxMock.givenAnyReturnUint(1)
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      let tupleResponse = (abi.rawEncode(["uint", "uint"], [1, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
+
+      await instance.deposit(10)
+      await instance.participateInAuction()
+      await waitForNBlocks(100, accounts[0])
+
+      await dxMock.givenAnyReturnUint(2)
+      tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+
+      await instance.participateInAuction()
+
+      await dxMock.givenAnyReturnUint(3)
       await truffleAssert.reverts(instance.participateInAuction(), "Pooling period is over")
     })
     it("cannot participate twice with same auction id", async() => {
@@ -197,7 +229,6 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(postSellOrder, reponseType)
 
       await instance.deposit(10)
-      await instance.participateInAuction()
       await waitForNBlocks(100, accounts[0])
       await instance.withdrawDeposit()
 
@@ -226,7 +257,6 @@ contract("DxMgnPool", (accounts) => {
       
       await instance.deposit(10)
       await instance.deposit(10)
-      await instance.participateInAuction()
       await waitForNBlocks(100, accounts[0])
       await instance.withdrawDeposit()
 
@@ -254,8 +284,7 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(postSellOrder, reponseType)
 
       await instance.deposit(10)
-      await instance.participateInAuction()
-      
+
       await waitForNBlocks(100, accounts[0])
       await depositTokenMock.givenAnyReturnBool(true)
 
@@ -299,8 +328,7 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(postSellOrder, reponseType)
 
       await instance.deposit(10)
-      await instance.participateInAuction()
-      
+
       await waitForNBlocks(100, accounts[0])
 
       await depositTokenMock.givenAnyReturnBool(false)
@@ -359,10 +387,16 @@ contract("DxMgnPool", (accounts) => {
 
       await dxMock.givenAnyReturnUint(2)
       const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
-      const reponseType = (abi.rawEncode(["uint", "uint"], [2, 0]))
-      await dxMock.givenMethodReturn(postSellOrder, reponseType)
+      const tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
 
       await instance.deposit(10)
+      await instance.participateInAuction()
+      
+      await dxMock.givenAnyReturnUint(3)
+      await dxMock.givenMethodReturn(postSellOrder, abi.rawEncode(["uint", "uint"], [3, 0]))
       await instance.participateInAuction()
       
       await waitForNBlocks(100, accounts[0])
@@ -398,14 +432,17 @@ contract("DxMgnPool", (accounts) => {
       
       await dxMock.givenAnyReturnUint(10)
       const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
-      const reponseType = (abi.rawEncode(["uint", "uint"], [2, 0]))
-      await dxMock.givenMethodReturn(postSellOrder, reponseType)
+      const tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
 
       const balanceOf = mgnToken.contract.methods.balanceOf(accounts[0]).encodeABI()
       await mgnTokenMock.givenAnyReturnBool(true)
       await mgnTokenMock.givenMethodReturnUint(balanceOf, 100)
 
       await instance.deposit(10)
+      await instance.participateInAuction()
       await instance.participateInAuction()
 
       await waitForNBlocks(100, accounts[0])
@@ -442,12 +479,15 @@ contract("DxMgnPool", (accounts) => {
       
       await dxMock.givenAnyReturnUint(10)
       const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
-      const reponseType = (abi.rawEncode(["uint", "uint"], [2, 0]))
-      await dxMock.givenMethodReturn(postSellOrder, reponseType)
+      const tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
 
       await mgnTokenMock.givenAnyReturnUint(100)
 
       await instance.deposit(10)
+      await instance.participateInAuction()
       await instance.participateInAuction()
       await waitForNBlocks(100, accounts[0])
       await instance.withdrawUnlockedMagnoliaFromDx()
@@ -471,14 +511,17 @@ contract("DxMgnPool", (accounts) => {
       
       await dxMock.givenAnyReturnUint(10)
       const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
-      const reponseType = (abi.rawEncode(["uint", "uint"], [2, 0]))
-      await dxMock.givenMethodReturn(postSellOrder, reponseType)
+      const tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
 
       const balanceOf = mgnToken.contract.methods.balanceOf(accounts[0]).encodeABI()
       await mgnTokenMock.givenAnyReturnBool(false)
       await mgnTokenMock.givenMethodReturnUint(balanceOf, 100)
 
       await instance.deposit(10)
+      await instance.participateInAuction()
       await instance.participateInAuction()
 
       await waitForNBlocks(100, accounts[0])
