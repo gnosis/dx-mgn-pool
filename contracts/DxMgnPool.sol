@@ -1,10 +1,11 @@
 pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./interfaces/IDutchExchange.sol";
 import "@gnosis.pm/dx-contracts/contracts/TokenFRT.sol";
 
-contract DxMgnPool {
+contract DxMgnPool is Ownable{
 
     struct Participation {
         uint startAuctionCount; // how many auction passed when this participation started contributing
@@ -41,7 +42,9 @@ contract DxMgnPool {
         TokenFRT _mgnToken, 
         IDutchExchange _dx,
         uint _poolingPeriodEndBlockNumber
-    ) public {
+    ) public 
+    Ownable()
+    {
         depositToken = _depositToken;
         secondaryToken = _secondaryToken;
         mgnToken = _mgnToken;
@@ -91,7 +94,7 @@ contract DxMgnPool {
         require(mgnToken.transfer(msg.sender, totalMgnClaimed), "Failed to transfer MGN");
     }
 
-    function participateInAuction() public {
+    function participateInAuction() public  onlyOwner() {
         require(currentState() == State.Pooling, "Pooling period is over.");
 
         uint auctionIndex = dx.getAuctionIndex(address(depositToken), address(secondaryToken));
