@@ -135,7 +135,7 @@ contract DxMgnPool {
 
     function withdrawUnlockedMagnoliaFromDx() public {
         require(currentState() == State.PoolingEnded, "Pooling period is not yet over.");
-
+        
         mgnToken.withdrawUnlockedTokens();
         totalMgn = mgnToken.balanceOf(address(this));
     }
