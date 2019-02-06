@@ -159,7 +159,7 @@ contract DxMgnPool {
         if (totalDeposit == 0) {
             return amount;
         } else {
-            return (amount / totalDeposit) * totalPoolShares;
+            return totalPoolShares * amount / totalDeposit;
         }
     }
     
