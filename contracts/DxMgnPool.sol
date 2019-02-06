@@ -1,11 +1,13 @@
 pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./interfaces/IDutchExchange.sol";
 import "@gnosis.pm/dx-contracts/contracts/TokenFRT.sol";
 
 
 contract DxMgnPool {
+    using SafeMath for uint;
 
     struct Participation {
         uint startAuctionCount; // how many auction passed when this participation started contributing
@@ -159,20 +161,20 @@ contract DxMgnPool {
         if (totalDeposit == 0) {
             return amount;
         } else {
-            return totalPoolShares * amount / totalDeposit;
+            return totalPoolShares.mul(amount) / totalDeposit;
         }
     }
     
     function calculateClaimableMgn(Participation memory participation) private view returns (uint) {
         uint duration = auctionCount - participation.startAuctionCount;
-        return totalMgn * participation.poolShares * duration / totalPoolSharesCummulative;
+        return totalMgn.mul(participation.poolShares).mul(duration) / totalPoolSharesCummulative;
     }
 
     function calculateClaimableDeposit(Participation memory participation) private view returns (uint) {
         if (participation.withdrawn) {
             return 0;
         }
-        return totalDeposit * participation.poolShares / totalPoolShares;
+        return totalDeposit.mul(participation.poolShares) / totalPoolShares;
     }
 
     function isDepositTokenTurn() private view returns (bool) {
