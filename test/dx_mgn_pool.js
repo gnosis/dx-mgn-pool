@@ -66,6 +66,26 @@ contract("DxMgnPool", (accounts) => {
   })
 
   describe("participateInAuction()", () => {
+    it("only owner can trigger it", async() => {
+      const dx = await DutchExchange.new()
+
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      
+      await depositTokenMock.givenAnyReturnBool(true)
+      
+      await dxMock.givenAnyReturnUint(42)
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      const postSellOrderResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, postSellOrderResponse)
+
+      await instance.deposit(10)
+      await truffleAssert.reverts(instance.participateInAuction({from: accounts[2]})) //ownable has no designated error messages
+    })
     it("updates auctionCount and cummulative shares", async() => {
       const dx = await DutchExchange.new()
 

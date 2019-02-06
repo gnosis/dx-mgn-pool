@@ -37,12 +37,12 @@
   },
   "devDependencies": {
     "solidity-coverage": "^0.5.11",
+    "@digix/tempo": "^0.2.0",
     "@gnosis.pm/truffle-nice-tools": "^1.2.1",
     "eslint": "^5.12.0",
     "ganache-cli": "^6.2.5",
     "truffle": "^5.0.2",
-    "truffle-flattener": "^1.2.10",
-    "@digix/tempo": "^0.2.0"
+    "truffle-flattener": "^1.2.10"
   },
   "dependencies": {
     "@gnosis.pm/mock-contract": "^3.0.7",
