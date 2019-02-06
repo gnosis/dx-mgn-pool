@@ -36,6 +36,7 @@
     "url": "https://github.com/gnosis/dx-mgn-pool/issues"
   },
   "devDependencies": {
+    "solidity-coverage": "^0.5.11",
     "@digix/tempo": "^0.2.0",
     "@gnosis.pm/truffle-nice-tools": "^1.2.1",
     "eslint": "^5.12.0",
