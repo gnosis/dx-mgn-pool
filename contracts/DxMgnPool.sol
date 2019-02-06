@@ -31,7 +31,6 @@ contract DxMgnPool {
     TokenFRT public mgnToken;
     IDutchExchange public dx;
 
-
     bool isDepositTokenTurn = true;
 
     uint public poolingPeriodEndBlockNumber;
@@ -124,21 +123,23 @@ contract DxMgnPool {
 
     function triggerMGNunlockAndClaimTokens() public {
         require(currentState() == State.PoolingEnded, "Pooling period is not yet over.");
-
+        require(
+            dx.getAuctionIndex(address(depositToken), address(secondaryToken)) > lastParticipatedAuctionIndex, 
+            "Last auction is still running"
+        );
+        
         mgnToken.unlockTokens();
-
-        uint auctionIndex = dx.getAuctionIndex(address(depositToken), address(secondaryToken));
-        require(auctionIndex > lastParticipatedAuctionIndex, "Has to wait for new auction to start");
+        
         (address sellToken, address buyToken) = buyAndSellToken();
-        if (lastParticipatedAuctionIndex != 0) {
-            dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
-        }
+        dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
         uint amount = dx.balances(address(depositToken), address(this));
         dx.withdraw(address(depositToken), amount);
     }
 
 
-    function withdrawMGN() public {
+    function withdrawUnlockedMagnoliaFromDx() public {
+        require(currentState() == State.PoolingEnded, "Pooling period is not yet over.");
+
         mgnToken.withdrawUnlockedTokens();
         totalMgn = mgnToken.balanceOf(address(this));
     }
@@ -158,7 +159,6 @@ contract DxMgnPool {
     /**
      * Internal Helpers
      */
-     
     function calculatePoolShares(uint amount) private view returns (uint) {
         if (totalDeposit == 0) {
             return amount;
