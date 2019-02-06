@@ -4,6 +4,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "./interfaces/IDutchExchange.sol";
 import "@gnosis.pm/dx-contracts/contracts/TokenFRT.sol";
 
+
 contract DxMgnPool {
 
     struct Participation {
@@ -30,8 +31,6 @@ contract DxMgnPool {
     ERC20 public secondaryToken;
     TokenFRT public mgnToken;
     IDutchExchange public dx;
-
-    bool isDepositTokenTurn = true;
 
     uint public poolingPeriodEndBlockNumber;
 
@@ -99,8 +98,8 @@ contract DxMgnPool {
 
         (address sellToken, address buyToken) = buyAndSellToken();
         uint depositAmount = depositToken.balanceOf(address(this));
-        if (isDepositTokenTurn && depositAmount > 0){
-            //depositng new tokens
+        if (isDepositTokenTurn() && depositAmount > 0) {
+            //depositing new tokens
             depositToken.approve(address(dx), depositAmount);
             dx.deposit(address(depositToken), depositAmount);
         }
@@ -110,13 +109,11 @@ contract DxMgnPool {
         }
 
         uint amount = dx.balances(address(sellToken), address(this));
-        if (isDepositTokenTurn) {
+        if (isDepositTokenTurn()) {
             totalDeposit = amount;
         }
 
         (lastParticipatedAuctionIndex, ) = dx.postSellOrder(sellToken, buyToken, 0, amount);
-        isDepositTokenTurn = !isDepositTokenTurn;
-
         auctionCount += 1;
         totalPoolSharesCummulative += totalPoolShares;
     }
@@ -136,10 +133,9 @@ contract DxMgnPool {
         dx.withdraw(address(depositToken), amount);
     }
 
-
     function withdrawUnlockedMagnoliaFromDx() public {
         require(currentState() == State.PoolingEnded, "Pooling period is not yet over.");
-
+        
         mgnToken.withdrawUnlockedTokens();
         totalMgn = mgnToken.balanceOf(address(this));
     }
@@ -167,7 +163,7 @@ contract DxMgnPool {
         }
     }
     
-    function calculateClaimableMgn(Participation memory participation) private returns (uint) {
+    function calculateClaimableMgn(Participation memory participation) private view returns (uint) {
         uint duration = auctionCount - participation.startAuctionCount;
         return totalMgn * participation.poolShares * duration / totalPoolSharesCummulative;
     }
@@ -179,17 +175,19 @@ contract DxMgnPool {
         return totalDeposit * participation.poolShares / totalPoolShares;
     }
 
-    function currentState() public view returns (State) {
-        if (block.number < poolingPeriodEndBlockNumber) {
-            return State.Pooling;
-        } else if (totalMgn > 0) {
-            return State.MgnUnlocked;
+    function isDepositTokenTurn() private view returns (bool) {
+        return auctionCount % 2 == 0;
+    }
+
+    function currentState() private view returns (State) {
+        if (block.number >= poolingPeriodEndBlockNumber && isDepositTokenTurn()) {
+            return totalMgn > 0 ? State.MgnUnlocked : State.PoolingEnded;
         }
-        return State.PoolingEnded;
+        return State.Pooling;
     }
 
     function buyAndSellToken() private view returns(address buyToken, address sellToken) {
-        if(isDepositTokenTurn) {
+        if (isDepositTokenTurn()) {
             return (address(depositToken), address(secondaryToken));
         } else {
             return (address(secondaryToken), address(depositToken)); 
