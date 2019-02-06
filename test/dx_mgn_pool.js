@@ -66,7 +66,7 @@ contract("DxMgnPool", (accounts) => {
   })
 
   describe("participateInAuction()", () => {
-    it("non-owner can't ping it", async() => {
+    it("only owner can trigger it", async() => {
       const dx = await DutchExchange.new()
 
       const depositTokenMock = await MockContract.new()

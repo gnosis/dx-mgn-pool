@@ -42,8 +42,7 @@ contract DxMgnPool is Ownable{
         TokenFRT _mgnToken, 
         IDutchExchange _dx,
         uint _poolingPeriodEndBlockNumber
-    ) public 
-    Ownable()
+    ) public Ownable()
     {
         depositToken = _depositToken;
         secondaryToken = _secondaryToken;
