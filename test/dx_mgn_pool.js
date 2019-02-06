@@ -99,6 +99,38 @@ contract("DxMgnPool", (accounts) => {
       
       await truffleAssert.reverts(instance.participateInAuction(), "Pooling period is over")
     })
+    it("pooling period ends only after even amount of autcions", async() => {
+      const dx = await DutchExchange.new()
+
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      
+      await depositTokenMock.givenAnyReturnBool(true)
+
+      await dxMock.givenAnyReturnUint(1)
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      let tupleResponse = (abi.rawEncode(["uint", "uint"], [1, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
+
+      await instance.deposit(10)
+      await instance.participateInAuction()
+      await waitForNBlocks(100, accounts[0])
+
+      await dxMock.givenAnyReturnUint(2)
+      tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+
+      await instance.participateInAuction()
+
+      await dxMock.givenAnyReturnUint(3)
+      await truffleAssert.reverts(instance.participateInAuction(), "Pooling period is over")
+    })
     it("cannot participate twice with same auction id", async() => {
       const dx = await DutchExchange.new()
 
