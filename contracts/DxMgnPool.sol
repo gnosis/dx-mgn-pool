@@ -31,8 +31,6 @@ contract DxMgnPool {
     TokenFRT public mgnToken;
     IDutchExchange public dx;
 
-    bool isDepositTokenTurn = true;
-
     uint public poolingPeriodEndBlockNumber;
 
     constructor (
@@ -99,7 +97,7 @@ contract DxMgnPool {
 
         (address sellToken, address buyToken) = buyAndSellToken();
         uint depositAmount = depositToken.balanceOf(address(this));
-        if (isDepositTokenTurn && depositAmount > 0){
+        if (isDepositTokenTurn() && depositAmount > 0){
             //depositng new tokens
             depositToken.approve(address(dx), depositAmount);
             dx.deposit(address(depositToken), depositAmount);
@@ -110,13 +108,11 @@ contract DxMgnPool {
         }
 
         uint amount = dx.balances(address(sellToken), address(this));
-        if (isDepositTokenTurn) {
+        if (isDepositTokenTurn()) {
             totalDeposit = amount;
         }
 
         (lastParticipatedAuctionIndex, ) = dx.postSellOrder(sellToken, buyToken, 0, amount);
-        isDepositTokenTurn = !isDepositTokenTurn;
-
         auctionCount += 1;
         totalPoolSharesCummulative += totalPoolShares;
     }
@@ -179,6 +175,10 @@ contract DxMgnPool {
         return totalDeposit * participation.poolShares / totalPoolShares;
     }
 
+    function isDepositTokenTurn() private view returns (bool) {
+        return lastParticipatedAuctionIndex % 2 == 0;
+    }
+
     function currentState() public view returns (State) {
         if (block.number < poolingPeriodEndBlockNumber) {
             return State.Pooling;
@@ -189,7 +189,7 @@ contract DxMgnPool {
     }
 
     function buyAndSellToken() private view returns(address buyToken, address sellToken) {
-        if(isDepositTokenTurn) {
+        if(isDepositTokenTurn()) {
             return (address(depositToken), address(secondaryToken));
         } else {
             return (address(secondaryToken), address(depositToken)); 
