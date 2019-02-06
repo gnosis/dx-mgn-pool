@@ -133,8 +133,8 @@ contract DxMgnPool is Ownable {
         
         (address sellToken, address buyToken) = buyAndSellToken();
         dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
-        uint amount = dx.balances(address(depositToken), address(this));
-        dx.withdraw(address(depositToken), amount);
+        totalDeposit = dx.balances(address(depositToken), address(this));
+        dx.withdraw(address(depositToken), totalDeposit);
     }
 
     function withdrawUnlockedMagnoliaFromDx() public {
