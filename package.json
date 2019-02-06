@@ -45,12 +45,13 @@
     "truffle-flattener": "^1.2.10"
   },
   "dependencies": {
-    "@gnosis.pm/mock-contract": "^3.0.7",
-    "openzeppelin-solidity": "^2.1.2",
-    "truffle-assertions": "^0.7.2",
     "@gnosis.pm/dx-contracts": "2.0.0-RC15",
     "@gnosis.pm/gno-token": "^2.0.0-RC3",
+    "@gnosis.pm/mock-contract": "^3.0.7",
     "@gnosis.pm/util-contracts": "^2.0.0-RC2",
+    "cron": "^1.6.0",
+    "openzeppelin-solidity": "^2.1.2",
+    "truffle-assertions": "^0.7.2",
     "truffle-hdwallet-provider": "^1.0.2"
   },
   "homepage": "https://github.com/gnosis/dx-mgn-pool#readme"
