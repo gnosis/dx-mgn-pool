@@ -163,7 +163,7 @@ contract DxMgnPool {
         }
     }
     
-    function calculateClaimableMgn(Participation memory participation) private returns (uint) {
+    function calculateClaimableMgn(Participation memory participation) private view returns (uint) {
         uint duration = auctionCount - participation.startAuctionCount;
         return totalMgn * participation.poolShares * duration / totalPoolSharesCummulative;
     }

@@ -209,7 +209,6 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(postSellOrder, reponseType)
 
       await instance.deposit(10)
-      await instance.participateInAuction()
       await waitForNBlocks(100, accounts[0])
       await instance.withdrawDeposit()
 
@@ -238,7 +237,6 @@ contract("DxMgnPool", (accounts) => {
       
       await instance.deposit(10)
       await instance.deposit(10)
-      await instance.participateInAuction()
       await waitForNBlocks(100, accounts[0])
       await instance.withdrawDeposit()
 
@@ -266,8 +264,7 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(postSellOrder, reponseType)
 
       await instance.deposit(10)
-      await instance.participateInAuction()
-      
+
       await waitForNBlocks(100, accounts[0])
       await depositTokenMock.givenAnyReturnBool(true)
 
@@ -311,8 +308,7 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(postSellOrder, reponseType)
 
       await instance.deposit(10)
-      await instance.participateInAuction()
-      
+
       await waitForNBlocks(100, accounts[0])
 
       await depositTokenMock.givenAnyReturnBool(false)
@@ -371,10 +367,16 @@ contract("DxMgnPool", (accounts) => {
 
       await dxMock.givenAnyReturnUint(2)
       const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
-      const reponseType = (abi.rawEncode(["uint", "uint"], [2, 0]))
-      await dxMock.givenMethodReturn(postSellOrder, reponseType)
+      const tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
 
       await instance.deposit(10)
+      await instance.participateInAuction()
+      
+      await dxMock.givenAnyReturnUint(3)
+      await dxMock.givenMethodReturn(postSellOrder, abi.rawEncode(["uint", "uint"], [3, 0]))
       await instance.participateInAuction()
       
       await waitForNBlocks(100, accounts[0])
@@ -410,14 +412,17 @@ contract("DxMgnPool", (accounts) => {
       
       await dxMock.givenAnyReturnUint(10)
       const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
-      const reponseType = (abi.rawEncode(["uint", "uint"], [2, 0]))
-      await dxMock.givenMethodReturn(postSellOrder, reponseType)
+      const tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
 
       const balanceOf = mgnToken.contract.methods.balanceOf(accounts[0]).encodeABI()
       await mgnTokenMock.givenAnyReturnBool(true)
       await mgnTokenMock.givenMethodReturnUint(balanceOf, 100)
 
       await instance.deposit(10)
+      await instance.participateInAuction()
       await instance.participateInAuction()
 
       await waitForNBlocks(100, accounts[0])
@@ -454,12 +459,15 @@ contract("DxMgnPool", (accounts) => {
       
       await dxMock.givenAnyReturnUint(10)
       const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
-      const reponseType = (abi.rawEncode(["uint", "uint"], [2, 0]))
-      await dxMock.givenMethodReturn(postSellOrder, reponseType)
+      const tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
 
       await mgnTokenMock.givenAnyReturnUint(100)
 
       await instance.deposit(10)
+      await instance.participateInAuction()
       await instance.participateInAuction()
       await waitForNBlocks(100, accounts[0])
       await instance.withdrawUnlockedMagnoliaFromDx()
@@ -483,14 +491,17 @@ contract("DxMgnPool", (accounts) => {
       
       await dxMock.givenAnyReturnUint(10)
       const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
-      const reponseType = (abi.rawEncode(["uint", "uint"], [2, 0]))
-      await dxMock.givenMethodReturn(postSellOrder, reponseType)
+      const tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
 
       const balanceOf = mgnToken.contract.methods.balanceOf(accounts[0]).encodeABI()
       await mgnTokenMock.givenAnyReturnBool(false)
       await mgnTokenMock.givenMethodReturnUint(balanceOf, 100)
 
       await instance.deposit(10)
+      await instance.participateInAuction()
       await instance.participateInAuction()
 
       await waitForNBlocks(100, accounts[0])
