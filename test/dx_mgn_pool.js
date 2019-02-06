@@ -66,7 +66,6 @@ contract("DxMgnPool", (accounts) => {
   })
 
   describe("participateInAuction()", () => {
-
     it("non-owner can't ping it", async() => {
       const dx = await DutchExchange.new()
 
