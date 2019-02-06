@@ -287,20 +287,118 @@ contract("DxMgnPool", (accounts) => {
       await truffleAssert.reverts(instance.withdrawDeposit(), "Failed to transfer deposit")
     })
   })
-  describe("triggerMGNunlocking()", () => {
-    it("fails if trigger is asked to early", async () => {
+  describe("triggerMGNunlockAndClaimTokens()", () => {
+    it("unlocksMGN, claims and withdraws depositToken", async () => {
+      const dx = await DutchExchange.new()
+      const mgn = await TokenFRT.new()
+
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const mgnToken = await TokenFRT.deployed()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) - 1
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+
+      await dxMock.givenAnyReturnUint(42)
+      const tupleResponse = (abi.rawEncode(["uint", "uint"], [42, 0]))
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
+
+      const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
+      await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
+
+      await instance.triggerMGNunlockAndClaimTokens()
+
+      const withdraw = dx.contract.methods.withdraw(depositTokenMock.address, 42).encodeABI()
+      assert.equal(await dxMock.invocationCountForCalldata.call(withdraw), 1)
+    })
+    it("fails if still pooling", async () => {
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
       const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
 
       await truffleAssert.reverts(instance.triggerMGNunlockAndClaimTokens(), "Pooling period is not yet over.")
     })
+    it("fails if last auction still running", async () => {
+      const token = await ERC20.new()
+      const dx = await DutchExchange.new()
+
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      
+      const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await depositTokenMock.givenAnyReturnBool(true)
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
+
+      await dxMock.givenAnyReturnUint(2)
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      const reponseType = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, reponseType)
+
+      await instance.deposit(10)
+      await instance.participateInAuction()
+      
+      await waitForNBlocks(100, accounts[0])
+
+      await truffleAssert.reverts(instance.triggerMGNunlockAndClaimTokens(), "Last auction is still running")
+    })
+  })
+  describe("withdrawUnlockedMagnoliaFromDx()", () => {
+    it("fails if still pooling", async () => {
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+
+      await truffleAssert.reverts(instance.withdrawUnlockedMagnoliaFromDx(), "Pooling period is not yet over.")
+    })
   })
   describe("withdrawMagnolia()", () => {
+    it("withdraws the right amount of MGN", async () => {
+      const mgnToken = await TokenFRT.new()
+
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const dx = await DutchExchange.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      
+      await depositTokenMock.givenAnyReturnBool(true)
+      
+      await dxMock.givenAnyReturnUint(10)
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      const reponseType = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, reponseType)
+
+      const balanceOf = mgnToken.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await mgnTokenMock.givenAnyReturnBool(true)
+      await mgnTokenMock.givenMethodReturnUint(balanceOf, 100)
+
+      await instance.deposit(10)
+      await instance.participateInAuction()
+
+      await waitForNBlocks(100, accounts[0])
+      await instance.withdrawUnlockedMagnoliaFromDx()
+      
+      assert.equal(await instance.totalMgn.call(), 100)
+
+      await instance.withdrawDeposit()
+      await instance.withdrawMagnolia()
+
+      const mgnTransfer = mgnToken.contract.methods.transfer(accounts[0], 100).encodeABI()
+      assert.equal(await mgnTokenMock.invocationCountForCalldata.call(mgnTransfer), 1)
+    })
     it("fails if Magnolia was not unlocked", async () => {
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
@@ -311,41 +409,63 @@ contract("DxMgnPool", (accounts) => {
 
       await truffleAssert.reverts(instance.withdrawMagnolia(), "MGN has not been unlocked, yet")
     })
-    it("withdraws the right amount of MGN", async () => {
+    it("fails if deposit was not withdrawn", async () => {
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
-      const mgnToken = await TokenFRT.deployed()
       const dxMock = await MockContract.new()
       const dx = await DutchExchange.new()
       const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
       
       await depositTokenMock.givenAnyReturnBool(true)
-      await instance.deposit(10)
-
+      
       await dxMock.givenAnyReturnUint(10)
       const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
       const reponseType = (abi.rawEncode(["uint", "uint"], [2, 0]))
       await dxMock.givenMethodReturn(postSellOrder, reponseType)
+
+      await mgnTokenMock.givenAnyReturnUint(100)
+
+      await instance.deposit(10)
       await instance.participateInAuction()
-
-      await waitForNBlocks(101, accounts[0])
-
-      const balanceOf = mgnToken.contract.methods.balanceOf(accounts[0]).encodeABI()
-      await mgnTokenMock.givenMethodReturnUint(balanceOf, 100)      
-
-      await instance.withdrawMGN()
+      await waitForNBlocks(100, accounts[0])
+      await instance.withdrawUnlockedMagnoliaFromDx()
       
       assert.equal(await instance.totalMgn.call(), 100)
 
+      await truffleAssert.reverts(instance.withdrawMagnolia(), "Withdraw deposits first")
+    })
+    it("fails if MGN transfer fails", async () => {
+      const mgnToken = await TokenFRT.new()
+
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const dx = await DutchExchange.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      
+      await depositTokenMock.givenAnyReturnBool(true)
+      
+      await dxMock.givenAnyReturnUint(10)
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      const reponseType = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, reponseType)
+
+      const balanceOf = mgnToken.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await mgnTokenMock.givenAnyReturnBool(false)
+      await mgnTokenMock.givenMethodReturnUint(balanceOf, 100)
+
+      await instance.deposit(10)
+      await instance.participateInAuction()
+
+      await waitForNBlocks(100, accounts[0])
+      await instance.withdrawUnlockedMagnoliaFromDx()
       await instance.withdrawDeposit()
 
-      await mgnTokenMock.givenAnyReturnBool(true)
-      await instance.withdrawMagnolia()
-
-      const mgnTransfer = mgnToken.contract.methods.transfer(accounts[0], 100).encodeABI()
-      assert.equal(await mgnTokenMock.invocationCountForCalldata.call(mgnTransfer), 1)
+      await truffleAssert.reverts(instance.withdrawMagnolia(), "Failed to transfer MGN")
     })
   })
 })
