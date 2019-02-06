@@ -176,7 +176,7 @@ contract DxMgnPool {
     }
 
     function isDepositTokenTurn() private view returns (bool) {
-        return lastParticipatedAuctionIndex % 2 == 0;
+        return auctionCount % 2 == 0;
     }
 
     function currentState() public view returns (State) {
