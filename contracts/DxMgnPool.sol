@@ -4,6 +4,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "./interfaces/IDutchExchange.sol";
 import "@gnosis.pm/dx-contracts/contracts/TokenFRT.sol";
 
+
 contract DxMgnPool {
 
     struct Participation {
@@ -97,8 +98,8 @@ contract DxMgnPool {
 
         (address sellToken, address buyToken) = buyAndSellToken();
         uint depositAmount = depositToken.balanceOf(address(this));
-        if (isDepositTokenTurn() && depositAmount > 0){
-            //depositng new tokens
+        if (isDepositTokenTurn() && depositAmount > 0) {
+            //depositing new tokens
             depositToken.approve(address(dx), depositAmount);
             dx.deposit(address(depositToken), depositAmount);
         }
@@ -131,7 +132,6 @@ contract DxMgnPool {
         uint amount = dx.balances(address(depositToken), address(this));
         dx.withdraw(address(depositToken), amount);
     }
-
 
     function withdrawUnlockedMagnoliaFromDx() public {
         require(currentState() == State.PoolingEnded, "Pooling period is not yet over.");
@@ -179,17 +179,15 @@ contract DxMgnPool {
         return auctionCount % 2 == 0;
     }
 
-    function currentState() public view returns (State) {
-        if (block.number < poolingPeriodEndBlockNumber) {
-            return State.Pooling;
-        } else if (totalMgn > 0) {
-            return State.MgnUnlocked;
+    function currentState() private view returns (State) {
+        if (block.number >= poolingPeriodEndBlockNumber && isDepositTokenTurn()) {
+            return totalMgn > 0 ? State.MgnUnlocked : State.PoolingEnded;
         }
-        return State.PoolingEnded;
+        return State.Pooling;
     }
 
     function buyAndSellToken() private view returns(address buyToken, address sellToken) {
-        if(isDepositTokenTurn()) {
+        if (isDepositTokenTurn()) {
             return (address(depositToken), address(secondaryToken));
         } else {
             return (address(secondaryToken), address(depositToken)); 
