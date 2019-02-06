@@ -43,7 +43,7 @@ contract("DxMgnPool", (accounts) => {
 
       await truffleAssert.reverts(instance.deposit(10), "Failed to transfer deposit")
     })
-    it("address can deposit multiple times", async() => {
+    it("address can make deposit smaller than total deposit thus far", async() => {
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
@@ -54,14 +54,14 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenAnyReturnUint(42)
 
       await instance.deposit(10)
-      await instance.deposit(20)
+      await instance.deposit(5)
 
       assert.equal(await instance.numberOfParticipations.call(accounts[0]), 2)
       const participation = await instance.participationAtIndex.call(accounts[0], 1)
-      assert.equal(participation[1], 20)
+      assert.equal(participation[1], 5)
 
-      assert.equal(await instance.totalDeposit.call(), 30)
-      assert.equal(await instance.totalPoolShares.call(), 30)
+      assert.equal(await instance.totalDeposit.call(), 15)
+      assert.equal(await instance.totalPoolShares.call(), 15)
     })
   })
 
