@@ -113,10 +113,9 @@ contract DxMgnPool is Ownable {
             dx.deposit(address(depositToken), depositAmount);
         }
 
-        if (lastParticipatedAuctionIndex != 0 &&
-            dx.sellerBalances(buyToken, sellToken, lastParticipatedAuctionIndex, address(this)) > 0 )
+        if (lastParticipatedAuctionIndex != 0)
         {
-            dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
+            address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", buyToken, sellToken, address(this), lastParticipatedAuctionIndex));
         }
 
         uint amount = dx.balances(address(sellToken), address(this));
@@ -137,11 +136,13 @@ contract DxMgnPool is Ownable {
         );
         
         (address sellToken, address buyToken) = buyAndSellToken();
-        dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
-
+        address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", buyToken, sellToken, address(this), lastParticipatedAuctionIndex));
+       
         mgnToken.unlockTokens();
         totalDeposit = dx.balances(address(depositToken), address(this));
-        dx.withdraw(address(depositToken), totalDeposit);
+        if(totalDeposit > 0){
+            dx.withdraw(address(depositToken), totalDeposit);
+        }
     }
 
     function withdrawUnlockedMagnoliaFromDx() public {

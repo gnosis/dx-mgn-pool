@@ -31,7 +31,6 @@ contract("e2e - tests", (accounts) => {
 
     // approving Tokens for MGN generation
     await dx.updateApprovalOfToken([token_1.address, token_2.address], [true, true])
-
     // do the necessary fundings
     const oneEth = new BN("1000000000000000000")
     const oneGwei = new BN("10000000000000000")
