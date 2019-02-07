@@ -67,7 +67,6 @@ contract DxMgnPool is Ownable {
         totalDeposit += amount;
 
         require(depositToken.transferFrom(msg.sender, address(this), amount), "Failed to transfer deposit");
-        emit NewDeposit(amount, msg.sender);
     }
 
     function withdrawDeposit() public {
@@ -201,6 +200,4 @@ contract DxMgnPool is Ownable {
             return (address(secondaryToken), address(depositToken)); 
         }
     }
-
-    event NewDeposit(uint amount, address sender);
 }
