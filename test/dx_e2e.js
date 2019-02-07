@@ -163,11 +163,3 @@ const waitUntilPriceIsXPercentOfPreviousPrice = async (ST, BT, p) => {
   // assert.isAtLeast(priceAfter, (priceBefore / 2) * p)
 }
 
-const tryToParticipate = async (coordinator) => {
-
-  try {
-    const ans = await coordinator.participateInAuction.call()
-    console.log(ans)
-  } catch (err) {
-  }
-}
