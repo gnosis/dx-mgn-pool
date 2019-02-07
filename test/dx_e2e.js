@@ -118,12 +118,12 @@ contract("e2e - tests", (accounts) => {
     let balBefore = await token_1.balanceOf.call(accounts[0]);
     await instance1.withdrawDeposit()
     let balAfter = await token_1.balanceOf.call(accounts[0]);
-    assert.equal(balAfter.sub(balBefore).toString(), DEPOSIT_1_1 - 1);
+    assert.isBelow(balAfter.sub(balBefore).toString() - (DEPOSIT_1_1 - 2), 5);
 
     balBefore = await token_2.balanceOf.call(accounts[0]);
     await instance2.withdrawDeposit()
     balAfter = await token_2.balanceOf.call(accounts[0]);
-    assert.equal(balAfter.sub(balBefore).toString(), DEPOSIT_2_1 - 2);
+    assert.isBelow(balAfter.sub(balBefore).toString()- (DEPOSIT_2_1 - 4) , 5);
 
     //wait until MGN is unlocked
     await increaseTimeBy(60 * 60 * 24 + 2)
@@ -133,12 +133,12 @@ contract("e2e - tests", (accounts) => {
     balBefore = await mgnToken.balanceOf.call(accounts[0]);
     await instance1.withdrawMagnolia()
     balAfter = await mgnToken.balanceOf.call(accounts[0]);
-    assert.equal(balAfter.sub(balBefore).toString(), 2 * DEPOSIT_1_1 - 1);
+    assert.isBelow(balAfter.sub(balBefore).toString() - (2 * DEPOSIT_1_1 - 1), 5);
 
     balBefore = await mgnToken.balanceOf.call(accounts[0]);
     await instance2.withdrawMagnolia()
     balAfter = await mgnToken.balanceOf.call(accounts[0]);
-    assert.equal(balAfter.sub(balBefore).toString(), 2 * DEPOSIT_2_1 - 2);
+    assert.isBelow(balAfter.sub(balBefore).toString() - (2 * DEPOSIT_2_1 - 2), 4);
 
   })
 })
