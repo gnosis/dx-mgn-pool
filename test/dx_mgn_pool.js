@@ -25,6 +25,9 @@ contract("DxMgnPool", (accounts) => {
       await instance.deposit(10)
 
       assert.equal(await instance.numberOfParticipations.call(accounts[0]), 1)
+      const participation = await instance.participationAtIndex.call(accounts[0], 0)
+      assert.equal(participation[1], 10)
+      
       assert.equal(await instance.totalDeposit.call(), 10)
       assert.equal(await instance.totalPoolShares.call(), 10)
     })
