@@ -57,12 +57,8 @@ contract DxMgnPool is Ownable {
      */
     function deposit(uint amount) public {
         uint poolShares = calculatePoolShares(amount);
-        uint startingAuctionCount = auctionCount;
-        if (!isDepositTokenTurn()) {
-            startingAuctionCount++;
-        }
         Participation memory participation = Participation({
-            startAuctionCount: startingAuctionCount,
+            startAuctionCount: isDepositTokenTurn() ? auctionCount : auctionCount + 1,
             poolShares: poolShares,
             withdrawn: false
         });

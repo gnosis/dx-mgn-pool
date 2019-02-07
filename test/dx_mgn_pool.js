@@ -31,7 +31,7 @@ contract("DxMgnPool", (accounts) => {
       assert.equal(await instance.totalDeposit.call(), 10)
       assert.equal(await instance.totalPoolShares.call(), 10)
     })
-    it("checks right participationIndex", async () => {
+    it("first participation index is always even", async () => {
       const dx = await DutchExchange.new()
 
       const depositTokenMock = await MockContract.new()
