@@ -67,6 +67,7 @@ contract DxMgnPool is Ownable {
         totalDeposit += amount;
 
         require(depositToken.transferFrom(msg.sender, address(this), amount), "Failed to transfer deposit");
+        emit NewDeposit(amount, msg.sender);
     }
 
     function withdrawDeposit() public {
@@ -129,10 +130,10 @@ contract DxMgnPool is Ownable {
             "Last auction is still running"
         );
         
-        mgnToken.unlockTokens();
-        
         (address sellToken, address buyToken) = buyAndSellToken();
         dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
+
+        mgnToken.unlockTokens();
         totalDeposit = dx.balances(address(depositToken), address(this));
         dx.withdraw(address(depositToken), totalDeposit);
     }
@@ -197,4 +198,6 @@ contract DxMgnPool is Ownable {
             return (address(secondaryToken), address(depositToken)); 
         }
     }
+
+    event NewDeposit(uint amount, address sender);
 }
