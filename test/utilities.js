@@ -50,9 +50,7 @@ const increaseTimeBy = async (seconds) => {
   })
 }
 
-
 module.exports = {
-  mineCurrentBlock,
   increaseTimeBy,
   waitForNBlocks,
   timestamp,
