@@ -57,8 +57,12 @@ contract DxMgnPool is Ownable {
      */
     function deposit(uint amount) public {
         uint poolShares = calculatePoolShares(amount);
+        uint startingAuctionCount = auctionCount;
+        if (!isDepositTokenTurn()) {
+            startingAuctionCount++;
+        }
         Participation memory participation = Participation({
-            startAuctionCount: auctionCount,
+            startAuctionCount: startingAuctionCount,
             poolShares: poolShares,
             withdrawn: false
         });
@@ -109,7 +113,9 @@ contract DxMgnPool is Ownable {
             dx.deposit(address(depositToken), depositAmount);
         }
 
-        if (lastParticipatedAuctionIndex != 0) {
+        if (lastParticipatedAuctionIndex != 0 &&
+            dx.sellerBalances(buyToken, sellToken, lastParticipatedAuctionIndex, address(this)) > 0 )
+        {
             dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
         }
 
