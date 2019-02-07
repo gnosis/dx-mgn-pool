@@ -128,11 +128,12 @@ contract DxMgnPool is Ownable {
             dx.getAuctionIndex(address(depositToken), address(secondaryToken)) > lastParticipatedAuctionIndex, 
             "Last auction is still running"
         );
-        
-        mgnToken.unlockTokens();
-        
+               
         (address sellToken, address buyToken) = buyAndSellToken();
         dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
+
+        mgnToken.unlockTokens();
+
         uint amount = dx.balances(address(depositToken), address(this));
         dx.withdraw(address(depositToken), amount);
     }
