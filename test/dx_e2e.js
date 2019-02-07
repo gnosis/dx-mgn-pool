@@ -255,17 +255,18 @@ contract("e2e - tests", (accounts) => {
 const waitUntilPriceIsXPercentOfPreviousPrice = async (ST, BT, p) => {
   const dxProxy = await DXProxy.deployed()
   const dx = await DX.at(dxProxy.address)
-  const [getAuctionIndex, getAuctionStart] = await Promise.all([
-    dx.getAuctionIndex.call(ST.address, BT.address),
-    dx.getAuctionStart.call(ST.address, BT.address)
-  ])
-  const currentIndex = getAuctionIndex.toNumber()
+  const getAuctionStart = await dx.getAuctionStart.call(ST.address, BT.address)
   const startingTimeOfAuction = getAuctionStart.toNumber()
-  const priceBefore = 1
   const timeToWaitFor = Math.ceil((86400 - p * 43200) / (1 + p)) + startingTimeOfAuction
   // wait until the price is good
+  if (timeToWaitFor - await timestamp() < 0) {
+    return
+  }
   await increaseTimeBy(timeToWaitFor - await timestamp())
   assert.equal(await timestamp() >= timeToWaitFor, true)
   // assert.isAtLeast(priceAfter, (priceBefore / 2) * p)
 }
 
+module.exports = {
+  waitUntilPriceIsXPercentOfPreviousPrice
+}
