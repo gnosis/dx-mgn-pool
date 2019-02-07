@@ -17,7 +17,7 @@ const BN = web3.utils.BN
 
 contract("e2e - tests", (accounts) => {
   it("e2e tests for deposits: 1 deposit - 2x trading - withdraw", async () => {
-    const  token_2 = await TokenGNO.new("1111111111111111111111")
+    const  token_2 = await TokenGNO.new("111111111111111111111")
     const dxProxy = await DXProxy.deployed()
     const dx = await DX.at(dxProxy.address)
     const mgnToken = await TokenFRT.at(await dx.frtToken.call())
