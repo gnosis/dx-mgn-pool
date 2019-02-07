@@ -50,7 +50,6 @@
     "@gnosis.pm/gno-token": "^2.0.0-RC3",
     "@gnosis.pm/mock-contract": "^3.0.7",
     "@gnosis.pm/util-contracts": "^2.0.0-RC2",
-    "cron": "^1.6.0",
     "openzeppelin-solidity": "^2.1.2",
     "truffle-assertions": "^0.7.2",
     "truffle-hdwallet-provider": "^1.0.2"
