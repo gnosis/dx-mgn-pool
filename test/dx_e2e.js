@@ -29,8 +29,6 @@ contract("e2e - tests", (accounts) => {
     const instance1 = await DxMgnPool.at(await coordinator.dxMgnPool1.call())
     const instance2 = await DxMgnPool.at(await coordinator.dxMgnPool2.call())
 
-    await tryToParticipate()
-
     // approving Tokens for MGN generation
     await dx.updateApprovalOfToken([token_1.address, token_2.address], [true, true])
 
