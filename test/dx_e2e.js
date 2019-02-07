@@ -10,12 +10,12 @@ const DXProxy = artifacts.require("DutchExchangeProxy")
 const EtherToken = artifacts.require("EtherToken")
 
 const truffleAssert = require("truffle-assertions")
-const { waitForNBlocks, timeTravel, timestamp, increaseTimeBy } = require("./utilities")
+const { waitForNBlocks, timestamp, increaseTimeBy } = require("./utilities")
 const BN = web3.utils.BN
 
 
 contract("e2e - tests", (accounts) => {
-  it("adds a particpation and deposits them into first auction", async () => {
+  it("e2e tests for deposits: 1 deposit - 2x trading - withdraw", async () => {
     const secondaryTokenMock = await MockContract.new()
     const mgnTokenMock = await MockContract.new()
     const dxProxy = await DXProxy.deployed()
@@ -28,6 +28,9 @@ contract("e2e - tests", (accounts) => {
 
     const instance1 = await DxMgnPool.at(await coordinator.dxMgnPool1.call())
 
+    // approving Tokens for MGN generation
+    await dx.updateApprovalOfToken([epositToken.address,secondaryTokenMock.address], [true, true])
+    
     // do the necessary fundings
     const oneEth = new BN("1000000000000000000")
     const oneGwei = new BN("10000000000000000")
@@ -40,7 +43,7 @@ contract("e2e - tests", (accounts) => {
     await instance1.deposit(10)
     assert.equal(await instance1.numberOfParticipations.call(accounts[0]), 1)
 
-    //frist tokenPair needs to be funded first...
+    //first tokenPair needs to be funded first...
     await dx.deposit(depositToken.address, oneGwei.mul(new BN("5")).toString())
     await dx.deposit(secondaryTokenMock.address, oneGwei.mul(new BN("5")).toString())
     await dx.addTokenPair(
@@ -64,7 +67,7 @@ contract("e2e - tests", (accounts) => {
     await dx.postBuyOrder(depositToken.address, secondaryTokenMock.address, 1, oneGwei.toString())
     await dx.postBuyOrder(secondaryTokenMock.address, depositToken.address, 1, oneGwei.toString())
 
-    assert.equal(await dx.getAuctionIndex(depositToken.address, secondaryTokenMock.address),2)
+    assert.equal(await dx.getAuctionIndex(depositToken.address, secondaryTokenMock.address), 2)
 
     //claim funds  and post into next auction auction with more
     await dx.claimSellerFunds(depositToken.address, secondaryTokenMock.address, accounts[0], 1)
@@ -79,7 +82,7 @@ contract("e2e - tests", (accounts) => {
     await dx.postBuyOrder(depositToken.address, secondaryTokenMock.address, 2, oneGwei.toString())
     await dx.postBuyOrder(secondaryTokenMock.address, depositToken.address, 2, oneGwei.toString())
 
-    assert.equal(await dx.getAuctionIndex(depositToken.address, secondaryTokenMock.address),3)
+    assert.equal(await dx.getAuctionIndex(depositToken.address, secondaryTokenMock.address), 3)
     console.log("got second auction finished")
     await coordinator.participateInAuction()
 
@@ -96,14 +99,14 @@ contract("e2e - tests", (accounts) => {
     await dx.postBuyOrder(depositToken.address, secondaryTokenMock.address, 3, oneGwei.toString())
     await dx.postBuyOrder(secondaryTokenMock.address, depositToken.address, 3, oneGwei.toString())
 
-    assert.equal(await dx.getAuctionIndex(depositToken.address, secondaryTokenMock.address),4)
+    assert.equal(await dx.getAuctionIndex(depositToken.address, secondaryTokenMock.address), 4)
     console.log("got third auction finished")
 
     // end pool trading period:
     await waitForNBlocks(100, accounts[0])
 
     await instance1.triggerMGNunlockAndClaimTokens()
-    
+
     console.log("could withdraw balance")
     const balBefore = await depositToken.balanceOf.call(accounts[0]);
     await instance1.withdrawDeposit()
