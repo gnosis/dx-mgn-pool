@@ -131,9 +131,7 @@ contract DxMgnPool is Ownable {
                
         (address sellToken, address buyToken) = buyAndSellToken();
         dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
-
         mgnToken.unlockTokens();
-
         uint amount = dx.balances(address(depositToken), address(this));
         dx.withdraw(address(depositToken), amount);
     }
