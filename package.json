@@ -14,7 +14,8 @@
     "preversion": "npm run restore",
     "restore": "rm -rf build && npm run compile",
     "networks": "truffle networks",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "participate": "truffle exec scripts/participateInAuction.js"
   },
   "repository": {
     "type": "git",
