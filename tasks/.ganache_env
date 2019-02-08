@@ -1,2 +1,0 @@
-RPC_URL=host.docker.internal
-NETWORK=development
