@@ -1,1 +1,2 @@
+# RUN participate every minute
 *  *  *  *  *    npm run --silent --prefix /usr/src/app participate
