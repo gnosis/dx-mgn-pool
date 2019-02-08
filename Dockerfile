@@ -11,8 +11,7 @@ COPY package*.json truffle-config.js ./
 COPY contracts contracts
 
 # Compile necesary contracts for app and cleanup unnecesary files
-RUN apk add --update --no-cache --virtual build-dependencies git python make g++ ca-certificates && \
-    apk del build-dependencies && \
+RUN apk add --update --no-cache --virtual build-dependencies git python make bash g++ ca-certificates && \
     apk add --no-cache git
 
 COPY . .
@@ -21,6 +20,8 @@ COPY tasks/cron-task /etc/crontabs/root
 RUN chmod +x tasks/participate.sh
 
 RUN npm install
+
+RUN apk del build-dependencies
 
 RUN ./node_modules/.bin/truffle compile
 
