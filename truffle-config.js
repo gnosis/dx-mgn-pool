@@ -54,7 +54,7 @@ function truffleConfig ({
   return {
     networks: {
       development: {
-        host: urlDevelopment,
+        host: process.env.RPC_URL || urlDevelopment,
         port: portDevelopment,
         gas,
         gasPrice,
