@@ -28,4 +28,4 @@ deploy:
 - provider: script
   script: bash travscripts/deploy_docker.sh develop
   on:
-    branch: networking
+    branch: master
