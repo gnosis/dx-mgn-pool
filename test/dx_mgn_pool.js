@@ -27,9 +27,39 @@ contract("DxMgnPool", (accounts) => {
       assert.equal(await instance.numberOfParticipations.call(accounts[0]), 1)
       const participation = await instance.participationAtIndex.call(accounts[0], 0)
       assert.equal(participation[1], 10)
-
+      
       assert.equal(await instance.totalDeposit.call(), 10)
       assert.equal(await instance.totalPoolShares.call(), 10)
+    })
+    it("first participation index is always even", async () => {
+      const dx = await DutchExchange.new()
+
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+
+      await depositTokenMock.givenAnyReturnBool(true)
+      
+      await dxMock.givenAnyReturnUint(42)
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      const postSellOrderResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, postSellOrderResponse)
+
+      await instance.deposit(10)
+      await instance.participateInAuction()
+      await instance.deposit(100)
+
+      assert.equal(await instance.numberOfParticipations.call(accounts[0]), 2)
+    
+      let participationStruct  = await instance.participationsByAddress(accounts[0],0)
+      assert.equal(participationStruct.startAuctionCount, 0)
+      participationStruct  = await instance.participationsByAddress(accounts[0],1)
+      assert.equal(participationStruct.startAuctionCount, 2)
+
     })
     it("fails if transfer fails", async () => {
       const depositTokenMock = await MockContract.new()
