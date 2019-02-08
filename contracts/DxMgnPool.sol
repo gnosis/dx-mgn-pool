@@ -131,17 +131,20 @@ contract DxMgnPool is Ownable {
         // Don't revert if wen can't claimSellerFunds
         address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", secondaryToken, depositToken, address(this), lastParticipatedAuctionIndex));
         mgnToken.unlockTokens();
-        totalDeposit = dx.balances(address(depositToken), address(this));
+        totalDeposit += dx.balances(address(depositToken), address(this));
         if(totalDeposit > 0){
             dx.withdraw(address(depositToken), totalDeposit);
         }
     }
 
+    bool public isMagnoliaWithdrawnFromDX = false;
     function withdrawUnlockedMagnoliaFromDx() public {
-        require(currentState() == State.PoolingEnded, "Pooling period is not yet over.");
-        
-        mgnToken.withdrawUnlockedTokens();
+        require(currentState() == State.PoolingEnded, "Pooling period is not yet over");
+        require(!isMagnoliaWithdrawnFromDX, "Magnolia was already withdrawn");
+
         totalMgn = mgnToken.balanceOf(address(this));
+        mgnToken.withdrawUnlockedTokens();
+        isMagnoliaWithdrawnFromDX = true;
     }
 
     /**
