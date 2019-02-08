@@ -1,2 +1,2 @@
 # run participate every minute
-*  *  *  *  *   /usr/src/app/tasks/participate.sh
+*  *  *  *  *   /usr/src/app/tasks/participate.sh >> /var/log/participation.out 2>&1

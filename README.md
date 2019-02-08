@@ -42,3 +42,12 @@ For Rinkeby
 docker build --rm -t participate .
 docker run -t -i -e NETWORK=rinkeby participate
 ```
+
+To run this process in the background and check on the status of the job use, 
+
+```
+docker run -e NETWORK=rinkeby participate &
+docker ps
+docker exec -it <CONTAINER ID> sh
+tail -f /var/log/participation.out
+```
