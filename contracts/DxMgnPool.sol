@@ -128,9 +128,10 @@ contract DxMgnPool is Ownable {
         require(
             dx.getAuctionIndex(address(depositToken), address(secondaryToken)) > lastParticipatedAuctionIndex, 
             "Last auction is still running"
-        );      
+        );
+        
         (address sellToken, address buyToken) = buyAndSellToken();
-        dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
+        address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", buyToken, sellToken, address(this), lastParticipatedAuctionIndex));
         mgnToken.unlockTokens();
         totalDeposit = dx.balances(address(depositToken), address(this));
         if(totalDeposit > 0){

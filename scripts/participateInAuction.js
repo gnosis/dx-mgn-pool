@@ -1,8 +1,6 @@
 /* eslint-disable no-console */
 const Coordinator = artifacts.require("Coordinator")
 
-const assert = require("assert")
-
 module.exports = async (callback) => {
   try {
     const coordinator = await Coordinator.deployed()
