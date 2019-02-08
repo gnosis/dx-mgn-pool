@@ -26,6 +26,8 @@ module.exports = async (deployer, network, accounts) => {
     await deployGno(deployParams)
     await deployOwl(deployParams)
     await migrationsDx(deployParams)
+  } else if (network == 'rinkeby') {
+    console.log("DutchX was already deployed, skipping this migration setup")
   } else {
     throw new Error('Migrations are just for development. Current network is %s', network)
   }
