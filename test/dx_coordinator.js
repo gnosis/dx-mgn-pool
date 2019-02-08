@@ -37,4 +37,40 @@ contract("Coordinator", (accounts) => {
       assert.equal(await instance2.auctionCount.call(), 1)
     })
   })
+
+  describe("canParticipate()", () => {
+    it("True", async () => {
+      const dx = await DutchExchange.new()
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+
+      await depositTokenMock.givenAnyReturnBool(true)
+      await secondaryTokenMock.givenAnyReturnBool(true)
+
+      await dxMock.givenAnyReturnUint(42)
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      const postSellOrderResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, postSellOrderResponse)
+
+      assert.equal(await coordinator.canParticipate(), true)
+    })
+
+    it("False", async () => {
+      await DutchExchange.new()
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+
+      await dxMock.givenAnyReturnUint(0)
+
+      assert.equal(await coordinator.canParticipate(), false)
+    })
+  })
 })

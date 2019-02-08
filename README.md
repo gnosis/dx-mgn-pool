@@ -26,3 +26,19 @@ Mainnet:
 ```bash
 npm run migrate -- --network mainnet
 ```
+
+## Participation Bot
+
+For Ganache (deterministic)
+
+```
+docker build --rm -t participate .
+docker run -t -i --env-file ./tasks/.ganache_env participate
+```
+
+For Rinkeby
+
+```
+docker build --rm -t participate .
+docker run -t -i --env-file ./tasks/.ganache_env participate
+```

@@ -21,4 +21,14 @@ contract Coordinator {
         dxMgnPool1.participateInAuction();
         dxMgnPool2.participateInAuction();
     }
+
+    function canParticipate() public view returns (bool) {
+        uint auctionIndex = dxMgnPool1.dx().getAuctionIndex(
+            address(dxMgnPool1.depositToken()),
+            address(dxMgnPool1.secondaryToken())
+        );
+        // Since both auctions start at the same time, it suffices to check one.
+        return auctionIndex > dxMgnPool1.lastParticipatedAuctionIndex();
+    }
+
 }

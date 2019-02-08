@@ -1,0 +1,2 @@
+# RUN participate every minute
+*  *  *  *  *   /usr/src/app/tasks/participate.sh
