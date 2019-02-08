@@ -142,6 +142,9 @@ contract DxMgnPool is Ownable {
         require(currentState() == State.PoolingEnded, "Pooling period is not yet over");
         require(!isMagnoliaWithdrawnFromDX, "Magnolia was already withdrawn");
 
+        // Implicit we also have:
+        // require(unlockedTokens[msg.sender].withdrawalTime < now, "The tokens cannot be withdrawn yet");
+
         totalMgn = mgnToken.balanceOf(address(this));
         mgnToken.withdrawUnlockedTokens();
         isMagnoliaWithdrawnFromDX = true;
