@@ -16,6 +16,7 @@ before_script:
 script:
   - cd $TRAVIS_BUILD_DIR/travscripts
   - "chmod +x ./BranchScript.sh && ./BranchScript.sh"
+  - cd $TRAVIS_BUILD_DIR
 deploy:
 - provider: script
   script: bash travscripts/deploy_docker.sh staging
