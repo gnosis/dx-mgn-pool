@@ -24,6 +24,8 @@ RUN npm install
 
 RUN ./node_modules/.bin/truffle compile
 
+RUN npm run networks-inject
+
 # Apply cron job
 RUN crontab /etc/crontabs/root
 
