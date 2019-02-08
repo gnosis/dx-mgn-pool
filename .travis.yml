@@ -5,6 +5,9 @@ dist: trusty
 language: node_js
 node_js:
   - '8'
+env:
+  global:
+  - DOCKERHUB_PROJECT=dx-mgn-pool
 before_install:
   - rm -rf node_modules
   - npm install -g ganache-cli@6.2.5
