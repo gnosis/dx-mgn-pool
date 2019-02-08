@@ -33,5 +33,12 @@ For Ganache (deterministic)
 
 ```
 docker build --rm -t participate .
-docker run -t -i --env-file ./tasks/.contract_env participate
+docker run -t -i --env-file ./tasks/.ganache_env participate
+```
+
+For Rinkeby
+
+```
+docker build --rm -t participate .
+docker run -t -i --env-file ./tasks/.ganache_env participate
 ```
