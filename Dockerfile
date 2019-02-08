@@ -18,6 +18,8 @@ RUN apk add --update --no-cache --virtual build-dependencies git python make g++
 COPY . .
 COPY tasks/cron-task /etc/crontabs/root
 
+RUN chmod +x tasks/participate.sh
+
 RUN npm install
 
 RUN ./node_modules/.bin/truffle compile
