@@ -26,9 +26,6 @@ RUN ./node_modules/.bin/truffle compile
 
 RUN npm run networks-inject
 
-# Create log file for participation script
-RUN touch /var/log/participation.out
-
 # Apply cron job
 RUN crontab /etc/crontabs/root
 
