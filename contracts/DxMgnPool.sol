@@ -19,8 +19,10 @@ contract DxMgnPool is Ownable {
     enum State {
         Pooling,
         PoolingEnded,
+        DepositWithdrawnFromDx,
         MgnUnlocked
     }
+    State public currentState = State.Pooling;
 
     mapping (address => Participation[]) public participationsByAddress;
     uint public totalPoolShares = 0; // total number of shares in this pool
@@ -56,6 +58,9 @@ contract DxMgnPool is Ownable {
      * Public interface
      */
     function deposit(uint amount) public {
+        checkForStateUpdate();
+        require(currentState == State.Pooling, "Pooling is already over");
+
         uint poolShares = calculatePoolShares(amount);
         Participation memory participation = Participation({
             startAuctionCount: isDepositTokenTurn() ? auctionCount : auctionCount + 1,
@@ -70,7 +75,7 @@ contract DxMgnPool is Ownable {
     }
 
     function withdrawDeposit() public {
-        require(currentState() != State.Pooling, "Pooling period is not over, yet");
+        require(currentState == State.DepositWithdrawnFromDx || currentState == State.MgnUnlocked, "Funds not yet withdrawn from dx");
         
         uint totalDepositAmount = 0;
         Participation[] storage participations = participationsByAddress[msg.sender];
@@ -82,7 +87,7 @@ contract DxMgnPool is Ownable {
     }
 
     function withdrawMagnolia() public {
-        require(currentState() == State.MgnUnlocked, "MGN has not been unlocked, yet");
+        require(currentState == State.MgnUnlocked, "MGN has not been unlocked, yet");
 
         uint totalMgnClaimed = 0;
         Participation[] memory participations = participationsByAddress[msg.sender];
@@ -95,7 +100,8 @@ contract DxMgnPool is Ownable {
     }
 
     function participateInAuction() public  onlyOwner() {
-        require(currentState() == State.Pooling, "Pooling period is over.");
+        checkForStateUpdate();
+        require(currentState == State.Pooling, "Pooling period is over.");
 
         uint auctionIndex = dx.getAuctionIndex(address(depositToken), address(secondaryToken));
         require(auctionIndex > lastParticipatedAuctionIndex, "Has to wait for new auction to start");
@@ -124,24 +130,26 @@ contract DxMgnPool is Ownable {
     }
 
     function triggerMGNunlockAndClaimTokens() public {
-        require(currentState() == State.PoolingEnded, "Pooling period is not yet over.");
+        checkForStateUpdate();
+        require(currentState == State.PoolingEnded, "Pooling period is not yet over.");
         require(
             dx.getAuctionIndex(address(depositToken), address(secondaryToken)) > lastParticipatedAuctionIndex, 
             "Last auction is still running"
         );      
-        
+
         (address sellToken, address buyToken) = buyAndSellToken();
         address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", buyToken, sellToken, address(this), lastParticipatedAuctionIndex));
         mgnToken.unlockTokens();
-        totalDeposit += dx.balances(address(depositToken), address(this));
+        totalDeposit = dx.balances(address(depositToken), address(this));
         if(totalDeposit > 0){
             dx.withdraw(address(depositToken), totalDeposit);
         }
+        currentState = State.DepositWithdrawnFromDx;
     }
 
     bool public isMagnoliaWithdrawnFromDX = false;
     function withdrawUnlockedMagnoliaFromDx() public {
-        require(currentState() == State.PoolingEnded, "Pooling period is not yet over");
+        require(currentState == State.DepositWithdrawnFromDx, "Unlocking not yet triggered");
         require(!isMagnoliaWithdrawnFromDX, "Magnolia was already withdrawn");
 
         // Implicit we also have:
@@ -150,6 +158,13 @@ contract DxMgnPool is Ownable {
         totalMgn = mgnToken.balanceOf(address(this));
         mgnToken.withdrawUnlockedTokens();
         isMagnoliaWithdrawnFromDX = true;
+        currentState = State.MgnUnlocked;
+    }
+
+    function checkForStateUpdate() public {
+        if (block.number >= poolingPeriodEndBlockNumber && isDepositTokenTurn() && currentState == State.Pooling) {
+            currentState = State.PoolingEnded;
+        }
     }
 
     /**
@@ -189,13 +204,6 @@ contract DxMgnPool is Ownable {
 
     function isDepositTokenTurn() private view returns (bool) {
         return auctionCount % 2 == 0;
-    }
-
-    function currentState() private view returns (State) {
-        if (block.number >= poolingPeriodEndBlockNumber && isDepositTokenTurn()) {
-            return totalMgn > 0 ? State.MgnUnlocked : State.PoolingEnded;
-        }
-        return State.Pooling;
     }
 
     function buyAndSellToken() private view returns(address buyToken, address sellToken) {
