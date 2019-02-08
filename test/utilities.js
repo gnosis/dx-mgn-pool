@@ -1,4 +1,4 @@
-const waitForNBlocks = async function (numBlocks, authority, web3=web3) {
+const waitForNBlocks = async function (numBlocks, authority, web3) {
   for (let i = 0; i < numBlocks; i++) {
     await web3.eth.sendTransaction({ from: authority, "to": authority, value: 1 })
   }
