@@ -1,6 +1,6 @@
 const TRADING_PERIOD_IN_HOURS = 30*24
 abi = require('ethereumjs-abi')
-module.exports = async (deployer, network, web3) => { // eslint-disable-line no-unused-vars
+module.exports = async (deployer, network) => { // eslint-disable-line no-unused-vars
   const Coordinator = artifacts.require('Coordinator')
   let DXProxy, DXMGN, WETH, GNO
 
@@ -34,6 +34,8 @@ module.exports = async (deployer, network, web3) => { // eslint-disable-line no-
   //const now = new Date()
   // const endingTradingTimestamp =  new Date(now.getTime() + TRADING_PERIOD_IN_HOURS * 60 * 60 * 1000).getTime() 
   const poolingEndBlock = 3829876 + 10000
-  //console.log("abi encoded constructor parameters are: ", web3.eth.abi(['address', 'address', 'address', 'address', 'uint256'], [etherToken.address, tokenGNO.address, dxMGN.address, dxProxy.address, poolingEndBlock]))
+  
+  //console.log("abi encoded constructor parameters are: ", web3.eth.abi.encodeParameters(['address', 'address', 'address', 'address', 'uint256'], [etherToken.address, tokenGNO.address, dxMGN.address, dxProxy.address, poolingEndBlock]))
+  
   await deployer.deploy(Coordinator, etherToken.address, tokenGNO.address, dxMGN.address, dxProxy.address, poolingEndBlock)
 }
