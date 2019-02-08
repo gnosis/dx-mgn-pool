@@ -20,6 +20,8 @@ COPY tasks/cron-task /etc/crontabs/root
 
 RUN npm install
 
+RUN ./node_modules/.bin/truffle compile
+
 # Apply cron job
 RUN crontab /etc/crontabs/root
 

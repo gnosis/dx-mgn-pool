@@ -16,7 +16,7 @@ module.exports = async (callback) => {
       console.log("Successfully called participateInAuction!")
       callback()
     } else {
-      console.log("Can't participat in auction yet.")
+      console.log("Can't participate in auction yet.")
       callback()  
     }
     
