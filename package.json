@@ -7,6 +7,9 @@
     "test": "test"
   },
   "scripts": {
+    "networks-extract": "node scripts/extract_network_info.js",
+    "networks-inject": "node scripts/inject_network_info.js",
+    "networks-reset": "mkdir -p build/contracts && npx truffle networks --clean && npm run networks-inject",
     "test": "truffle test",
     "rpc": "ganache-cli -d",
     "compile": "truffle compile",
@@ -52,6 +55,7 @@
     "@gnosis.pm/util-contracts": "^2.0.0-RC2",
     "openzeppelin-solidity": "^2.1.2",
     "truffle-assertions": "^0.7.2",
+    "truffle-contract": "^4.0.4",
     "truffle-hdwallet-provider": "^1.0.2"
   },
   "homepage": "https://github.com/gnosis/dx-mgn-pool#readme"

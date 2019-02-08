@@ -58,7 +58,7 @@ contract DxMgnPool is Ownable {
     function deposit(uint amount) public {
         uint poolShares = calculatePoolShares(amount);
         Participation memory participation = Participation({
-            startAuctionCount: auctionCount,
+            startAuctionCount: isDepositTokenTurn() ? auctionCount : auctionCount + 1,
             poolShares: poolShares,
             withdrawn: false
         });
@@ -108,8 +108,9 @@ contract DxMgnPool is Ownable {
             dx.deposit(address(depositToken), depositAmount);
         }
 
-        if (lastParticipatedAuctionIndex != 0) {
-            dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
+        if (lastParticipatedAuctionIndex != 0)
+        {
+            address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", buyToken, sellToken, address(this), lastParticipatedAuctionIndex));
         }
 
         uint amount = dx.balances(address(sellToken), address(this));
@@ -127,14 +128,14 @@ contract DxMgnPool is Ownable {
         require(
             dx.getAuctionIndex(address(depositToken), address(secondaryToken)) > lastParticipatedAuctionIndex, 
             "Last auction is still running"
-        );
-        
-        mgnToken.unlockTokens();
-        
+        );      
         (address sellToken, address buyToken) = buyAndSellToken();
         dx.claimSellerFunds(buyToken, sellToken, address(this), lastParticipatedAuctionIndex);
-        uint amount = dx.balances(address(depositToken), address(this));
-        dx.withdraw(address(depositToken), amount);
+        mgnToken.unlockTokens();
+        totalDeposit = dx.balances(address(depositToken), address(this));
+        if(totalDeposit > 0){
+            dx.withdraw(address(depositToken), totalDeposit);
+        }
     }
 
     function withdrawUnlockedMagnoliaFromDx() public {
@@ -196,5 +197,4 @@ contract DxMgnPool is Ownable {
         } else {
             return (address(secondaryToken), address(depositToken)); 
         }
-    }
-}
+    }}
