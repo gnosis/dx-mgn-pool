@@ -33,12 +33,12 @@ For Ganache (deterministic)
 
 ```
 docker build --rm -t participate .
-docker run -t -i --env-file ./tasks/.ganache_env participate
+docker run -t -i -e NETWORK=development -e RPC_URL=host.docker.internal participate
 ```
 
 For Rinkeby
 
 ```
 docker build --rm -t participate .
-docker run -t -i --env-file ./tasks/.ganache_env participate
+docker run -t -i -e NETWORK=rinkeby participate
 ```
