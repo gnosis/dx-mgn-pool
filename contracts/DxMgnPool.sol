@@ -198,4 +198,5 @@ contract DxMgnPool is Ownable {
         } else {
             return (address(secondaryToken), address(depositToken)); 
         }
-    }}
+    }
+}
