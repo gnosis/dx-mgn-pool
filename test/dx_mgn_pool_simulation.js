@@ -10,10 +10,14 @@ const DxMgnPool = artifacts.require("DxMgnPool")
 const { waitUntilPriceIsXPercentOfPreviousPrice } = require("./dx_e2e")
 const { waitForNBlocks, increaseTimeBy } = require("./utilities")
 
-const eth = (amount) => (new web3.utils.BN("1000000000000000000")).mul(new web3.utils.BN(amount)).toString()
+const eth = (amount) => (new web3.utils.BN("1000000000000000000") * amount).toLocaleString("fullwide", { useGrouping: false })
 
-const ROUNDS = 100 // has to be even
+const ROUNDS = 10 // has to be even
 const BLOCKS_PER_ROUND = 20 // This is a guestimate
+
+let totalMgnEthPool = new web3.utils.BN("0")
+let totalMgnGnoPool = new web3.utils.BN("0")
+const exactMgnMinted = []
 
 contract.only("simulation", (accounts) => {
   it("compute difference between actual and computed MGN gain", async () => {
@@ -38,12 +42,16 @@ contract.only("simulation", (accounts) => {
       await gnoToken.mint(accounts[i], eth(1000))
       await gnoToken.approve(gnoPool.address, eth(1000), {from: accounts[i]})
       await gnoToken.approve(dx.address, eth(1000), {from: accounts[i]})
+
+      exactMgnMinted.push(new web3.utils.BN("0"))
     }
 
     console.log(`Creating Auction`)
     await dx.deposit(ethToken.address, eth(1000))
     await dx.deposit(gnoToken.address, eth(1000))
     await dx.addTokenPair(ethToken.address, gnoToken.address, eth(1), eth(1), 1, 1)
+    // approving Tokens for MGN generation
+    await dx.updateApprovalOfToken([ethToken.address, gnoToken.address], [true, true])
 
     // exclude the account that is doing the buying
     const buyer = accounts[0]
@@ -52,7 +60,6 @@ contract.only("simulation", (accounts) => {
       console.log(`Round ${i}:`)
       await makeRandomDeposit(ethPool, gnoPool, accounts)
 
-      const auctionIndex = await dx.getAuctionIndex(ethToken.address, gnoToken.address)
       if (shouldSkip()) {
         console.log(`  - Skip participation`)
         i-- // we always need an even number of particpations
@@ -62,14 +69,8 @@ contract.only("simulation", (accounts) => {
       }
       const price = randomPrice()
       console.log(`  - Clearing at price ${price}`)
-      await fillAndClearAuctions(dx, ethToken, gnoToken, auctionIndex, price, buyer)
-      const newAuctionIndex = await dx.getAuctionIndex(ethToken.address, gnoToken.address)
-      assert.equal(newAuctionIndex, auctionIndex.toNumber() + 1)
-
-      const [a, b] = i % 2 ? [ethToken.address, gnoToken.address] : [gnoToken.address, ethToken.address]
-      const ethPoolBalance = await dx.sellerBalances(b, a, auctionIndex, ethPool.address)
-      const gnoPoolBalance = await dx.sellerBalances(a, b, auctionIndex, gnoPool.address)
-      console.log(`  - Cleared! ethPoolBalance: ${ethToDecimal(ethPoolBalance)} gnoPoolBalance: ${ethToDecimal(gnoPoolBalance)}`)
+      await fillAndClearAuctions(dx, ethPool, gnoPool, ethToken, gnoToken, price, buyer)
+      await computeExactMagnolia(dx, ethPool, gnoPool, mgnToken, accounts)
     }
 
     // claim and withdrawMGN after pool trading has ended
@@ -79,17 +80,29 @@ contract.only("simulation", (accounts) => {
 
     await ethPool.triggerMGNunlockAndClaimTokens()
     await gnoPool.triggerMGNunlockAndClaimTokens()
-    await increaseTimeBy(60 * 60 * 24)
+    await increaseTimeBy(60 * 60 * 25)
     await ethPool.withdrawUnlockedMagnoliaFromDx()
     await gnoPool.withdrawUnlockedMagnoliaFromDx()
+    
+    let poolMgnBalance = (await mgnToken.balanceOf(ethPool.address)).add(await mgnToken.balanceOf(gnoPool.address))
+    console.log(`Total Magnolia claimed: ${ethToDecimal(poolMgnBalance)}`)
 
     for (const i in accounts) {
       await ethPool.withdrawDeposit({from: accounts[i]})
       await gnoPool.withdrawDeposit({from: accounts[i]})
+      await ethPool.withdrawMagnolia({from: accounts[i]})
+      await gnoPool.withdrawMagnolia({from: accounts[i]})
+      
       const ethBalance = await ethToken.balanceOf(accounts[i])
       const gnoBalance = await ethToken.balanceOf(accounts[i])
-      console.log(`Account ${i} deltas: ${ethToDecimal(ethBalance) - 1000}ETH, ${ethToDecimal(gnoBalance) - 1000}GNO`)
+      const mgnBalance = await mgnToken.balanceOf(accounts[i])
+      const mgnDelta = (ethToDecimal(mgnBalance) - ethToDecimal(exactMgnMinted[i])).toFixed(2)
+
+      console.log(`Account ${i} deltas: ${(ethToDecimal(ethBalance) - 1000).toFixed(2)}ETH, ${(ethToDecimal(gnoBalance) - 1000).toFixed(2)}GNO, ${mgnDelta}MGN (total ${ethToDecimal(mgnBalance)}MGN)`)
     }
+
+    poolMgnBalance = (await mgnToken.balanceOf(ethPool.address)).add(await mgnToken.balanceOf(gnoPool.address))
+    console.log(`Magnolia left after claiming: ${ethToDecimal(poolMgnBalance)}`)
   })
 })
 
@@ -110,7 +123,9 @@ const makeRandomDeposit = async (ethPool, gnoPool, accounts) => {
 
 const ethToDecimal = (amount) => amount.div(new web3.utils.BN("10000000000000000")).toNumber() / 100
 
-const fillAndClearAuctions = async (dx, ethToken, gnoToken, auctionIndex, percentOfPreviousPrice, buyer) => {
+const fillAndClearAuctions = async (dx, ethPool, gnoPool, ethToken, gnoToken, percentOfPreviousPrice, buyer) => {
+  const auctionIndex = await dx.getAuctionIndex(ethToken.address, gnoToken.address)
+
   // Fund auctions (in case pool doesn't have enough funds)
   await dx.postSellOrder(ethToken.address, gnoToken.address, auctionIndex, eth(1))
   await dx.postSellOrder(gnoToken.address, ethToken.address, auctionIndex, eth(1))
@@ -124,6 +139,56 @@ const fillAndClearAuctions = async (dx, ethToken, gnoToken, auctionIndex, percen
   await dx.claimBuyerFunds(gnoToken.address, ethToken.address, buyer, auctionIndex)
   await dx.claimSellerFunds(gnoToken.address, ethToken.address, buyer, auctionIndex)
   await dx.claimSellerFunds(ethToken.address, gnoToken.address, buyer, auctionIndex)
+
+  const newAuctionIndex = await dx.getAuctionIndex(ethToken.address, gnoToken.address)
+  assert.equal(newAuctionIndex, auctionIndex.toNumber() + 1)
+
+  const ethPoolEthBalance = await dx.sellerBalances(ethToken.address, gnoToken.address, auctionIndex, ethPool.address)
+  const ethPoolGnoBalance = await dx.sellerBalances(gnoToken.address, ethToken.address, auctionIndex, ethPool.address)
+  const gnoPoolEthBalance = await dx.sellerBalances(ethToken.address, gnoToken.address, auctionIndex, gnoPool.address)
+  const gnoPoolGnoBalance = await dx.sellerBalances(gnoToken.address, ethToken.address, auctionIndex, gnoPool.address)
+  console.log(`  - Cleared!`)
+  console.log(`    ethPoolBalance: ${ethToDecimal(ethPoolEthBalance)}ETH ${ethToDecimal(ethPoolGnoBalance)}GNO`)
+  console.log(`    gnoPoolBalance: ${ethToDecimal(gnoPoolEthBalance)}ETH ${ethToDecimal(gnoPoolGnoBalance)}GNO`)
+}
+
+const computeExactMagnolia = async (dx, ethPool, gnoPool, mgnToken, accounts) => {
+  const newMgnEthPool = await mgnToken.lockedTokenBalances(ethPool.address)
+  const newMgnGnoPool = await mgnToken.lockedTokenBalances(gnoPool.address)
+  const mgnEthPoolDifference = newMgnEthPool.sub(totalMgnEthPool)
+  const mgnGnoPoolDifference = newMgnGnoPool.sub(totalMgnGnoPool)
+  const ethPoolAuctionIndex = await ethPool.auctionCount()
+  const gnoPoolAuctionIndex = await gnoPool.auctionCount()
+  const ethPoolTotalShares = await ethPool.totalPoolShares()
+  const gnoPoolTotalShares = await gnoPool.totalPoolShares()
+  for (const i in accounts) {
+    const sharesInEthPool = await getAccountSharesInPool(ethPool, ethPoolAuctionIndex, accounts[i])
+    if (sharesInEthPool > 0) {
+      const newMgn = sharesInEthPool.mul(mgnEthPoolDifference).div(ethPoolTotalShares)      
+      exactMgnMinted[i] = exactMgnMinted[i].add(newMgn)
+    }
+
+    const sharesInGnoPool = await getAccountSharesInPool(gnoPool, gnoPoolAuctionIndex, accounts[i])
+    if (sharesInGnoPool > 0) {
+      const newMgn = sharesInGnoPool.mul(mgnGnoPoolDifference).div(gnoPoolTotalShares)
+      exactMgnMinted[i] = exactMgnMinted[i].add(newMgn)
+    }
+  }
+
+  totalMgnEthPool = newMgnEthPool
+  totalMgnGnoPool = newMgnGnoPool
+}
+
+const getAccountSharesInPool = async(pool, auctionIndex, account) => {
+  const numberOfParticipations = await pool.numberOfParticipations(account)
+  let sharesForAccount = new web3.utils.BN("0")
+  for (let i = 0; i < numberOfParticipations.toNumber(); i++) {
+    const indexAndShares = await pool.participationAtIndex(account, i)
+    if (indexAndShares[0] < auctionIndex) {
+      sharesForAccount = sharesForAccount.add(indexAndShares[1])
+    }
+  }
+  return sharesForAccount
 }
 
 const shouldSkip = () => Math.random() < .01 // skip with 1% chance
