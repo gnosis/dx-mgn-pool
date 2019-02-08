@@ -1,4 +1,12 @@
 {
+  "Coordinator": {
+    "4": {
+      "events": {},
+      "links": {},
+      "address": "0xd5b090425961b9e47cB4c364201d3EfafEcBF2c6",
+      "transactionHash": "0x9be54e6c999c92e138881bf7af69c15393e580a4d57db90b7a4f27a11b373769"
+    }
+  },
   "DutchExchange": {
     "1": {
       "events": {},
@@ -138,6 +146,14 @@
       "transactionHash": "0x4e6a7575f7c731d31739818eab02f6b913beaddb1a814bbcc844efcd378a6bfb",
       "links": {},
       "events": {}
+    }
+  },
+  "Migrations": {
+    "4": {
+      "events": {},
+      "links": {},
+      "address": "0x34A427Ae10ef1146d5B1fc8695219a599D4E8513",
+      "transactionHash": "0xe9bdf71ec3afbbd51bdac15d889a8df8a78fcd94479b20182bc659cc181ded98"
     }
   },
   "PriceFeed": {
