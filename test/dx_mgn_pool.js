@@ -483,7 +483,7 @@ contract("DxMgnPool", (accounts) => {
       
       instance.triggerMGNunlockAndClaimTokens()
     })
-    it("checks idempotenz of funciton", async () => {
+    it("can not be called twice (idempotence)", async () => {
       const dx = await DutchExchange.new()
       const mgn = await TokenFRT.new()
 
