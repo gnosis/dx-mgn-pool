@@ -551,7 +551,7 @@ contract("DxMgnPool", (accounts) => {
 
       await truffleAssert.reverts(instance.withdrawUnlockedMagnoliaFromDx(), "Unlocking not yet triggered")
     })
-    it("Can not be called twice (idempotenz)", async () => {
+    it("can not be called twice (idempotence)", async () => {
       const mgn = await TokenFRT.new()
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
