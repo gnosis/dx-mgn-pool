@@ -118,12 +118,12 @@ contract("e2e - tests", (accounts) => {
     let balBefore = await token_1.balanceOf.call(accounts[0])
     await instance1.withdrawDeposit()
     let balAfter = await token_1.balanceOf.call(accounts[0])
-    assert.isBelow(balAfter.sub(balBefore).toString() - (DEPOSIT_1_1 - 2), 5)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - (DEPOSIT_1_1 - 2)), 5)
 
     balBefore = await token_2.balanceOf.call(accounts[0])
     await instance2.withdrawDeposit()
     balAfter = await token_2.balanceOf.call(accounts[0])
-    assert.isBelow(balAfter.sub(balBefore).toString()- (DEPOSIT_2_1 - 4) , 5)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString()- (DEPOSIT_2_1 - 4)) , 5)
 
     //wait until MGN is unlocked
     await increaseTimeBy(60 * 60 * 24 + 2, web3)
@@ -133,12 +133,12 @@ contract("e2e - tests", (accounts) => {
     balBefore = await mgnToken.balanceOf.call(accounts[0])
     await instance1.withdrawMagnolia()
     balAfter = await mgnToken.balanceOf.call(accounts[0])
-    assert.isBelow(balAfter.sub(balBefore).toString() - (2 * DEPOSIT_1_1 - 1), 5)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - (2 * DEPOSIT_1_1 - 1)), 5)
 
     balBefore = await mgnToken.balanceOf.call(accounts[0])
     await instance2.withdrawMagnolia()
     balAfter = await mgnToken.balanceOf.call(accounts[0])
-    assert.isBelow(balAfter.sub(balBefore).toString() - (2 * DEPOSIT_2_1 - 2), 4)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - (2 * DEPOSIT_2_1 - 2)), 4)
   })
   it("e2e tests for trading pool activity only on one pair: 1 deposit - 2x trading - withdraw", async () => {
     const initialFundingGNO = "1111111111111111111111"
@@ -237,7 +237,7 @@ contract("e2e - tests", (accounts) => {
     let balBefore = await token_1.balanceOf.call(accounts[0])
     await instance1.withdrawDeposit()
     let balAfter = await token_1.balanceOf.call(accounts[0])
-    assert.isBelow(balAfter.sub(balBefore).toString() - (DEPOSIT_1_1 - 2), 5)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - (DEPOSIT_1_1 - 2)), 5)
 
     //wait until MGN is unlocked
     await increaseTimeBy(60 * 60 * 24 + 2, web3)
@@ -246,10 +246,10 @@ contract("e2e - tests", (accounts) => {
     balBefore = await mgnToken.balanceOf.call(accounts[0])
     await instance1.withdrawMagnolia()
     balAfter = await mgnToken.balanceOf.call(accounts[0])
-    assert.isBelow(balAfter.sub(balBefore).toString() - (2 * DEPOSIT_1_1 - 1), 5)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - (2 * DEPOSIT_1_1 - 1)), 5)
   })
 
-  it.only("e2e tests for deposits before first auction, after first auction and after the third auction. Checks  depositwithdrawals - MGN calculation", async () => {
+  it("e2e tests for deposits before first auction, after first auction and after the third auction. Checks  depositwithdrawals - MGN calculation", async () => {
     const initialFundingGNO = "1111111111111111111111"
     const token_2 = await TokenGNO.new(initialFundingGNO)
     const dxProxy = await DXProxy.deployed()
@@ -378,20 +378,19 @@ contract("e2e - tests", (accounts) => {
     await instance1.withdrawUnlockedMagnoliaFromDx()
     await instance2.withdrawUnlockedMagnoliaFromDx()
 
-    balBefore = await mgnToken.balanceOf.call(participant_3)
+    balBefore = await mgnToken.balanceOf.call(participant_1)
     await instance1.withdrawMagnolia({from: participant_1})
-    balAfter = await mgnToken.balanceOf.call(participant_3)
+    balAfter = await mgnToken.balanceOf.call(participant_1)
     assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - (2 * DEPOSIT_1_1 - 1)), 5)
 
     balBefore = await mgnToken.balanceOf.call(participant_2)
     await instance1.withdrawMagnolia({from: participant_2})
     balAfter = await mgnToken.balanceOf.call(participant_2)
-    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - (DEPOSIT_2_1 - 2)), 4)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString()), 4)
 
     balBefore = await mgnToken.balanceOf.call(participant_3)
     await instance1.withdrawMagnolia({from: participant_3})
     balAfter = await mgnToken.balanceOf.call(participant_3)
-    console.log(balAfter.sub(balBefore).toString())
-    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - (2 * DEPOSIT_3_1 - 2)), 0)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString()), 4)
   })
 })
