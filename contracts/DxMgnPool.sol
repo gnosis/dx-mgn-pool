@@ -36,21 +36,21 @@ contract DxMgnPool is Ownable {
     TokenFRT public mgnToken;
     IDutchExchange public dx;
 
-    uint public poolingPeriodEndBlockNumber;
+    uint public poolingPeriodEndTime;
 
     constructor (
         ERC20 _depositToken, 
         ERC20 _secondaryToken, 
         TokenFRT _mgnToken, 
         IDutchExchange _dx,
-        uint _poolingPeriodEndBlockNumber
+        uint _poolingTimeSeconds
     ) public Ownable()
     {
         depositToken = _depositToken;
         secondaryToken = _secondaryToken;
         mgnToken = _mgnToken;
         dx = _dx;
-        poolingPeriodEndBlockNumber = _poolingPeriodEndBlockNumber;
+        poolingPeriodEndTime = now + _poolingTimeSeconds;
     }
 
     /**
@@ -184,7 +184,7 @@ contract DxMgnPool is Ownable {
     }
 
     function currentState() private view returns (State) {
-        if (block.number >= poolingPeriodEndBlockNumber && isDepositTokenTurn()) {
+        if (now >= poolingPeriodEndTime && isDepositTokenTurn()) {
             return totalMgn > 0 ? State.MgnUnlocked : State.PoolingEnded;
         }
         return State.Pooling;

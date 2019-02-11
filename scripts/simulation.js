@@ -10,13 +10,11 @@ const assert = require("chai").assert
 
 const { 
   waitUntilPriceIsXPercentOfPreviousPrice, 
-  waitForNBlocks, 
   increaseTimeBy } = require("../test/utilities")
 
 const eth = (amount) => (new web3.utils.BN("1000000000000000000") * amount).toLocaleString("fullwide", { useGrouping: false, maximumFractionDigits: 0 })
 
 const ROUNDS = 100 // has to be even
-const BLOCKS_PER_ROUND = 20 // This is a guestimate
 
 let totalMgnEthPool = new web3.utils.BN("0")
 let totalMgnGnoPool = new web3.utils.BN("0")
@@ -32,8 +30,8 @@ module.exports = async (callback) => {
     const ethToken = await EtherToken.at(await dx.ethToken.call())
     const gnoToken = await MintableERC20.new()
     
-    const poolingEndBlock = await web3.eth.getBlockNumber() + (ROUNDS * BLOCKS_PER_ROUND)
-    const coordinator = await Coordinator.new(ethToken.address, gnoToken.address, mgnToken.address, dx.address, poolingEndBlock)
+    const poolingTime = 1000
+    const coordinator = await Coordinator.new(ethToken.address, gnoToken.address, mgnToken.address, dx.address, poolingTime)
     const ethPool = await DxMgnPool.at(await coordinator.dxMgnPool1.call())
     const gnoPool = await DxMgnPool.at(await coordinator.dxMgnPool2.call())
 
@@ -78,9 +76,8 @@ module.exports = async (callback) => {
     }
 
     // claim and withdrawMGN after pool trading has ended
-    const blocksToWait = poolingEndBlock - (await web3.eth.getBlockNumber()) + 1
     console.log(`Waiting for ${blocksToWait} blocks`)
-    await waitForNBlocks(blocksToWait, buyer, web3)
+    await increaseTimeBy(1000, web3)
 
     await ethPool.triggerMGNunlockAndClaimTokens()
     await gnoPool.triggerMGNunlockAndClaimTokens()

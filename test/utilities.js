@@ -1,9 +1,3 @@
-const waitForNBlocks = async function (numBlocks, authority, web3) {
-  for (let i = 0; i < numBlocks; i++) {
-    await web3.eth.sendTransaction({ from: authority, "to": authority, value: 1 })
-  }
-}
-
 const timestamp = async (web3, block = "latest") => {
   const b = await web3.eth.getBlock(block)
   return b.timestamp
@@ -57,5 +51,5 @@ const waitUntilPriceIsXPercentOfPreviousPrice = async (dx , ST, BT, p, web3=web3
 module.exports = {
   waitUntilPriceIsXPercentOfPreviousPrice,
   increaseTimeBy,
-  waitForNBlocks,
+  timestamp,
 }
