@@ -49,10 +49,13 @@
     "truffle-flattener": "^1.2.10"
   },
   "dependencies": {
+    "@daostack/arc": "0.0.1-rc.8",
     "@gnosis.pm/dx-contracts": "2.0.0-RC15",
     "@gnosis.pm/gno-token": "^2.0.0-RC3",
     "@gnosis.pm/mock-contract": "^3.0.7",
     "@gnosis.pm/util-contracts": "^2.0.0-RC2",
+    "i": "^0.3.6",
+    "npm": "^6.7.0",
     "chai": "^4.2.0",
     "openzeppelin-solidity": "^2.1.2",
     "truffle-assertions": "^0.7.2",
