@@ -30,7 +30,7 @@ module.exports = async (callback) => {
     const ethToken = await EtherToken.at(await dx.ethToken.call())
     const gnoToken = await MintableERC20.new()
     
-    const poolingTime = 1000
+    const poolingTime = 60 * 60 * 24 * 90
     const coordinator = await Coordinator.new(ethToken.address, gnoToken.address, mgnToken.address, dx.address, poolingTime)
     const ethPool = await DxMgnPool.at(await coordinator.dxMgnPool1.call())
     const gnoPool = await DxMgnPool.at(await coordinator.dxMgnPool2.call())
@@ -76,8 +76,7 @@ module.exports = async (callback) => {
     }
 
     // claim and withdrawMGN after pool trading has ended
-    console.log(`Waiting for ${blocksToWait} blocks`)
-    await increaseTimeBy(1000, web3)
+    await increaseTimeBy(poolingTime, web3)
 
     await ethPool.triggerMGNunlockAndClaimTokens()
     await gnoPool.triggerMGNunlockAndClaimTokens()
@@ -95,7 +94,7 @@ module.exports = async (callback) => {
       await gnoPool.withdrawMagnolia({from: accounts[i]})
       
       const ethBalance = await ethToken.balanceOf(accounts[i])
-      const gnoBalance = await ethToken.balanceOf(accounts[i])
+      const gnoBalance = await gnoToken.balanceOf(accounts[i])
       const mgnBalance = await mgnToken.balanceOf(accounts[i])
       const mgnDelta = (ethToDecimal(mgnBalance) - ethToDecimal(exactMgnMinted[i])).toFixed(2)
 
@@ -197,7 +196,7 @@ const getAccountSharesInPool = async(pool, auctionIndex, account) => {
 
 const shouldSkip = () => Math.random() < .01 // skip with 1% chance
 
-const shouldDeposit = () => Math.random() < .1 // deposit with 10% chance
+const shouldDeposit = () => Math.random() < .01 // deposit with 1% chance
 
 const randomDeposit = () => randomNormalDistribution(0, 100, 6.64) // from, 0 to 100 with mean 1ETH
 
