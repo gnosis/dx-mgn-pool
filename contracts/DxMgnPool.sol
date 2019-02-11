@@ -151,8 +151,9 @@ contract DxMgnPool is Ownable {
         // Implicit we also have:
         // require(unlockedTokens[msg.sender].withdrawalTime < now, "The tokens cannot be withdrawn yet");
 
-        totalMgn = mgnToken.balanceOf(address(this));
         mgnToken.withdrawUnlockedTokens();
+        totalMgn = mgnToken.balanceOf(address(this));
+
         currentState = State.MgnUnlocked;
     }
 
