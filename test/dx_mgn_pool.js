@@ -147,7 +147,7 @@ contract("DxMgnPool", (accounts) => {
       const poolingEndBlock = 1
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
       
-      await increaseTimeBy(100)
+      await increaseTimeBy(100, web3)
       await truffleAssert.reverts(instance.participateInAuction(), "Pooling period is over")
     })
     it("pooling period ends only after even amount of autcions", async() => {
@@ -386,7 +386,7 @@ contract("DxMgnPool", (accounts) => {
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
 
-      await increaseTimeBy(100)
+      await increaseTimeBy(100, web3)
       await instance.triggerMGNunlockAndClaimTokens()
 
       const withdraw = dx.contract.methods.withdraw(depositTokenMock.address, 42).encodeABI()
