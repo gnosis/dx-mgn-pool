@@ -460,7 +460,7 @@ contract("DxMgnPool", (accounts) => {
 
       await truffleAssert.reverts(instance.triggerMGNunlockAndClaimTokens(), "Pooling period is not yet over.")
     })
-    it("can deal with the case, totalDeposit == 0 (e.g. all funds are lost in dutchX)", async () => {
+    it("allows claiming MGN if value of deposits in dutchX is 0", async () => {
       const dx = await DutchExchange.new()
       const mgn = await TokenFRT.new()
 
