@@ -110,7 +110,7 @@ contract("e2e - tests", (accounts) => {
     console.log("got third auction finished")
 
     // end pool trading period:
-    await increaseTimeBy(100, web3)
+    await increaseTimeBy((60 * 60 * 6) + 100, web3)
 
     await instance1.triggerMGNunlockAndClaimTokens()
     await instance2.triggerMGNunlockAndClaimTokens()
