@@ -483,6 +483,30 @@ contract("DxMgnPool", (accounts) => {
       
       instance.triggerMGNunlockAndClaimTokens()
     })
+    it("checks idempotenz of funciton", async () => {
+      const dx = await DutchExchange.new()
+      const mgn = await TokenFRT.new()
+
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) -1
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+
+      await dxMock.givenAnyReturnUint(42)
+      const tupleResponse = (abi.rawEncode(["uint", "uint"], [42, 0]))
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
+      const balances = dx.contract.methods.balances(accounts[0], accounts[0]).encodeABI()
+      await dxMock.givenMethodReturnUint(balances, 0)
+
+      const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
+      await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
+      
+      instance.triggerMGNunlockAndClaimTokens()
+      await truffleAssert.reverts(instance.triggerMGNunlockAndClaimTokens(), "Pooling period is not yet over.")
+    })
     it("fails if last auction still running", async () => {
       const token = await ERC20.new()
       const dx = await DutchExchange.new()
@@ -524,6 +548,44 @@ contract("DxMgnPool", (accounts) => {
       const dxMock = await MockContract.new()
       const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+
+      await truffleAssert.reverts(instance.withdrawUnlockedMagnoliaFromDx(), "Unlocking not yet triggered")
+    })
+    it("Can not be called twice (idempotenz)", async () => {
+      const mgn = await TokenFRT.new()
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const dx = await DutchExchange.new()
+      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+
+      await depositTokenMock.givenAnyReturnBool(true)
+
+      await dxMock.givenAnyReturnUint(10)
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      const tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
+
+      const balanceOf = mgn.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await mgnTokenMock.givenAnyReturnBool(true)
+      await mgnTokenMock.givenMethodReturnUint(balanceOf, 100)
+
+      await instance.deposit(10)
+      await instance.participateInAuction()
+      await instance.participateInAuction()
+
+      await waitForNBlocks(100, accounts[0])
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
+
+      const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
+      await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
+
+      await instance.triggerMGNunlockAndClaimTokens()
+      await instance.withdrawUnlockedMagnoliaFromDx()
 
       await truffleAssert.reverts(instance.withdrawUnlockedMagnoliaFromDx(), "Unlocking not yet triggered")
     })
