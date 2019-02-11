@@ -28,7 +28,7 @@ contract Coordinator {
             address(dxMgnPool1.secondaryToken())
         );
         // Since both auctions start at the same time, it suffices to check one.
-        return auctionIndex > dxMgnPool1.lastParticipatedAuctionIndex();
+        return auctionIndex > dxMgnPool1.lastParticipatedAuctionIndex() && uint(dxMgnPool1.currentState()) == 0;
     }
 
 }
