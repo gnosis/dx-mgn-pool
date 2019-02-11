@@ -18,7 +18,7 @@ contract("DxMgnPool", (accounts) => {
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
 
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, 0)
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, )
 
       await depositTokenMock.givenAnyReturnBool(true)
       await dxMock.givenAnyReturnUint(42)
@@ -193,7 +193,12 @@ contract("DxMgnPool", (accounts) => {
       await instance.deposit(10)
       await instance.participateInAuction()
       await increaseTimeBy(100, web3)
+      await dxMock.givenAnyReturnUint(2)
+      tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
 
+      await instance.participateInAuction()
+      
       await dxMock.givenAnyReturnUint(3)
       await truffleAssert.reverts(instance.participateInAuction(), "Pooling period is over")
     })

@@ -158,7 +158,7 @@ contract DxMgnPool is Ownable {
     }
 
     function checkForStateUpdate() public {
-        if (block.number >= poolingPeriodEndTime && isDepositTokenTurn() && currentState == State.Pooling) {
+        if (now >= poolingPeriodEndTime && isDepositTokenTurn() && currentState == State.Pooling) {
             currentState = State.PoolingEnded;
         }
     }
