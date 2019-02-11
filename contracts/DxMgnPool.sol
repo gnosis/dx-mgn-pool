@@ -5,6 +5,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./interfaces/IDutchExchange.sol";
 import "@gnosis.pm/dx-contracts/contracts/TokenFRT.sol";
+import "@daostack/arc/contracts/libs/SafeERC20.sol";
 
 
 contract DxMgnPool is Ownable {
@@ -66,7 +67,7 @@ contract DxMgnPool is Ownable {
         totalPoolShares += poolShares;
         totalDeposit += amount;
 
-        require(depositToken.transferFrom(msg.sender, address(this), amount), "Failed to transfer deposit");
+        SafeERC20.safeTransferFrom(address(depositToken), msg.sender, address(this), amount);
     }
 
     function withdrawDeposit() public {
@@ -78,7 +79,7 @@ contract DxMgnPool is Ownable {
             totalDepositAmount += calculateClaimableDeposit(participations[i]);
             participations[i].withdrawn = true;
         }
-        require(depositToken.transfer(msg.sender, totalDepositAmount), "Failed to transfer deposit");
+        SafeERC20.safeTransfer(address(depositToken), msg.sender, totalDepositAmount);
     }
 
     function withdrawMagnolia() public {
@@ -91,7 +92,7 @@ contract DxMgnPool is Ownable {
             totalMgnClaimed += calculateClaimableMgn(participations[i]);
         }
         delete participationsByAddress[msg.sender];
-        require(mgnToken.transfer(msg.sender, totalMgnClaimed), "Failed to transfer MGN");
+        SafeERC20.safeTransfer(address(mgnToken), msg.sender, totalMgnClaimed);
     }
 
     function participateInAuction() public  onlyOwner() {

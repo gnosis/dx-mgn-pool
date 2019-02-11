@@ -71,7 +71,7 @@ contract("DxMgnPool", (accounts) => {
       await depositTokenMock.givenAnyReturnBool(false)
       await dxMock.givenAnyReturnUint(42)
 
-      await truffleAssert.reverts(instance.deposit(10), "Failed to transfer deposit")
+      await truffleAssert.reverts(instance.deposit(10))
     })
     it("address can make deposit smaller than total deposit thus far", async() => {
       const depositTokenMock = await MockContract.new()
@@ -362,7 +362,7 @@ contract("DxMgnPool", (accounts) => {
       await waitForNBlocks(100, accounts[0])
 
       await depositTokenMock.givenAnyReturnBool(false)
-      await truffleAssert.reverts(instance.withdrawDeposit(), "Failed to transfer deposit")
+      await truffleAssert.reverts(instance.withdrawDeposit())
     })
   })
   describe("triggerMGNunlockAndClaimTokens()", () => {
@@ -558,7 +558,7 @@ contract("DxMgnPool", (accounts) => {
       await instance.withdrawUnlockedMagnoliaFromDx()
       await instance.withdrawDeposit()
 
-      await truffleAssert.reverts(instance.withdrawMagnolia(), "Failed to transfer MGN")
+      await truffleAssert.reverts(instance.withdrawMagnolia())
     })
   })
 })
