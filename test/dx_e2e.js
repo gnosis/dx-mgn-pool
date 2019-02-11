@@ -213,39 +213,39 @@ contract("e2e - tests", (accounts) => {
     console.log("got second auction finished")
     await coordinator.participateInAuction()
 
-    // //claim funds  and post into next auction auction with more
-    // await dx.claimSellerFunds(token_1.address, token_2.address, accounts[0], 2)
-    // await dx.claimSellerFunds(token_2.address, token_1.address, accounts[0], 2)
-    // await dx.claimBuyerFunds(token_1.address, token_2.address, accounts[0], 2)
-    // await dx.claimBuyerFunds(token_2.address, token_1.address, accounts[0], 2)
-    // await dx.postSellOrder(token_1.address, token_2.address, 0, oneGwei.toString())
-    // await dx.postSellOrder(token_2.address, token_1.address, 0, oneGwei.toString())
+    //claim funds  and post into next auction auction with more
+    await dx.claimSellerFunds(token_1.address, token_2.address, accounts[0], 2)
+    await dx.claimSellerFunds(token_2.address, token_1.address, accounts[0], 2)
+    await dx.claimBuyerFunds(token_1.address, token_2.address, accounts[0], 2)
+    await dx.claimBuyerFunds(token_2.address, token_1.address, accounts[0], 2)
+    await dx.postSellOrder(token_1.address, token_2.address, 0, oneGwei.toString())
+    await dx.postSellOrder(token_2.address, token_1.address, 0, oneGwei.toString())
 
-    // //close the auction and pool paritcpation in next one
-    // await waitUntilPriceIsXPercentOfPreviousPrice(dx, token_1, token_2, 0.9999, web3)
-    // await dx.postBuyOrder(token_1.address, token_2.address, 3, oneGwei.toString())
-    // await dx.postBuyOrder(token_2.address, token_1.address, 3, oneGwei.toString())
+    //close the auction and pool paritcpation in next one
+    await waitUntilPriceIsXPercentOfPreviousPrice(dx, token_1, token_2, 0.9999, web3)
+    await dx.postBuyOrder(token_1.address, token_2.address, 3, oneGwei.toString())
+    await dx.postBuyOrder(token_2.address, token_1.address, 3, oneGwei.toString())
 
-    // assert.equal(await dx.getAuctionIndex(token_1.address, token_2.address), 4)
-    // console.log("got third auction finished")
+    assert.equal(await dx.getAuctionIndex(token_1.address, token_2.address), 4)
+    console.log("got third auction finished")
 
-    // // end pool trading period:
-    // await increaseTimeBy(100, web3)
+    // end pool trading period:
+    await increaseTimeBy(100, web3)
 
-    // await instance1.triggerMGNunlockAndClaimTokens()
+    await instance1.triggerMGNunlockAndClaimTokens()
 
-    // let balBefore = await token_1.balanceOf.call(accounts[0])
-    // await instance1.withdrawDeposit()
-    // let balAfter = await token_1.balanceOf.call(accounts[0])
-    // assert.isBelow(balAfter.sub(balBefore).toString() - (DEPOSIT_1_1 - 2), 5)
+    let balBefore = await token_1.balanceOf.call(accounts[0])
+    await instance1.withdrawDeposit()
+    let balAfter = await token_1.balanceOf.call(accounts[0])
+    assert.isBelow(balAfter.sub(balBefore).toString() - (DEPOSIT_1_1 - 2), 5)
 
-    // //wait until MGN is unlocked
-    // await increaseTimeBy(60 * 60 * 24 + 2, web3)
-    // await instance1.withdrawUnlockedMagnoliaFromDx()
+    //wait until MGN is unlocked
+    await increaseTimeBy(60 * 60 * 24 + 2, web3)
+    await instance1.withdrawUnlockedMagnoliaFromDx()
 
-    // balBefore = await mgnToken.balanceOf.call(accounts[0])
-    // await instance1.withdrawMagnolia()
-    // balAfter = await mgnToken.balanceOf.call(accounts[0])
-    // assert.isBelow(balAfter.sub(balBefore).toString() - (2 * DEPOSIT_1_1 - 1), 5)
+    balBefore = await mgnToken.balanceOf.call(accounts[0])
+    await instance1.withdrawMagnolia()
+    balAfter = await mgnToken.balanceOf.call(accounts[0])
+    assert.isBelow(balAfter.sub(balBefore).toString() - (2 * DEPOSIT_1_1 - 1), 5)
   })
 })
