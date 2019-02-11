@@ -145,17 +145,14 @@ contract DxMgnPool is Ownable {
         currentState = State.DepositWithdrawnFromDx;
     }
 
-    bool public isMagnoliaWithdrawnFromDX = false;
     function withdrawUnlockedMagnoliaFromDx() public {
         require(currentState == State.DepositWithdrawnFromDx, "Unlocking not yet triggered");
-        require(!isMagnoliaWithdrawnFromDX, "Magnolia was already withdrawn");
 
         // Implicit we also have:
         // require(unlockedTokens[msg.sender].withdrawalTime < now, "The tokens cannot be withdrawn yet");
 
         totalMgn = mgnToken.balanceOf(address(this));
         mgnToken.withdrawUnlockedTokens();
-        isMagnoliaWithdrawnFromDX = true;
         currentState = State.MgnUnlocked;
     }
 
