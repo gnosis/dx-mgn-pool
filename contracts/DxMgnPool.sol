@@ -108,11 +108,8 @@ contract DxMgnPool is Ownable {
             depositToken.approve(address(dx), depositAmount);
             dx.deposit(address(depositToken), depositAmount);
         }
-
-        if (lastParticipatedAuctionIndex != 0)
-        {
-            address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", buyToken, sellToken, address(this), lastParticipatedAuctionIndex));
-        }
+        // Don't revert if we can't claimSellerFunds
+        address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", buyToken, sellToken, address(this), lastParticipatedAuctionIndex));
 
         uint amount = dx.balances(address(sellToken), address(this));
         if (isDepositTokenTurn()) {
@@ -131,8 +128,8 @@ contract DxMgnPool is Ownable {
             "Last auction is still running"
         );      
         
-        (address sellToken, address buyToken) = buyAndSellToken();
-        address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", buyToken, sellToken, address(this), lastParticipatedAuctionIndex));
+        // Don't revert if wen can't claimSellerFunds
+        address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", secondaryToken, depositToken, address(this), lastParticipatedAuctionIndex));
         mgnToken.unlockTokens();
         totalDeposit = dx.balances(address(depositToken), address(this));
         if(totalDeposit > 0){
