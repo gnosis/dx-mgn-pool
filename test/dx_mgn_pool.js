@@ -171,7 +171,7 @@ contract("DxMgnPool", (accounts) => {
 
       await instance.deposit(10)
       await instance.participateInAuction()
-      await increaseTimeBy(100)
+      await increaseTimeBy(100, web3)
 
       await dxMock.givenAnyReturnUint(2)
       tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
@@ -260,7 +260,7 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(postSellOrder, reponseType)
 
       await instance.deposit(10)
-      await increaseTimeBy(100)
+      await increaseTimeBy(100, web3)
       await instance.withdrawDeposit()
 
       const depositTransfer = token.contract.methods.transfer(accounts[0], 10).encodeABI()
@@ -288,7 +288,7 @@ contract("DxMgnPool", (accounts) => {
       
       await instance.deposit(10)
       await instance.deposit(10)
-      await increaseTimeBy(100)
+      await increaseTimeBy(100, web3)
       await instance.withdrawDeposit()
 
       const depositTransfer = token.contract.methods.transfer(accounts[0], 20).encodeABI()
@@ -316,7 +316,7 @@ contract("DxMgnPool", (accounts) => {
 
       await instance.deposit(10)
 
-      await increaseTimeBy(100)
+      await increaseTimeBy(100, web3)
       await depositTokenMock.givenAnyReturnBool(true)
 
       await instance.withdrawDeposit()
@@ -360,7 +360,7 @@ contract("DxMgnPool", (accounts) => {
 
       await instance.deposit(10)
 
-      await increaseTimeBy(100)
+      await increaseTimeBy(100, web3)
 
       await depositTokenMock.givenAnyReturnBool(false)
       await truffleAssert.reverts(instance.withdrawDeposit(), "Failed to transfer deposit")
@@ -431,7 +431,7 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(postSellOrder, abi.rawEncode(["uint", "uint"], [3, 0]))
       await instance.participateInAuction()
       
-      await increaseTimeBy(100)
+      await increaseTimeBy(100, web3)
 
       await truffleAssert.reverts(instance.triggerMGNunlockAndClaimTokens(), "Last auction is still running")
     })
@@ -477,7 +477,7 @@ contract("DxMgnPool", (accounts) => {
       await instance.participateInAuction()
       await instance.participateInAuction()
 
-      await increaseTimeBy(100)
+      await increaseTimeBy(100, web3)
       await instance.withdrawUnlockedMagnoliaFromDx()
       
       assert.equal(await instance.totalMgn.call(), 100)
@@ -521,7 +521,7 @@ contract("DxMgnPool", (accounts) => {
       await instance.deposit(10)
       await instance.participateInAuction()
       await instance.participateInAuction()
-      await increaseTimeBy(100)
+      await increaseTimeBy(100, web3)
       await instance.withdrawUnlockedMagnoliaFromDx()
       
       assert.equal(await instance.totalMgn.call(), 100)
@@ -556,7 +556,7 @@ contract("DxMgnPool", (accounts) => {
       await instance.participateInAuction()
       await instance.participateInAuction()
 
-      await increaseTimeBy(100)
+      await increaseTimeBy(100, web3)
       await instance.withdrawUnlockedMagnoliaFromDx()
       await instance.withdrawDeposit()
 
