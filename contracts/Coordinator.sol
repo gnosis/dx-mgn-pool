@@ -11,10 +11,10 @@ contract Coordinator {
         ERC20 _token2, 
         TokenFRT _mgnToken, 
         IDutchExchange _dx,
-        uint _poolingPeriodEndBlockNumber
+        uint _poolingTime
     ) public {
-        dxMgnPool1 = new DxMgnPool(_token1, _token2, _mgnToken, _dx, _poolingPeriodEndBlockNumber);
-        dxMgnPool2 = new DxMgnPool(_token2, _token1, _mgnToken, _dx, _poolingPeriodEndBlockNumber);
+        dxMgnPool1 = new DxMgnPool(_token1, _token2, _mgnToken, _dx, _poolingTime);
+        dxMgnPool2 = new DxMgnPool(_token2, _token1, _mgnToken, _dx, _poolingTime);
     }
 
     function participateInAuction() public {
