@@ -81,6 +81,8 @@ contract("Coordinator", (accounts) => {
       const poolingEndBlock =  0
       const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
 
+      await dxMock.givenAnyReturnUint(0)
+
       assert.equal(await coordinator.canParticipate(), false)
     })
   })
