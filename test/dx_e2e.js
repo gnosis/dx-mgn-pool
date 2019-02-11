@@ -11,7 +11,7 @@ const DXProxy = artifacts.require("DutchExchangeProxy")
 const EtherToken = artifacts.require("EtherToken")
 
 const truffleAssert = require("truffle-assertions")
-const { waitForNBlocks, timestamp, increaseTimeBy } = require("./utilities")
+const { timestamp, increaseTimeBy } = require("./utilities")
 const BN = web3.utils.BN
 
 
@@ -23,9 +23,9 @@ contract("e2e - tests", (accounts) => {
     const dx = await DX.at(dxProxy.address)
     const mgnToken = await TokenFRT.at(await dx.frtToken.call())
     const token_1 = await EtherToken.at(await dx.ethToken.call())
-    const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+    const poolingTime = (60 * 60 * 6) + 100
 
-    const coordinator = await Coordinator.new(token_1.address, token_2.address, mgnToken.address, dx.address, poolingEndBlock)
+    const coordinator = await Coordinator.new(token_1.address, token_2.address, mgnToken.address, dx.address, poolingTime)
 
     const instance1 = await DxMgnPool.at(await coordinator.dxMgnPool1.call())
     const instance2 = await DxMgnPool.at(await coordinator.dxMgnPool2.call())
@@ -110,7 +110,7 @@ contract("e2e - tests", (accounts) => {
     console.log("got third auction finished")
 
     // end pool trading period:
-    await waitForNBlocks(100, accounts[0])
+    await increaseTimeBy(100)
 
     await instance1.triggerMGNunlockAndClaimTokens()
     await instance2.triggerMGNunlockAndClaimTokens()
@@ -147,9 +147,9 @@ contract("e2e - tests", (accounts) => {
     const dx = await DX.at(dxProxy.address)
     const mgnToken = await TokenFRT.at(await dx.frtToken.call())
     const token_1 = await EtherToken.at(await dx.ethToken.call())
-    const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+    const poolingTime = (60 * 60 * 6) + 100
 
-    const coordinator = await Coordinator.new(token_1.address, token_2.address, mgnToken.address, dx.address, poolingEndBlock)
+    const coordinator = await Coordinator.new(token_1.address, token_2.address, mgnToken.address, dx.address, poolingTime)
 
     const instance1 = await DxMgnPool.at(await coordinator.dxMgnPool1.call())
 
@@ -231,7 +231,7 @@ contract("e2e - tests", (accounts) => {
     // console.log("got third auction finished")
 
     // // end pool trading period:
-    // await waitForNBlocks(100, accounts[0])
+    // await increaseTimeBy(100)
 
     // await instance1.triggerMGNunlockAndClaimTokens()
 

@@ -30,12 +30,9 @@ module.exports = async (deployer, network) => { // eslint-disable-line no-unused
     dxProxy = await DxProxy.deployed()
     dxMGN = await DxMGN.deployed()
   }
-  //To be changed to time: time is better since all the other dao stuff also depends on timestamps
-  //const now = new Date()
-  // const endingTradingTimestamp =  new Date(now.getTime() + TRADING_PERIOD_IN_HOURS * 60 * 60 * 1000).getTime() 
-  const poolingEndBlock = 3829876 + 10000
+  const poolingTime = 3 * 60 * 60 * 24 // 3 days for testing
   
   //console.log("abi encoded constructor parameters are: ", web3.eth.abi.encodeParameters(['address', 'address', 'address', 'address', 'uint256'], [etherToken.address, tokenGNO.address, dxMGN.address, dxProxy.address, poolingEndBlock]))
   
-  await deployer.deploy(Coordinator, etherToken.address, tokenGNO.address, dxMGN.address, dxProxy.address, poolingEndBlock)
+  await deployer.deploy(Coordinator, etherToken.address, tokenGNO.address, dxMGN.address, dxProxy.address, poolingTime)
 }
