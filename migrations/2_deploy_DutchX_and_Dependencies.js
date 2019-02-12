@@ -1,6 +1,6 @@
 /* global process, artifacts, web3 */
 
-const deployDutchXAndDeps = require("../fe_migrations/migration_logic/migrations-truffle-5/2_deploy_DutchX_and_Dependencies")
+const deployDutchXAndDeps = require("../src/migrations/migrations-truffle-5/2_deploy_DutchX_and_Dependencies")
 
 module.exports = async (deployer, network, accounts) =>
   deployDutchXAndDeps({

@@ -1,4 +1,4 @@
-const deployPool = require("../fe_migrations/migration_logic/migrations-truffle-5/4_deploy_Pool")
+const deployPool = require("../src/migrations/migrations-truffle-5/4_deploy_Pool")
 
 module.exports = async (deployer, network) =>
   deployPool({
