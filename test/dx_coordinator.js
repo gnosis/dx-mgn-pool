@@ -45,7 +45,7 @@ contract("Coordinator", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const poolingEndBlock = 100
       const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
 
       await depositTokenMock.givenAnyReturnBool(true)
@@ -59,13 +59,26 @@ contract("Coordinator", (accounts) => {
       assert.equal(await coordinator.canParticipate(), true)
     })
 
-    it("False", async () => {
+    it("False - no auction scheduled", async () => {
       await DutchExchange.new()
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = (await web3.eth.getBlockNumber()) + 100
+      const poolingEndBlock =  100
+      const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+
+      await dxMock.givenAnyReturnUint(0)
+
+      assert.equal(await coordinator.canParticipate(), false)
+    })
+    it("False - not the right state", async () => {
+      await DutchExchange.new()
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const poolingEndBlock =  0
       const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
 
       await dxMock.givenAnyReturnUint(0)

@@ -1,6 +1,6 @@
 ### DX-MGN-POOL
 
-The following repo contains all the smart contracts for the pool. Its goal is to collect liquidity that will be automatically on continuously trade on the dutch exchange (in form of sell orders). It will thus generate MGN, which can the liquidity provider can claim according to their share, once the pooling period has ended.
+The following repo contains all the smart contracts for the pool. Its goal is to collect liquidity that will automatically and continuously trade on the dutch exchange (in form of sell orders). It will thus generate MGN, which the liquidity provider can claim according to their share, once the pooling period has ended.
 
 A rough state diagram of the contract looks like this:
 

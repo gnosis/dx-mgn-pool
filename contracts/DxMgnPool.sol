@@ -109,10 +109,13 @@ contract DxMgnPool is Ownable {
 
         (address sellToken, address buyToken) = buyAndSellToken();
         uint depositAmount = depositToken.balanceOf(address(this));
-        if (isDepositTokenTurn() && depositAmount > 0) {
-            //depositing new tokens
-            depositToken.approve(address(dx), depositAmount);
-            dx.deposit(address(depositToken), depositAmount);
+        if (isDepositTokenTurn()) {
+            totalPoolSharesCummulative += 2 * totalPoolShares;
+            if( depositAmount > 0){
+                //depositing new tokens
+                depositToken.approve(address(dx), depositAmount);
+                dx.deposit(address(depositToken), depositAmount);
+            }
         }
         if (isDepositTokenTurn()) {
             totalPoolSharesCummulative += 2*totalPoolShares;
@@ -140,9 +143,11 @@ contract DxMgnPool is Ownable {
         // Don't revert if wen can't claimSellerFunds
         address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", secondaryToken, depositToken, address(this), lastParticipatedAuctionIndex));
         mgnToken.unlockTokens();
-        totalDeposit = dx.balances(address(depositToken), address(this)) + depositToken.balanceOf(address(this));
+
+        uint amountOfFundsInDX = dx.balances(address(depositToken), address(this));
+        totalDeposit = amountOfFundsInDX + depositToken.balanceOf(address(this));
         if(totalDeposit > 0){
-            dx.withdraw(address(depositToken), totalDeposit);
+            dx.withdraw(address(depositToken), amountOfFundsInDX);
         }
         currentState = State.DepositWithdrawnFromDx;
     }
