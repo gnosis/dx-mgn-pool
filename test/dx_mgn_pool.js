@@ -290,7 +290,9 @@ contract("DxMgnPool", (accounts) => {
 
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 0)
       await instance.triggerMGNunlockAndClaimTokens()
+      
       await instance.withdrawDeposit()
 
       const depositTransfer = token.contract.methods.transfer(accounts[0], 10).encodeABI()
@@ -326,7 +328,9 @@ contract("DxMgnPool", (accounts) => {
 
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 0)
       await instance.triggerMGNunlockAndClaimTokens()
+      
       await instance.withdrawDeposit()
 
       const depositTransfer = token.contract.methods.transfer(accounts[0], 20).encodeABI()
@@ -348,6 +352,7 @@ contract("DxMgnPool", (accounts) => {
       const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
       await depositTokenMock.givenAnyReturnBool(true)
       await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
+      
 
       await dxMock.givenAnyReturnUint(10)
       const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
@@ -364,8 +369,10 @@ contract("DxMgnPool", (accounts) => {
 
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
-
+     
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 0)
       await instance.triggerMGNunlockAndClaimTokens()
+      
       await instance.withdrawDeposit()
       await instance.withdrawDeposit()
 
@@ -418,7 +425,7 @@ contract("DxMgnPool", (accounts) => {
     it("unlocksMGN, claims and withdraws depositToken", async () => {
       const dx = await DutchExchange.new()
       const mgn = await TokenFRT.new()
-
+      const token = await ERC20.new()
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
@@ -435,12 +442,15 @@ contract("DxMgnPool", (accounts) => {
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
 
       await increaseTimeBy(poolingTime, web3)
+      const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
       await instance.triggerMGNunlockAndClaimTokens()
+      await depositTokenMock.givenAnyReturnUint(0)
 
       const withdraw = dx.contract.methods.withdraw(depositTokenMock.address, 42).encodeABI()
       assert.equal(await dxMock.invocationCountForCalldata.call(withdraw), 1)
     })
-    it.only("makes a deposit shortly before pooling ending and checks that it is accounted correctly", async () => {
+    it("makes a deposit shortly before pooling ending and checks that it is accounted correctly", async () => {
       const dx = await DutchExchange.new()
       const mgn = await TokenFRT.new()
 
@@ -505,7 +515,7 @@ contract("DxMgnPool", (accounts) => {
     it("checks that function can not be called twice", async () => {
       const dx = await DutchExchange.new()
       const mgn = await TokenFRT.new()
-
+      const token = await ERC20.new()
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
@@ -524,7 +534,8 @@ contract("DxMgnPool", (accounts) => {
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
 
       await increaseTimeBy(100, web3)
-
+      const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
       await instance.triggerMGNunlockAndClaimTokens()
       await truffleAssert.reverts(instance.triggerMGNunlockAndClaimTokens(), "Pooling period is not yet over.")
     })
@@ -574,6 +585,7 @@ contract("DxMgnPool", (accounts) => {
     })
     it("checks that function can not be called twice", async () => {
       const mgn = await TokenFRT.new()
+      const token = await ERC20.new()
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
@@ -604,6 +616,7 @@ contract("DxMgnPool", (accounts) => {
 
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
 
       await instance.triggerMGNunlockAndClaimTokens()
       await instance.withdrawUnlockedMagnoliaFromDx()
