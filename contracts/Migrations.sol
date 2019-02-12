@@ -1,7 +1,5 @@
 pragma solidity >=0.4.21 <0.6.0;
 
-import "@gnosis.pm/dx-contracts/contracts/DxDevDependencies.sol";
-
 contract Migrations {
   address public owner;
   uint public last_completed_migration;
