@@ -25,7 +25,7 @@ contract("e2e - tests", (accounts) => {
     const token_1 = await EtherToken.at(await dx.ethToken.call())
     const poolingTime = (60 * 60 * 6) + 100
 
-    const coordinator = await Coordinator.new(token_1.address, token_2.address, mgnToken.address, dx.address, poolingTime)
+    const coordinator = await Coordinator.new(token_1.address, token_2.address, dx.address, poolingTime)
 
     const instance1 = await DxMgnPool.at(await coordinator.dxMgnPool1.call())
     const instance2 = await DxMgnPool.at(await coordinator.dxMgnPool2.call())
@@ -145,11 +145,10 @@ contract("e2e - tests", (accounts) => {
     const token_2 = await TokenGNO.new(initialFundingGNO)
     const dxProxy = await DXProxy.deployed()
     const dx = await DX.at(dxProxy.address)
-    const mgnToken = await TokenFRT.at(await dx.frtToken.call())
     const token_1 = await EtherToken.at(await dx.ethToken.call())
     const poolingTime = (60 * 60 * 6) + 100
 
-    const coordinator = await Coordinator.new(token_1.address, token_2.address, mgnToken.address, dx.address, poolingTime)
+    const coordinator = await Coordinator.new(token_1.address, token_2.address, dx.address, poolingTime)
 
     const instance1 = await DxMgnPool.at(await coordinator.dxMgnPool1.call())
 

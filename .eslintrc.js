@@ -38,6 +38,7 @@ module.exports = {
         "artifacts": false,
         "contract": false,
         "assert": false,
-        "web3": false
+        "web3": false,
+        "process": true,
     },
 };
