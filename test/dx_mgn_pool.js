@@ -611,7 +611,7 @@ contract("DxMgnPool", (accounts) => {
       await instance.participateInAuction()
       await instance.participateInAuction()
 
-      await increaseTimeBy(100, web3)
+      await increaseTimeBy(poolingTime, web3)
       await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
 
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
