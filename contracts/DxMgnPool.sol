@@ -138,9 +138,10 @@ contract DxMgnPool is Ownable {
         // Don't revert if wen can't claimSellerFunds
         address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", secondaryToken, depositToken, address(this), lastParticipatedAuctionIndex));
         mgnToken.unlockTokens();
-        totalDeposit = dx.balances(address(depositToken), address(this));
+        uint amountOfFundsInDX = dx.balances(address(depositToken), address(this));
+        totalDeposit = amountOfFundsInDX + depositToken.balanceOf(address(this));
         if(totalDeposit > 0){
-            dx.withdraw(address(depositToken), totalDeposit);
+            dx.withdraw(address(depositToken), amountOfFundsInDX);
         }
         currentState = State.DepositWithdrawnFromDx;
     }

@@ -96,9 +96,9 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
+      const poolingTime = 100
 
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await depositTokenMock.givenAnyReturnBool(true)
       await dxMock.givenAnyReturnUint(42)
@@ -123,8 +123,8 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await depositTokenMock.givenAnyReturnBool(true)
 
@@ -143,8 +143,8 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await depositTokenMock.givenAnyReturnBool(true)
 
@@ -164,8 +164,8 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 1
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 1
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await increaseTimeBy(100, web3)
 
@@ -178,8 +178,8 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await depositTokenMock.givenAnyReturnBool(true)
 
@@ -209,8 +209,8 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await depositTokenMock.givenAnyReturnBool(true)
 
@@ -232,8 +232,8 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await depositTokenMock.givenAnyReturnBool(true)
 
@@ -269,8 +269,8 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
       await depositTokenMock.givenAnyReturnBool(true)
@@ -290,7 +290,9 @@ contract("DxMgnPool", (accounts) => {
 
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 0)
       await instance.triggerMGNunlockAndClaimTokens()
+      
       await instance.withdrawDeposit()
 
       const depositTransfer = token.contract.methods.transfer(accounts[0], 10).encodeABI()
@@ -305,8 +307,8 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
       await depositTokenMock.givenAnyReturnBool(true)
@@ -326,7 +328,9 @@ contract("DxMgnPool", (accounts) => {
 
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 0)
       await instance.triggerMGNunlockAndClaimTokens()
+      
       await instance.withdrawDeposit()
 
       const depositTransfer = token.contract.methods.transfer(accounts[0], 20).encodeABI()
@@ -342,12 +346,13 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
       await depositTokenMock.givenAnyReturnBool(true)
       await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
+      
 
       await dxMock.givenAnyReturnUint(10)
       const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
@@ -364,8 +369,10 @@ contract("DxMgnPool", (accounts) => {
 
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
-
+     
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 0)
       await instance.triggerMGNunlockAndClaimTokens()
+      
       await instance.withdrawDeposit()
       await instance.withdrawDeposit()
 
@@ -380,8 +387,8 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await truffleAssert.reverts(instance.withdrawDeposit(), "Funds not yet withdrawn from dx")
     })
@@ -395,8 +402,8 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
       await depositTokenMock.givenAnyReturnBool(true)
@@ -418,13 +425,13 @@ contract("DxMgnPool", (accounts) => {
     it("unlocksMGN, claims and withdraws depositToken", async () => {
       const dx = await DutchExchange.new()
       const mgn = await TokenFRT.new()
-
+      const token = await ERC20.new()
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 1
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 1
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await dxMock.givenAnyReturnUint(42)
       const tupleResponse = (abi.rawEncode(["uint", "uint"], [42, 0]))
@@ -434,32 +441,64 @@ contract("DxMgnPool", (accounts) => {
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
 
-      await increaseTimeBy(100, web3)
+      await increaseTimeBy(poolingTime, web3)
+      const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
       await instance.triggerMGNunlockAndClaimTokens()
+      await depositTokenMock.givenAnyReturnUint(0)
 
       const withdraw = dx.contract.methods.withdraw(depositTokenMock.address, 42).encodeABI()
       assert.equal(await dxMock.invocationCountForCalldata.call(withdraw), 1)
+    })
+    it("makes a deposit shortly before pooling ending and checks that it is accounted correctly", async () => {
+      const dx = await DutchExchange.new()
+      const mgn = await TokenFRT.new()
+
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const poolingTime = 10
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
+
+      await depositTokenMock.givenAnyReturnBool(true)
+      await dxMock.givenAnyReturnUint(10)
+      // return balance of 10
+      const tupleResponse = (abi.rawEncode(["uint", "uint"], [10, 0]))
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
+
+      const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
+      await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
+      
+      // return the as balances another 10
+      await depositTokenMock.givenAnyReturnUint(10)
+      await increaseTimeBy(poolingTime, web3)
+      await instance.triggerMGNunlockAndClaimTokens()
+
+      assert.equal(await instance.totalDeposit.call(), 10+10)
     })
     it("fails if still pooling", async () => {
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await truffleAssert.reverts(instance.triggerMGNunlockAndClaimTokens(), "Pooling period is not yet over.")
     })
     it("does not throw if pool has zero balance in dutchX", async () => {
       const dx = await DutchExchange.new()
       const mgn = await TokenFRT.new()
+      const token = await ERC20.new()
 
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock =  0
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime =  0
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await dxMock.givenAnyReturnUint(42)
       const tupleResponse = (abi.rawEncode(["uint", "uint"], [42, 0]))
@@ -471,18 +510,21 @@ contract("DxMgnPool", (accounts) => {
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
 
-      instance.triggerMGNunlockAndClaimTokens()
+      const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
+
+      await instance.triggerMGNunlockAndClaimTokens()
     })
     it("checks that function can not be called twice", async () => {
       const dx = await DutchExchange.new()
       const mgn = await TokenFRT.new()
-
+      const token = await ERC20.new()
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 0
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 0
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await dxMock.givenAnyReturnUint(42)
       const tupleResponse = (abi.rawEncode(["uint", "uint"], [42, 0]))
@@ -494,8 +536,8 @@ contract("DxMgnPool", (accounts) => {
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
 
-      await increaseTimeBy(100, web3)
-
+      const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
       await instance.triggerMGNunlockAndClaimTokens()
       await truffleAssert.reverts(instance.triggerMGNunlockAndClaimTokens(), "Pooling period is not yet over.")
     })
@@ -506,8 +548,8 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 1000
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
       await depositTokenMock.givenAnyReturnBool(true)
@@ -527,7 +569,7 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(postSellOrder, abi.rawEncode(["uint", "uint"], [3, 0]))
       await instance.participateInAuction()
 
-      await increaseTimeBy(100, web3)
+      await increaseTimeBy(1000, web3)
 
       await truffleAssert.reverts(instance.triggerMGNunlockAndClaimTokens(), "Last auction is still running")
     })
@@ -538,20 +580,21 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await truffleAssert.reverts(instance.withdrawUnlockedMagnoliaFromDx(), "Unlocking not yet triggered")
     })
     it("checks that function can not be called twice", async () => {
       const mgn = await TokenFRT.new()
+      const token = await ERC20.new()
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
       const dx = await DutchExchange.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 1000
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await depositTokenMock.givenAnyReturnBool(true)
 
@@ -568,13 +611,15 @@ contract("DxMgnPool", (accounts) => {
 
       await instance.deposit(10)
       await instance.participateInAuction()
+
       await instance.participateInAuction()
 
-      await increaseTimeBy(100, web3)
+      await increaseTimeBy(poolingTime, web3)
       await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
 
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
 
       await instance.triggerMGNunlockAndClaimTokens()
       await instance.withdrawUnlockedMagnoliaFromDx()
@@ -590,8 +635,8 @@ contract("DxMgnPool", (accounts) => {
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
       const dx = await DutchExchange.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await depositTokenMock.givenAnyReturnBool(true)
 
@@ -633,8 +678,8 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await truffleAssert.reverts(instance.withdrawMagnolia(), "MGN has not been unlocked, yet")
     })
@@ -645,8 +690,8 @@ contract("DxMgnPool", (accounts) => {
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
       const dx = await DutchExchange.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await depositTokenMock.givenAnyReturnBool(true)
 
@@ -683,8 +728,8 @@ contract("DxMgnPool", (accounts) => {
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
       const dx = await DutchExchange.new()
-      const poolingEndBlock = 100
-      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingEndBlock)
+      const poolingTime = 100
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await depositTokenMock.givenAnyReturnBool(true)
 
