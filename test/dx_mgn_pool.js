@@ -476,7 +476,6 @@ contract("DxMgnPool", (accounts) => {
       await increaseTimeBy(poolingTime, web3)
       await instance.triggerMGNunlockAndClaimTokens()
 
-      console.log((await instance.totalDeposit.call()).toString())
       assert.equal(await instance.totalDeposit.call(), 10+10)
     })
     it("fails if still pooling", async () => {
@@ -492,6 +491,7 @@ contract("DxMgnPool", (accounts) => {
     it("does not throw if pool has zero balance in dutchX", async () => {
       const dx = await DutchExchange.new()
       const mgn = await TokenFRT.new()
+      const token = await ERC20.new()
 
       const depositTokenMock = await MockContract.new()
       const secondaryTokenMock = await MockContract.new()
@@ -510,7 +510,10 @@ contract("DxMgnPool", (accounts) => {
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
 
-      instance.triggerMGNunlockAndClaimTokens()
+      const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
+
+      await instance.triggerMGNunlockAndClaimTokens()
     })
     it("checks that function can not be called twice", async () => {
       const dx = await DutchExchange.new()
@@ -533,7 +536,6 @@ contract("DxMgnPool", (accounts) => {
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
 
-      await increaseTimeBy(100, web3)
       const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
       await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
       await instance.triggerMGNunlockAndClaimTokens()
@@ -546,7 +548,7 @@ contract("DxMgnPool", (accounts) => {
       const secondaryTokenMock = await MockContract.new()
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
-      const poolingTime = 100
+      const poolingTime = 1000
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
@@ -567,7 +569,7 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(postSellOrder, abi.rawEncode(["uint", "uint"], [3, 0]))
       await instance.participateInAuction()
 
-      await increaseTimeBy(100, web3)
+      await increaseTimeBy(1000, web3)
 
       await truffleAssert.reverts(instance.triggerMGNunlockAndClaimTokens(), "Last auction is still running")
     })
@@ -591,7 +593,7 @@ contract("DxMgnPool", (accounts) => {
       const mgnTokenMock = await MockContract.new()
       const dxMock = await MockContract.new()
       const dx = await DutchExchange.new()
-      const poolingTime = 100
+      const poolingTime = 1000
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, mgnTokenMock.address, dxMock.address, poolingTime)
 
       await depositTokenMock.givenAnyReturnBool(true)
@@ -609,6 +611,7 @@ contract("DxMgnPool", (accounts) => {
 
       await instance.deposit(10)
       await instance.participateInAuction()
+
       await instance.participateInAuction()
 
       await increaseTimeBy(poolingTime, web3)
