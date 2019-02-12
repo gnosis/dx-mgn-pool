@@ -568,7 +568,7 @@ contract("e2e - tests", (accounts) => {
     balBefore = await mgnToken.balanceOf.call(participant_1)
     await instance1.withdrawMagnolia({from: participant_1})
     balAfter = await mgnToken.balanceOf.call(participant_1)
-    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - 250), 5)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - 247), 5)
 
     console.log("first worked")
 
