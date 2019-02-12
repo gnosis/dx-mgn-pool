@@ -17,10 +17,10 @@ async function migrate({
     GNOArtifact = artifacts.require("@gnosis.pm/gno-token/contracts/TokenGNO")
 
   // temp vars
-  let etherToken, tokenGNO, dxProxy, dxMGN  
+  let etherToken, tokenGNO, dxProxy 
   
   if (network === "development") {
-    ([etherToken, tokenGNO, dxProxy, dxMGN]= await Promise.all([
+    ([etherToken, tokenGNO, dxProxy]= await Promise.all([
       WETHArtifact.deployed(),
       GNOArtifact.deployed(),
       DXProxyArtifact.deployed(),
@@ -38,7 +38,7 @@ async function migrate({
     const contractsMapped = contractArtFilePaths.map(path => TC(require(path)))
     // Set deployer provider to each contract
     contractsMapped.forEach(tcArt => tcArt.setProvider(deployer.provider));
-    ([dxProxy, dxMGN, etherToken, tokenGNO] = await Promise.all(contractsMapped.map(contract => contract.deployed())))
+    ([dxProxy, etherToken, tokenGNO] = await Promise.all(contractsMapped.map(contract => contract.deployed())))
   }
 
   const poolingTime = 3 * 60 * 60 * 24 // 3 days for testing
