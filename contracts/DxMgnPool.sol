@@ -113,6 +113,8 @@ contract DxMgnPool is Ownable {
             //depositing new tokens
             depositToken.approve(address(dx), depositAmount);
             dx.deposit(address(depositToken), depositAmount);
+        }
+        if (isDepositTokenTurn()) {
             totalPoolSharesCummulative += 2*totalPoolShares;
         }
         // Don't revert if we can't claimSellerFunds
