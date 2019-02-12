@@ -109,10 +109,13 @@ contract DxMgnPool is Ownable {
 
         (address sellToken, address buyToken) = buyAndSellToken();
         uint depositAmount = depositToken.balanceOf(address(this));
-        if (isDepositTokenTurn() && depositAmount > 0) {
-            //depositing new tokens
-            depositToken.approve(address(dx), depositAmount);
-            dx.deposit(address(depositToken), depositAmount);
+        if (isDepositTokenTurn()) {
+            totalPoolSharesCummulative += 2 * totalPoolShares;
+            if( depositAmount > 0){
+                //depositing new tokens
+                depositToken.approve(address(dx), depositAmount);
+                dx.deposit(address(depositToken), depositAmount);
+            }
         }
         // Don't revert if we can't claimSellerFunds
         address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", buyToken, sellToken, address(this), lastParticipatedAuctionIndex));
@@ -124,7 +127,6 @@ contract DxMgnPool is Ownable {
 
         (lastParticipatedAuctionIndex, ) = dx.postSellOrder(sellToken, buyToken, 0, amount);
         auctionCount += 1;
-        totalPoolSharesCummulative += totalPoolShares;
     }
 
     function triggerMGNunlockAndClaimTokens() public {

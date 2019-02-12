@@ -157,7 +157,7 @@ contract("DxMgnPool", (accounts) => {
       await instance.participateInAuction()
 
       assert.equal(await instance.auctionCount.call(), 1)
-      assert.equal(await instance.totalPoolSharesCummulative.call(), 10)
+      assert.equal(await instance.totalPoolSharesCummulative.call(), 20)
     })
     it("fails if pooling period is over", async () => {
       const depositTokenMock = await MockContract.new()
@@ -254,7 +254,7 @@ contract("DxMgnPool", (accounts) => {
       await instance.participateInAuction()
 
       assert.equal(await instance.auctionCount.call(), 2)
-      assert.equal(await instance.totalPoolSharesCummulative.call(), 40) // 2 * 10 from first deposit + 1 * 20 from second
+      assert.equal(await instance.totalPoolSharesCummulative.call(), 20) // just 2*10 from first deposit
     })
   })
 
