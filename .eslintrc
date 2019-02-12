@@ -93,9 +93,10 @@
       "mocha": true
     },
     "globals": {
-      "assert": true,
-      "contract": true,
-      "artifacts": true,
-      "web3": true
+      "assert": false,
+      "contract": false,
+      "artifacts": false,
+      "web3": false,
+      "process": true,
     }
   }
