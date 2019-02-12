@@ -712,42 +712,38 @@ contract("e2e - tests", (accounts) => {
 
     console.log("got fifth auction finished")
     await coordinator.participateInAuction()
-    await instance1.deposit(DEPOSIT_2_1, {from: participant_2})
-
-
-    assert.equal(await dx.getAuctionIndex(token_1.address, token_2.address), 4)
 
     //claim funds  and post into next auction auction with more
-    await dx.claimSellerFunds(token_1.address, token_2.address, accounts[0], 3)
-    await dx.claimSellerFunds(token_2.address, token_1.address, accounts[0], 3)
-    await dx.claimBuyerFunds(token_1.address, token_2.address, accounts[0], 3)
-    await dx.claimBuyerFunds(token_2.address, token_1.address, accounts[0], 3)
+    await dx.claimSellerFunds(token_1.address, token_2.address, accounts[0], 5)
+    await dx.claimSellerFunds(token_2.address, token_1.address, accounts[0], 5)
+    await dx.claimBuyerFunds(token_1.address, token_2.address, accounts[0], 5)
+    await dx.claimBuyerFunds(token_2.address, token_1.address, accounts[0], 5)
     await dx.postSellOrder(token_1.address, token_2.address, 0, oneGwei.mul(new BN("2")).toString())
     await dx.postSellOrder(token_2.address, token_1.address, 0, oneGwei.mul(new BN("2")).toString())
 
     //close the auction and pool paritcpation in next one
     await waitUntilPriceIsXPercentOfPreviousPrice(dx, token_1, token_2, 1, web3)
-    await dx.postBuyOrder(token_1.address, token_2.address, 4, oneGwei.mul(new BN("2")).toString())
-    await dx.postBuyOrder(token_2.address, token_1.address, 4, oneGwei.mul(new BN("2")).toString())
+    await dx.postBuyOrder(token_1.address, token_2.address, 6, oneGwei.mul(new BN("2")).toString())
+    await dx.postBuyOrder(token_2.address, token_1.address, 6, oneGwei.mul(new BN("2")).toString())
 
-    assert.equal(await dx.getAuctionIndex(token_1.address, token_2.address), 5)
+    assert.equal(await dx.getAuctionIndex(token_1.address, token_2.address), 7)
     console.log("got sixths auction finished")
     await coordinator.participateInAuction()
 
     //claim funds  and post into next auction auction with more
-    await dx.claimSellerFunds(token_1.address, token_2.address, accounts[0], 4)
-    await dx.claimSellerFunds(token_2.address, token_1.address, accounts[0], 4)
-    await dx.claimBuyerFunds(token_1.address, token_2.address, accounts[0], 4)
-    await dx.claimBuyerFunds(token_2.address, token_1.address, accounts[0], 4)
+    await dx.claimSellerFunds(token_1.address, token_2.address, accounts[0], 6)
+    await dx.claimSellerFunds(token_2.address, token_1.address, accounts[0], 6)
+    await dx.claimBuyerFunds(token_1.address, token_2.address, accounts[0], 6)
+    await dx.claimBuyerFunds(token_2.address, token_1.address, accounts[0], 6)
     await dx.postSellOrder(token_1.address, token_2.address, 0, oneGwei.mul(new BN("1")).toString())
     await dx.postSellOrder(token_2.address, token_1.address, 0, oneGwei.mul(new BN("1")).toString())
 
     //close the auction and pool paritcpation in next one
-    await waitUntilPriceIsXPercentOfPreviousPrice(dx, token_1, token_2, 1, web3)
-    await dx.postBuyOrder(token_1.address, token_2.address, 5, oneGwei.mul(new BN("3")).toString())
-    await dx.postBuyOrder(token_2.address, token_1.address, 5, oneGwei.mul(new BN("3")).toString())
+    await waitUntilPriceIsXPercentOfPreviousPrice(dx, token_1, token_2, 1.5, web3)
+    await dx.postBuyOrder(token_1.address, token_2.address, 7, oneGwei.mul(new BN("5")).toString())
+    await dx.postBuyOrder(token_2.address, token_1.address, 7, oneGwei.mul(new BN("5")).toString())
 
-    assert.equal(await dx.getAuctionIndex(token_1.address, token_2.address), 6)
+    assert.equal(await dx.getAuctionIndex(token_1.address, token_2.address), 8)
 
     console.log("got sevenths auction finished")
 
@@ -760,31 +756,29 @@ contract("e2e - tests", (accounts) => {
     let balBefore = await token_1.balanceOf.call(participant_1)
     await instance1.withdrawDeposit({from: participant_1})
     let balAfter = await token_1.balanceOf.call(participant_1)
-
-    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - (DEPOSIT_1_1 - 2)/2), 5)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - (DEPOSIT_1_1)/2 *1.5), 5)
     balBefore = await token_1.balanceOf.call(participant_2)
     await instance1.withdrawDeposit({from: participant_2})
     balAfter = await token_1.balanceOf.call(participant_2)
-    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString()- (DEPOSIT_2_1 )) , 5)
+
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString()- (DEPOSIT_2_1)*1.5) , 5)
 
 
     //wait until MGN is unlocked
     await increaseTimeBy(60 * 60 * 24 + 2, web3)
     await instance1.withdrawUnlockedMagnoliaFromDx()
+    // around 614 MGN should have been greated, and the split should be 6/10 to 4/10 between the accounts 
+    assert.isBelow(Math.abs((await mgnToken.balanceOf.call(instance1.address)).sub(new BN("614"))), 10)
     
-    assert.isBelow(Math.abs((await mgnToken.balanceOf.call(instance1.address)).sub(new BN("250"))), 10)
-    console.log((await instance1.totalPoolSharesCummulative()).toString())
-    console.log((await instance1.participationsByAddress(participant_1,0)).poolShares.toString())
-    console.log((await instance1.auctionCount()))
 
     balBefore = await mgnToken.balanceOf.call(participant_1)
     await instance1.withdrawMagnolia({from: participant_1})
     balAfter = await mgnToken.balanceOf.call(participant_1)
-    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - 247), 5)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - 614*6/10), 5)
 
     balBefore = await mgnToken.balanceOf.call(participant_2)
     await instance1.withdrawMagnolia({from: participant_2})
     balAfter = await mgnToken.balanceOf.call(participant_2)
-    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString()- 0), 4)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString()- 614*4/10), 4)
   })
 })
