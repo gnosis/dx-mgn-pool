@@ -3,7 +3,7 @@
 // eslint-disable-next-line no-undef
   abi = require("ethereumjs-abi")
 
-// const TRADING_PERIOD_IN_HOURS = 30*24
+const TRADING_PERIOD_IN_HOURS = 3 * 60 * 60 * 24 // 3 days for testing
 
 async function migrate({
   artifacts,
@@ -41,7 +41,7 @@ async function migrate({
     ([dxProxy, etherToken, tokenGNO] = await Promise.all(contractsMapped.map(contract => contract.deployed())))
   }
 
-  const poolingTime = 3 * 60 * 60 * 24 // 3 days for testing
+  const poolingTime = TRADING_PERIOD_IN_HOURS
     
   await deployer.deploy(Coordinator, etherToken.address, tokenGNO.address, dxProxy.address, poolingTime)
 }
