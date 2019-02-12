@@ -13,7 +13,6 @@ async function migrate({
   
   const Coordinator = artifacts.require("Coordinator"),
     DXProxyArtifact = artifacts.require("@gnosis.pm/dx-contracts/contracts/DutchExchangeProxy"),
-    DXMGNArtifact = artifacts.require("@gnosis.pm/dx-contracts/contracts/TokenFRT"),
     WETHArtifact = artifacts.require("@gnosis.pm/util-contracts/contracts/EtherToken"),
     GNOArtifact = artifacts.require("@gnosis.pm/gno-token/contracts/TokenGNO")
 
@@ -25,14 +24,12 @@ async function migrate({
       WETHArtifact.deployed(),
       GNOArtifact.deployed(),
       DXProxyArtifact.deployed(),
-      DXMGNArtifact.deployed(),
     ]))
   } else {
     const TC = require("truffle-contract")
     
     const contractArtFilePaths = [
       "@gnosis.pm/dx-contracts/build/contracts/DutchExchangeProxy.json", 
-      "@gnosis.pm/dx-contracts/build/contracts/TokenFRT.json", 
       "@gnosis.pm/util-contracts/build/contracts/EtherToken.json", 
       "@gnosis.pm/gno-token/build/contracts/TokenGNO.json",
     ]
@@ -45,10 +42,8 @@ async function migrate({
   }
 
   const poolingTime = 3 * 60 * 60 * 24 // 3 days for testing
-  
-  // console.log("abi encoded constructor parameters are: ", web3.eth.abi.encodeParameters(['address', 'address', 'address', 'address', 'uint256'], [etherToken.address, tokenGNO.address, dxMGN.address, dxProxy.address, poolingEndBlock]))
-  
-  await deployer.deploy(Coordinator, etherToken.address, tokenGNO.address, dxMGN.address, dxProxy.address, poolingTime)
+    
+  await deployer.deploy(Coordinator, etherToken.address, tokenGNO.address, dxProxy.address, poolingTime)
 }
 
 module.exports = migrate

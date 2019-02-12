@@ -31,7 +31,7 @@ module.exports = async (callback) => {
     const gnoToken = await MintableERC20.new()
     
     const poolingTime = 60 * 60 * 24 * 90
-    const coordinator = await Coordinator.new(ethToken.address, gnoToken.address, mgnToken.address, dx.address, poolingTime)
+    const coordinator = await Coordinator.new(ethToken.address, gnoToken.address, dx.address, poolingTime)
     const ethPool = await DxMgnPool.at(await coordinator.dxMgnPool1.call())
     const gnoPool = await DxMgnPool.at(await coordinator.dxMgnPool2.call())
 
