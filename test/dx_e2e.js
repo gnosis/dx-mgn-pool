@@ -770,11 +770,11 @@ contract("e2e - tests", (accounts) => {
     balBefore = await mgnToken.balanceOf.call(participant_1)
     await instance1.withdrawMagnolia({from: participant_1})
     balAfter = await mgnToken.balanceOf.call(participant_1)
-    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - 614*6/10), 5)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString() - 614*6/10), 10)
 
     balBefore = await mgnToken.balanceOf.call(participant_2)
     await instance1.withdrawMagnolia({from: participant_2})
     balAfter = await mgnToken.balanceOf.call(participant_2)
-    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString()- 614*4/10), 4)
+    assert.isBelow(Math.abs(balAfter.sub(balBefore).toString()- 614*4/10), 10)
   })
 })
