@@ -556,9 +556,6 @@ contract("e2e - tests", (accounts) => {
     await instance1.withdrawUnlockedMagnoliaFromDx()
     
     assert.isBelow(Math.abs((await mgnToken.balanceOf.call(instance1.address)).sub(new BN("250"))), 10)
-    console.log((await instance1.totalPoolSharesCummulative()).toString())
-    console.log((await instance1.participationsByAddress(participant_1,0)).poolShares.toString())
-    console.log((await instance1.auctionCount()))
 
     balBefore = await mgnToken.balanceOf.call(participant_1)
     await instance1.withdrawMagnolia({from: participant_1})
