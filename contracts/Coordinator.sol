@@ -9,12 +9,11 @@ contract Coordinator {
     constructor (
         ERC20 _token1, 
         ERC20 _token2, 
-        TokenFRT _mgnToken, 
         IDutchExchange _dx,
         uint _poolingTime
     ) public {
-        dxMgnPool1 = new DxMgnPool(_token1, _token2, _mgnToken, _dx, _poolingTime);
-        dxMgnPool2 = new DxMgnPool(_token2, _token1, _mgnToken, _dx, _poolingTime);
+        dxMgnPool1 = new DxMgnPool(_token1, _token2, _dx, _poolingTime);
+        dxMgnPool2 = new DxMgnPool(_token2, _token1, _dx, _poolingTime);
     }
 
     function participateInAuction() public {

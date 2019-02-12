@@ -34,5 +34,5 @@ module.exports = async (deployer, network) => { // eslint-disable-line no-unused
   
   //console.log("abi encoded constructor parameters are: ", web3.eth.abi.encodeParameters(['address', 'address', 'address', 'address', 'uint256'], [etherToken.address, tokenGNO.address, dxMGN.address, dxProxy.address, poolingEndBlock]))
   
-  await deployer.deploy(Coordinator, etherToken.address, tokenGNO.address, dxMGN.address, dxProxy.address, poolingTime)
+  await deployer.deploy(Coordinator, etherToken.address, tokenGNO.address, dxProxy.address, poolingTime)
 }

@@ -43,15 +43,14 @@ contract DxMgnPool is Ownable {
     constructor (
         ERC20 _depositToken, 
         ERC20 _secondaryToken, 
-        TokenFRT _mgnToken, 
         IDutchExchange _dx,
         uint _poolingTimeSeconds
     ) public Ownable()
     {
         depositToken = _depositToken;
         secondaryToken = _secondaryToken;
-        mgnToken = _mgnToken;
         dx = _dx;
+        mgnToken = TokenFRT(dx.frtToken());
         poolingPeriodEndTime = now + _poolingTimeSeconds;
     }
 
