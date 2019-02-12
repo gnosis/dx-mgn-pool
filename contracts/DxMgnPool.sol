@@ -117,9 +117,6 @@ contract DxMgnPool is Ownable {
                 dx.deposit(address(depositToken), depositAmount);
             }
         }
-        if (isDepositTokenTurn()) {
-            totalPoolSharesCummulative += 2*totalPoolShares;
-        }
         // Don't revert if we can't claimSellerFunds
         address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", buyToken, sellToken, address(this), lastParticipatedAuctionIndex));
 
