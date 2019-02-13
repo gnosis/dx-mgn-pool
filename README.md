@@ -37,7 +37,8 @@ Note, that a deposit only starts contributing to the MGN generation in the next 
 #### Deposit Withdraws
 Participants can withdraw their deposit **only after the pooling period has ended**.
 **Note that**, due to price fluctuations, it is possible that people withdraw a different amount than they deposited. 
-E.g. if they initially provided 10% of the pool and the price of GNO fell over the time of pooling, the contract will hold less GNO at the end.
+E.g. if they initially provided 10% of the pool and the price of GNO increased in step 2 of the auction process (*WETH -> GNO*), the contract will buy back less GNO than it sold in the first step.
+Thus it might hold a smaller amount of GNO in the end than initially deposited.
 Participants are only entitled to withdraw their share, which would then be worth less than the initial deposit.
 
 Note that, in order to avoid adjusting all shares after each deposit, we don't store the relative contribution of each participation as a percentage, but rather as an absolute number of *pool shares* (more gas efficient).
