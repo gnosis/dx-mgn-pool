@@ -22,7 +22,7 @@ It does so by posting a sell order for the full balance of its deposit token.
 3. After the reverse auction finishes, it claims all of its proclaims in the original deposit token and starts over.
 
 One such round will take two dutchX auctions to finish, thus roughly 12 hours.
-The pooling period si defined to end after an even number of auctions. 
+The pooling period is defined to end after an even number of auctions. 
 Thus, participants can eventually withdraw the same ERC20 token they deposited.
 
 With two deployed instances and our example above, the first pool trades GNO for WETH (step 1) followed by WETH for GNO (step 2).
