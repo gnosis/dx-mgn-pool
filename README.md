@@ -36,7 +36,7 @@ Note, that a deposit only starts contributing to the MGN generation in the next 
 
 #### Deposit Withdraws
 Participants can withdraw their deposit **only after the pooling period has ended**.
-Note, that due to price fluctuations it is possible that people withdraw a different amount than they deposited. 
+**Note that**, due to price fluctuations, it is possible that people withdraw a different amount than they deposited. 
 E.g. if they initially provided 10% of the pool and the price of GNO fell over the time of pooling, the contract will hold less GNO at the end.
 Particpants are only entitled to withdraw their share, which would then be worth less than the initial deposit.
 
