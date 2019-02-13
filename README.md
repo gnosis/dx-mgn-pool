@@ -12,7 +12,7 @@ The deployment consists of two smart contracts, `DxMgnPool` and a `Coordinator`
 
 This contract allows participants to deposit a single predefined ERC20 token (e.g. GNO) into the contract's balance. 
 The contract will continuously participate with its entire balance in dutchX auctions and thus generate magnolia.
-We deploy two instances of the same contract: one allowing to deposit a token (e.g. GNO) and another one allowing to deposit another token (e.g. WETH). 
+We deploy a separate instance of the same contract for each individual token: e.g. one contract to deposit GNO tokens, and one contract to deposit WETH tokens. 
 The two contracts will continuously trade their deposit token against the deposit token of the other pool. 
 
 #### Auction process
