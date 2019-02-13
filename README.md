@@ -1,6 +1,6 @@
 # DX-MGN-POOL
 
-The following repo contains all the smart contracts for the pool. Its goal is to collect liquidity that will automatically and continuously trade on the dutch exchange (in form of sell orders) over a predefined amount of time (~1 month). It will thus generate MGN, which the liquidity providers can claim according to their share, once the pooling period has ended.
+The following repo contains all the smart contracts for the pool. Its goal is to collect liquidity and use it to trade automatically and continuously on the DutchX (in form of sell orders) over a predefined amount of time (~1 month). It will thus generate MGN, which the liquidity providers can claim according to their share, once the pooling period has ended.
 
 A rough state diagram of the contract looks like this:
 
@@ -11,7 +11,7 @@ The deployment consists of two smart contracts, `DxMgnPool` and a `Coordinator`
 ### DxMgnPool
 
 This contract allows participants to deposit a single predefined ERC20 token (e.g. GNO) into the contract's balance. 
-The contract will continuously participate with its entire balance in dutchX auctions and thus generate magnolia.
+The contract will continuously participate with its entire balance in DutchX auctions and thus generate MGN (assuming a trading pair whitelisted for MGN generation in the DutchX, such as GNO/WETH).
 We deploy a separate instance of the same contract for each individual token: e.g. one contract to deposit GNO tokens, and one contract to deposit WETH tokens. 
 The two contracts will continuously trade their deposit token against the deposit token of the other pool. 
 
@@ -21,7 +21,7 @@ It does so by posting a sell order for the full balance of its deposit token.
 2. After the first auction finishes, the contract claims all of its proclaims (in *secondaryToken*) and reinvests it as a sell order in the reverse auction (*secondaryToken* -> *depositToken*). 
 3. After the reverse auction finishes, it claims all of its proclaims in the original deposit token and starts over.
 
-One such round will take two dutchX auctions to finish, thus roughly 12 hours.
+One such round will take two DutchX auctions to finish, thus roughly 12 hours.
 The pooling period is defined to end after an even number of auctions. 
 Thus, participants can eventually withdraw the same ERC20 token they deposited.
 
@@ -58,14 +58,14 @@ We deploy a bot (found under scripts) that will run continuously and check if th
 If so, the bot executes the according transaction.
 
 Once the pooling period is over, we call `triggerMGNunlockAndClaimTokens()` manually. 
-This will claim all remaining proceeds from the dutchX back into the pools deposit token balance to allow participants to withdraw their deposits.
+This will claim all remaining proceeds from the DutchX back into the pools deposit token balance to allow participants to withdraw their deposits.
 It will also unlock all minted MGN.
 
 Due to the way MGN works, we have to wait 24 hours more, before claiming the unlocked MGN into the pool's balance (by invoking `withdrawUnlockedMagnoliaFromDx()`).
 At that point participants can withdraw their share of MGN.
 
 In principle any party can invoke those calls. 
-There are no permission checks that are relying on our bot invoking these functions.
+There is no logic enforcing that only our bot can invoke these functions.
 
 ### Coordinator
 
