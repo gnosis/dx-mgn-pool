@@ -40,7 +40,7 @@ Note, that due to price fluctuations it is possible that people withdraw a diffe
 E.g. if they initially provided 10% of the pool and the price of GNO fell over the time of pooling, the contract will hold less GNO at the end.
 Particpants are only entitled to withdraw their share, which would then be worth less than the initial deposit.
 
-Note, that in order to avoid adjusting all shares after each deposit, we don't store the relative contribution of each participation in %, but instead store an absolute number of *pool shares* (more gas efficient).
+Note that, in order to avoid adjusting all shares after each deposit, we don't store the relative contribution of each participation as a percentage, but rather as an absolute number of *pool shares* (more gas efficient).
 `calculatePoolShares()` contains the logic for computing the number of pool shares a deposit is credited with.
 
 #### Magnolia Withdraws
