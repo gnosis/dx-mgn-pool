@@ -12,12 +12,13 @@ COPY contracts contracts
 
 # Compile necesary contracts for app and cleanup unnecesary files
 RUN apk add --update --no-cache --virtual build-dependencies git python make bash g++ ca-certificates && \
-    apk add --no-cache git
+    apk add --no-cache git mailx postfix
 
 COPY . .
 COPY tasks/cron-task /etc/crontabs/root
 
 RUN chmod +x tasks/participate.sh
+RUN chmod +x tasks/entry.sh
 
 RUN npm install
 
@@ -31,4 +32,6 @@ RUN npm run networks-inject
 RUN crontab /etc/crontabs/root
 
 # Run the command on container startup
-CMD [ "sh", "-c", "echo 'Starting container service' && /usr/sbin/crond -f" ]
+# CMD [ "sh", "-c", "echo 'Starting container service' && /usr/sbin/crond -f" ]
+
+CMD [ "sh", "-c", "tasks/entry.sh" ]
