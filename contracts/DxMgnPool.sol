@@ -106,7 +106,7 @@ contract DxMgnPool is Ownable {
         uint auctionIndex = dx.getAuctionIndex(address(depositToken), address(secondaryToken));
         require(auctionIndex > lastParticipatedAuctionIndex, "Has to wait for new auction to start");
 
-        (address sellToken, address buyToken) = buyAndSellToken();
+        (address sellToken, address buyToken) = sellAndBuyToken();
         uint depositAmount = depositToken.balanceOf(address(this));
         if (isDepositTokenTurn()) {
             totalPoolSharesCummulative += 2 * totalPoolShares;
@@ -205,7 +205,7 @@ contract DxMgnPool is Ownable {
         return auctionCount % 2 == 0;
     }
 
-    function buyAndSellToken() private view returns(address buyToken, address sellToken) {
+    function sellAndBuyToken() private view returns(address sellToken, address buyToken) {
         if (isDepositTokenTurn()) {
             return (address(depositToken), address(secondaryToken));
         } else {
