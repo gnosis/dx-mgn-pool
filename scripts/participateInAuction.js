@@ -4,7 +4,7 @@ const Coordinator = artifacts.require("Coordinator")
 module.exports = async (callback) => {
   try {
     const coordinator = await Coordinator.deployed()
-
+    console.log("Using Coordinator deployed at %s", coordinator.address)
     if (await coordinator.canParticipate()) {
       await coordinator.participateInAuction()
       console.log("Successfully called participateInAuction!")
