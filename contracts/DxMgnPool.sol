@@ -142,7 +142,7 @@ contract DxMgnPool is Ownable {
 
         uint amountOfFundsInDX = dx.balances(address(depositToken), address(this));
         totalDeposit = amountOfFundsInDX + depositToken.balanceOf(address(this));
-        if(totalDeposit > 0){
+        if(amountOfFundsInDX > 0){
             dx.withdraw(address(depositToken), amountOfFundsInDX);
         }
         currentState = State.DepositWithdrawnFromDx;
