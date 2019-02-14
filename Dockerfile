@@ -31,4 +31,4 @@ RUN npm run networks-inject
 RUN crontab /etc/crontabs/root
 
 # Run the command on container startup
-CMD [ "/usr/sbin/crond", "-f" ]
+CMD [ "sh", "-c", "echo 'Starting container service' && /usr/sbin/crond -f" ]
