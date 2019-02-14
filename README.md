@@ -100,12 +100,18 @@ npm run migrate
 
 Rinkeby:
 ```bash
-npm run migrate -- --network rinkeby
+npm run restore
+npm run networks --clean
+npm run migrate --reset --network rinkeby
+npm run networks-extract
 ```
 
 Mainnet:
 ```bash
-npm run migrate -- --network mainnet
+npm run restore
+npm run networks --clean
+npm run migrate --reset --network mainnet
+npm run networks-extract
 ```
 
 ## Participation Bot
@@ -123,3 +129,6 @@ For Rinkeby
 docker build --rm -t participate .
 docker run -t -i -e NETWORK=rinkeby participate
 ```
+## Security-Advice:
+
+If the operator of the dutchX protocol is proposing malicious changes, everyone in the pool should still be able to withdraw their funds before the malicious changes will be implemented. Hence, the deployed pooling time should never be greater than the review time of a new proposal for a dutchX upgrade.
