@@ -74,7 +74,7 @@ contract DxMgnPool is Ownable {
         SafeERC20.safeTransferFrom(address(depositToken), msg.sender, address(this), amount);
     }
 
-    function withdrawDeposit() public returns(uint totalDepositAmount) {
+    function withdrawDeposit() public returns(uint) {
         require(currentState == State.DepositWithdrawnFromDx || currentState == State.MgnUnlocked, "Funds not yet withdrawn from dx");
         
         uint totalDepositAmount = 0;
@@ -84,9 +84,10 @@ contract DxMgnPool is Ownable {
             participations[i].withdrawn = true;
         }
         SafeERC20.safeTransfer(address(depositToken), msg.sender, totalDepositAmount);
+        return totalDepositAmount;
     }
 
-    function withdrawMagnolia() public returns(uint totalMgnClaimed) {
+    function withdrawMagnolia() public returns(uint) {
         require(currentState == State.MgnUnlocked, "MGN has not been unlocked, yet");
 
         uint totalMgnClaimed = 0;
@@ -97,6 +98,7 @@ contract DxMgnPool is Ownable {
         }
         delete participationsByAddress[msg.sender];
         SafeERC20.safeTransfer(address(mgnToken), msg.sender, totalMgnClaimed);
+        return totalMgnClaimed;
     }
 
     function participateInAuction() public  onlyOwner() {
@@ -186,12 +188,12 @@ contract DxMgnPool is Ownable {
         }
     }
 
-    function calculateClaimableMgn(Participation memory participation) public view returns (uint) {
+    function calculateClaimableMgn(Participation memory participation) private view returns (uint) {
         uint duration = auctionCount - participation.startAuctionCount;
         return totalMgn.mul(participation.poolShares).mul(duration) / totalPoolSharesCummulative;
     }
 
-    function calculateClaimableDeposit(Participation memory participation) public view returns (uint) {
+    function calculateClaimableDeposit(Participation memory participation) private view returns (uint) {
         if (participation.withdrawn) {
             return 0;
         }
