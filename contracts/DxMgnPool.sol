@@ -118,7 +118,7 @@ contract DxMgnPool is Ownable {
                 dx.deposit(address(depositToken), depositAmount);
             }
         }
-        // Don't revert if we can't claimSellerFunds
+        // Don't revert if we can't claimSellerFunds; We are aware that a revert in claimSellerFunds  would imply an incorrect evaluation of deposits. But this is better than the SC getting stuck
         address(dx).call(abi.encodeWithSignature("claimSellerFunds(address,address,address,uint256)", buyToken, sellToken, address(this), lastParticipatedAuctionIndex));
 
         uint amount = dx.balances(address(sellToken), address(this));
