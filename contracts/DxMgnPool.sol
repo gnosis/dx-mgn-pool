@@ -187,18 +187,6 @@ contract DxMgnPool is Ownable {
             return totalPoolShares.mul(amount) / totalDeposit;
         }
     }
-
-    function calculateClaimableMgn(Participation memory participation) private view returns (uint) {
-        uint duration = auctionCount - participation.startAuctionCount;
-        return totalMgn.mul(participation.poolShares).mul(duration) / totalPoolSharesCummulative;
-    }
-
-    function calculateClaimableDeposit(Participation memory participation) private view returns (uint) {
-        if (participation.withdrawn) {
-            return 0;
-        }
-        return totalDeposit.mul(participation.poolShares) / totalPoolShares;
-    }
     
     function sellAndBuyToken() public view returns(address sellToken, address buyToken) {
         if (isDepositTokenTurn()) {
@@ -214,6 +202,18 @@ contract DxMgnPool is Ownable {
     
     function isDepositTokenTurn() private view returns (bool) {
         return auctionCount % 2 == 0;
+    }
+
+    function calculateClaimableMgn(Participation memory participation) private view returns (uint) {
+        uint duration = auctionCount - participation.startAuctionCount;
+        return totalMgn.mul(participation.poolShares).mul(duration) / totalPoolSharesCummulative;
+    }
+
+    function calculateClaimableDeposit(Participation memory participation) private view returns (uint) {
+        if (participation.withdrawn) {
+            return 0;
+        }
+        return totalDeposit.mul(participation.poolShares) / totalPoolShares;
     }
 
 }
