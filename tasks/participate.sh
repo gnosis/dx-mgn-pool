@@ -5,7 +5,6 @@ cd /usr/src/app/
 ./node_modules/.bin/truffle exec scripts/participateInAuction.js --network $NETWORK > bot_log.txt
 
 EXIT_STATUS=$?
-echo EXIT_STATUS
 cat bot_log.txt
 
 if [ $EXIT_STATUS -ne 0 ];then
