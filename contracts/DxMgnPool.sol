@@ -186,7 +186,7 @@ contract DxMgnPool is Ownable {
         uint[] memory userTotalPoolShares = new uint[](length);
         
         for (uint i = 0; i < length; i++) {
-            usertotalPoolShares[i] = participationsByAddress[userAddress][i].poolShares;
+            userTotalPoolShares[i] = participationsByAddress[userAddress][i].poolShares;
         }
 
         return userTotalPoolShares;
