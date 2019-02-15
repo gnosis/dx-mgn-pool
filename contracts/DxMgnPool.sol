@@ -179,11 +179,7 @@ contract DxMgnPool is Ownable {
     }
 
     function poolSharesByAddress(address userAddress) external view returns(uint[] memory) {
-        require(address(userAddress) != address(0), "userAddress cannot be 0");
-
-        uint length = participationsByAddress[userAddress].length;
-        require(length > 0, "User must have participated in pool");
-        
+        uint length = participationsByAddress[userAddress].length;        
         uint[] memory totalPoolShares = new uint[](length);
         
         for (uint i = 0; i < length; i++) {
