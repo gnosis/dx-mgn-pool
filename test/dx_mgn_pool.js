@@ -295,6 +295,29 @@ contract("DxMgnPool", (accounts) => {
     })
   })
 
+  describe("poolSharesByAddress()", () => {
+    it("checks that it returns the right amounts", async () => {   
+      const dx = await DutchExchange.new()
+      
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+    
+      await depositTokenMock.givenAnyReturnBool(true)
+      const frtToken = dx.contract.methods.frtToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+      await dxMock.givenAnyReturnUint(42)
+      
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, 100)
+      
+      await depositTokenMock.givenAnyReturnBool(true) 
+      
+      await instance.deposit(10)
+      const [amount] = await instance.poolSharesByAddress.call(accounts[0])
+      assert(amount, 10, "poolShares are not correct")
+    })
+  })  
   describe("withdrawDeposit()", () => {
     it("returns the original deposited amount", async () => {
       const token = await ERC20.new()
