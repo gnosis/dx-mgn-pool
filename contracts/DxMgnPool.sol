@@ -212,4 +212,22 @@ contract DxMgnPool is Ownable {
             return (address(secondaryToken), address(depositToken)); 
         }
     }
+
+    /* 
+        HELPERS
+    */
+    function _getParticipationsByAddress(address userAddress) external view returns(uint[] memory) {
+        uint length = participationsByAddress[userAddress].length;
+        require(length > 0, "User must have participated in pool");
+        
+        uint[] memory totalPoolShares = new uint[](length);
+
+        Participation[] storage participations = participationsByAddress[userAddress];
+
+        for (uint i = 0; i < length; i++) {
+            totalPoolShares[i] = participations[i].poolShares;
+        }
+
+        return totalPoolShares;
+    }
 }
