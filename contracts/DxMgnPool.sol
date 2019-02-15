@@ -171,6 +171,7 @@ contract DxMgnPool is Ownable {
     /**
      * Public View Functions
      */
+     
     function numberOfParticipations(address addr) public view returns (uint) {
         return participationsByAddress[addr].length;
     }
@@ -180,14 +181,21 @@ contract DxMgnPool is Ownable {
         return (participation.startAuctionCount, participation.poolShares);
     }
 
-    function calculatePoolShares(uint amount) public view returns (uint) {
-        if (totalDeposit == 0) {
-            return amount;
-        } else {
-            return totalPoolShares.mul(amount) / totalDeposit;
+    function poolSharesByAddress(address userAddress) external view returns(uint[] memory) {
+        require(address(userAddress) != address(0), "userAddress cannot be 0");
+
+        uint length = participationsByAddress[userAddress].length;
+        require(length > 0, "User must have participated in pool");
+        
+        uint[] memory totalPoolShares = new uint[](length);
+        
+        for (uint i = 0; i < length; i++) {
+            totalPoolShares[i] = participationsByAddress[userAddress][i].poolShares;
         }
+
+        return totalPoolShares;
     }
-    
+
     function sellAndBuyToken() public view returns(address sellToken, address buyToken) {
         if (isDepositTokenTurn()) {
             return (address(depositToken), address(secondaryToken));
@@ -199,6 +207,14 @@ contract DxMgnPool is Ownable {
     /**
      * Internal Helpers
      */
+    
+    function calculatePoolShares(uint amount) private view returns (uint) {
+        if (totalDeposit == 0) {
+            return amount;
+        } else {
+            return totalPoolShares.mul(amount) / totalDeposit;
+        }
+    }
     
     function isDepositTokenTurn() private view returns (bool) {
         return auctionCount % 2 == 0;
