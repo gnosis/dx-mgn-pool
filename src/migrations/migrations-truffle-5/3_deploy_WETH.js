@@ -16,10 +16,8 @@ async function migrate({
       web3
     }
     await deployWETH(deployParams)
-  } else if (network == "rinkeby") {
-    console.log("WETH was already deployed, skipping this migration setup")
   } else {
-    throw new Error("Migrations are just for development. Current network is %s", network)
+    console.log("WETH was already deployed, skipping this migration setup")
   }
 }
 
