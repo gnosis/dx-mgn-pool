@@ -183,13 +183,13 @@ contract DxMgnPool is Ownable {
 
     function poolSharesByAddress(address userAddress) external view returns(uint[] memory) {
         uint length = participationsByAddress[userAddress].length;        
-        uint[] memory totalPoolShares = new uint[](length);
+        uint[] memory userTotalPoolShares = new uint[](length);
         
         for (uint i = 0; i < length; i++) {
-            totalPoolShares[i] = participationsByAddress[userAddress][i].poolShares;
+            userTotalPoolShares[i] = participationsByAddress[userAddress][i].poolShares;
         }
 
-        return totalPoolShares;
+        return userTotalPoolShares;
     }
 
     function sellAndBuyToken() public view returns(address sellToken, address buyToken) {
