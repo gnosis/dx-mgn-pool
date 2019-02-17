@@ -4,6 +4,7 @@ const { Gastimator } = require("./gas_station")
 
 const GasStation = new Gastimator()
 
+// TODO - make this part of configuration
 const url = "https://safe-relay.rinkeby.gnosis.pm/api/v1/gas-station/"
 
 module.exports = async (callback) => {

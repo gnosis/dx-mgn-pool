@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import './DxMgnPool.sol';
+import "./DxMgnPool.sol";
 contract Coordinator {
 
     DxMgnPool public dxMgnPool1;
