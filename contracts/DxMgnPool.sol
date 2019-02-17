@@ -74,7 +74,7 @@ contract DxMgnPool is Ownable {
         SafeERC20.safeTransferFrom(address(depositToken), msg.sender, address(this), amount);
     }
 
-    function withdrawDeposit() public {
+    function withdrawDeposit() public returns(uint) {
         require(currentState == State.DepositWithdrawnFromDx || currentState == State.MgnUnlocked, "Funds not yet withdrawn from dx");
         
         uint totalDepositAmount = 0;
@@ -84,9 +84,10 @@ contract DxMgnPool is Ownable {
             participations[i].withdrawn = true;
         }
         SafeERC20.safeTransfer(address(depositToken), msg.sender, totalDepositAmount);
+        return totalDepositAmount;
     }
 
-    function withdrawMagnolia() public {
+    function withdrawMagnolia() public returns(uint) {
         require(currentState == State.MgnUnlocked, "MGN has not been unlocked, yet");
 
         uint totalMgnClaimed = 0;
@@ -97,6 +98,7 @@ contract DxMgnPool is Ownable {
         }
         delete participationsByAddress[msg.sender];
         SafeERC20.safeTransfer(address(mgnToken), msg.sender, totalMgnClaimed);
+        return totalMgnClaimed;
     }
 
     function participateInAuction() public  onlyOwner() {
@@ -106,7 +108,7 @@ contract DxMgnPool is Ownable {
         uint auctionIndex = dx.getAuctionIndex(address(depositToken), address(secondaryToken));
         require(auctionIndex > lastParticipatedAuctionIndex, "Has to wait for new auction to start");
 
-        (address sellToken, address buyToken) = buyAndSellToken();
+        (address sellToken, address buyToken) = sellAndBuyToken();
         uint depositAmount = depositToken.balanceOf(address(this));
         if (isDepositTokenTurn()) {
             totalPoolSharesCummulative += 2 * totalPoolShares;
@@ -142,7 +144,7 @@ contract DxMgnPool is Ownable {
 
         uint amountOfFundsInDX = dx.balances(address(depositToken), address(this));
         totalDeposit = amountOfFundsInDX + depositToken.balanceOf(address(this));
-        if(totalDeposit > 0){
+        if(amountOfFundsInDX > 0){
             dx.withdraw(address(depositToken), amountOfFundsInDX);
         }
         currentState = State.DepositWithdrawnFromDx;
@@ -169,6 +171,7 @@ contract DxMgnPool is Ownable {
     /**
      * Public View Functions
      */
+     
     function numberOfParticipations(address addr) public view returns (uint) {
         return participationsByAddress[addr].length;
     }
@@ -178,9 +181,29 @@ contract DxMgnPool is Ownable {
         return (participation.startAuctionCount, participation.poolShares);
     }
 
+    function poolSharesByAddress(address userAddress) external view returns(uint[] memory) {
+        uint length = participationsByAddress[userAddress].length;        
+        uint[] memory userTotalPoolShares = new uint[](length);
+        
+        for (uint i = 0; i < length; i++) {
+            userTotalPoolShares[i] = participationsByAddress[userAddress][i].poolShares;
+        }
+
+        return userTotalPoolShares;
+    }
+
+    function sellAndBuyToken() public view returns(address sellToken, address buyToken) {
+        if (isDepositTokenTurn()) {
+            return (address(depositToken), address(secondaryToken));
+        } else {
+            return (address(secondaryToken), address(depositToken)); 
+        }
+    }
+
     /**
      * Internal Helpers
      */
+    
     function calculatePoolShares(uint amount) private view returns (uint) {
         if (totalDeposit == 0) {
             return amount;
@@ -189,6 +212,10 @@ contract DxMgnPool is Ownable {
         }
     }
     
+    function isDepositTokenTurn() private view returns (bool) {
+        return auctionCount % 2 == 0;
+    }
+
     function calculateClaimableMgn(Participation memory participation) private view returns (uint) {
         uint duration = auctionCount - participation.startAuctionCount;
         return totalMgn.mul(participation.poolShares).mul(duration) / totalPoolSharesCummulative;
@@ -201,15 +228,4 @@ contract DxMgnPool is Ownable {
         return totalDeposit.mul(participation.poolShares) / totalPoolShares;
     }
 
-    function isDepositTokenTurn() private view returns (bool) {
-        return auctionCount % 2 == 0;
-    }
-
-    function buyAndSellToken() private view returns(address buyToken, address sellToken) {
-        if (isDepositTokenTurn()) {
-            return (address(depositToken), address(secondaryToken));
-        } else {
-            return (address(secondaryToken), address(depositToken)); 
-        }
-    }
 }
