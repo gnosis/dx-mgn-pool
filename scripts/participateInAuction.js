@@ -14,7 +14,7 @@ module.exports = async (callback) => {
     if (await coordinator.canParticipate()) {
       const gasPriceEstimates = await GasStation.estimateGas(url)
       // Send transaction with fast gas price estimate
-      await coordinator.participateInAuction({ "gasPrice": gasPriceEstimates["fast"] })
+      await coordinator.participateInAuction({ "gasPrice" : gasPriceEstimates.fast })
       console.log("Successfully called participateInAuction!")
     } else {
       console.log("Can't participate in auction yet.")
