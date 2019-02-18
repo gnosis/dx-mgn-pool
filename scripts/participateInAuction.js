@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 const Coordinator = artifacts.require("Coordinator")
 const { Gastimator } = require("./gas_station")
-
+const priceUrl = require("../gas-config")
 const GasStation = new Gastimator()
 
 // TODO - make this part of configuration
-const url = "https://safe-relay.rinkeby.gnosis.pm/api/v1/gas-station/"
+const url = priceUrl[process.env.NETWORK]
 
 module.exports = async (callback) => {
   try {
