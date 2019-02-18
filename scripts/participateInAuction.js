@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 const Coordinator = artifacts.require("Coordinator")
-const { Gastimator } = require("./gas_station")
+const { Gastimator } = require("./gasStation")
 const priceUrl = require("../gas-config")
 const GasStation = new Gastimator()
 
