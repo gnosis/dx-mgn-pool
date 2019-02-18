@@ -15,6 +15,7 @@ module.exports = async (callback) => {
     }
     
   } catch (error) {
+    console.error(error)
     callback(error)
   }
 }
