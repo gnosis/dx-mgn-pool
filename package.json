@@ -54,6 +54,7 @@
     "@gnosis.pm/gno-token": "2.0.0",
     "@gnosis.pm/mock-contract": "^3.0.7",
     "@gnosis.pm/util-contracts": "2.0.0",
+    "got": "^9.6.0",
     "i": "^0.3.6",
     "npm": "^6.7.0",
     "chai": "^4.2.0",
