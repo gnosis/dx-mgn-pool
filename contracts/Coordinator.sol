@@ -30,4 +30,11 @@ contract Coordinator {
         return auctionIndex > dxMgnPool1.lastParticipatedAuctionIndex() && dxMgnPool1.currentState() == DxMgnPool.State.Pooling;
     }
 
+    function withdrawMGNandDepositsFromBothPools() public {
+        address(dxMgnPool1).delegatecall(abi.encodeWithSignature("withdrawDeposit()"));
+        address(dxMgnPool1).delegatecall(abi.encodeWithSignature("withdrawMagnolia()"));
+
+        address(dxMgnPool2).delegatecall(abi.encodeWithSignature("withdrawDeposit()"));
+        address(dxMgnPool2).delegatecall(abi.encodeWithSignature("withdrawMagnolia()"));
+    }
 }
