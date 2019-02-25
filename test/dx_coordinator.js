@@ -65,7 +65,7 @@ contract("Coordinator", (accounts) => {
       const postSellOrderResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
       await dxMock.givenMethodReturn(postSellOrder, postSellOrderResponse)
 
-      assert.equal(await coordinator.canParticipate(), true)
+      assert.equal(await coordinator.canParticipate.call(), true)
     })
 
     it("False - no auction scheduled", async () => {
@@ -83,7 +83,7 @@ contract("Coordinator", (accounts) => {
 
       await dxMock.givenAnyReturnUint(0)
 
-      assert.equal(await coordinator.canParticipate(), false)
+      assert.equal(await coordinator.canParticipate.call(), false)
     })
     it("False - not the right state", async () => {
       const dx = await DutchExchange.new()
@@ -100,7 +100,7 @@ contract("Coordinator", (accounts) => {
 
       await dxMock.givenAnyReturnUint(0)
 
-      assert.equal(await coordinator.canParticipate(), false)
+      assert.equal(await coordinator.canParticipate.call(), false)
     })
   })
   describe("withdrawMGNandDepositsFromBothPools()", () => {
