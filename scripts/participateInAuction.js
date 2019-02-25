@@ -11,7 +11,8 @@ module.exports = async (callback) => {
   try {
     const coordinator = await Coordinator.deployed()
     console.log("Coordinator deployed at %s", coordinator.address)
-    if (await coordinator.canParticipate()) {
+
+    if (await coordinator.canParticipate.call() {
       let fastPrice = 20000000000  // 20 GWei
       try {
         fastPrice = (await GasStation.estimateGas(url)).fast
