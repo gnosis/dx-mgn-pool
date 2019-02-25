@@ -26,12 +26,12 @@ contract DxMgnPool is Ownable {
     State public currentState = State.Pooling;
 
     mapping (address => Participation[]) public participationsByAddress;
-    uint public totalPoolShares = 0; // total number of shares in this pool
-    uint public totalPoolSharesCummulative = 0; // over all auctions, the rolling sum of all shares participated
-    uint public totalDeposit = 0;
-    uint public totalMgn = 0;
-    uint public lastParticipatedAuctionIndex = 0;
-    uint public auctionCount = 0;
+    uint public totalPoolShares; // total number of shares in this pool
+    uint public totalPoolSharesCummulative; // over all auctions, the rolling sum of all shares participated
+    uint public totalDeposit;
+    uint public totalMgn;
+    uint public lastParticipatedAuctionIndex;
+    uint public auctionCount;
     
     ERC20 public depositToken;
     ERC20 public secondaryToken;
@@ -79,7 +79,8 @@ contract DxMgnPool is Ownable {
         
         uint totalDepositAmount = 0;
         Participation[] storage participations = participationsByAddress[msg.sender];
-        for (uint i = 0; i < participations.length; i++) {
+        uint length = participations.length;
+        for (uint i = 0; i < length; i++) {
             totalDepositAmount += calculateClaimableDeposit(participations[i]);
             participations[i].withdrawn = true;
         }
