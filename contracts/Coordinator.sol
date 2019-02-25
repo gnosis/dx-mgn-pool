@@ -21,7 +21,7 @@ contract Coordinator {
         dxMgnPool2.participateInAuction();
     }
 
-    function canParticipate() public view returns (bool) {
+    function canParticipate() public returns (bool) {
         uint auctionIndex = dxMgnPool1.dx().getAuctionIndex(
             address(dxMgnPool1.depositToken()),
             address(dxMgnPool1.secondaryToken())
