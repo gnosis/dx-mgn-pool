@@ -14,9 +14,8 @@ contract DxMgnPool is Ownable {
     struct Participation {
         uint startAuctionCount; // how many auction passed when this participation started contributing
         uint poolShares; // number of shares this participation accounts for (absolute)
-        bool withdrawn; // flag indicating whether the participation has been withdrawn
     }
-
+    mapping (address => bool) hasParticpationWithdrawn;
     enum State {
         Pooling,
         PoolingEnded,
@@ -64,9 +63,8 @@ contract DxMgnPool is Ownable {
         uint poolShares = calculatePoolShares(amount);
         Participation memory participation = Participation({
             startAuctionCount: isDepositTokenTurn() ? auctionCount : auctionCount + 1,
-            poolShares: poolShares,
-            withdrawn: false
-        });
+            poolShares: poolShares
+            });
         participationsByAddress[msg.sender].push(participation);
         totalPoolShares += poolShares;
         totalDeposit += amount;
@@ -76,25 +74,26 @@ contract DxMgnPool is Ownable {
 
     function withdrawDeposit() public returns(uint) {
         require(currentState == State.DepositWithdrawnFromDx || currentState == State.MgnUnlocked, "Funds not yet withdrawn from dx");
-        
+        require(!hasParticpationWithdrawn[msg.sender],"sender has already withdrawn funds");
+
         uint totalDepositAmount = 0;
         Participation[] storage participations = participationsByAddress[msg.sender];
         uint length = participations.length;
         for (uint i = 0; i < length; i++) {
             totalDepositAmount += calculateClaimableDeposit(participations[i]);
-            participations[i].withdrawn = true;
         }
+        hasParticpationWithdrawn[msg.sender] = true;
         SafeERC20.safeTransfer(address(depositToken), msg.sender, totalDepositAmount);
         return totalDepositAmount;
     }
 
     function withdrawMagnolia() public returns(uint) {
         require(currentState == State.MgnUnlocked, "MGN has not been unlocked, yet");
-
+        require(hasParticpationWithdrawn[msg.sender], "Withdraw deposits first");
+        
         uint totalMgnClaimed = 0;
         Participation[] memory participations = participationsByAddress[msg.sender];
         for (uint i = 0; i < participations.length; i++) {
-            require(participations[i].withdrawn, "Withdraw deposits first");
             totalMgnClaimed += calculateClaimableMgn(participations[i]);
         }
         delete participationsByAddress[msg.sender];
@@ -223,9 +222,6 @@ contract DxMgnPool is Ownable {
     }
 
     function calculateClaimableDeposit(Participation memory participation) private view returns (uint) {
-        if (participation.withdrawn) {
-            return 0;
-        }
         return totalDeposit.mul(participation.poolShares) / totalPoolShares;
     }
 
