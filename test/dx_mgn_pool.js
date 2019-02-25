@@ -440,13 +440,11 @@ contract("DxMgnPool", (accounts) => {
       await instance.triggerMGNunlockAndClaimTokens()
       
       await instance.withdrawDeposit()
-      await instance.withdrawDeposit()
 
       const depositTransfer = token.contract.methods.transfer(accounts[0], 10).encodeABI()
       assert.equal(await depositTokenMock.invocationCountForCalldata.call(depositTransfer), 1)
 
-      const emptyTransfer = token.contract.methods.transfer(accounts[0], 0).encodeABI()
-      assert.equal(await depositTokenMock.invocationCountForCalldata.call(emptyTransfer), 1)
+      await truffleAssert.reverts(instance.withdrawDeposit(), "sender has already withdrawn funds")
     })
     it("cannot withdraw while pooling is running", async () => {
       const dx = await DutchExchange.new()
