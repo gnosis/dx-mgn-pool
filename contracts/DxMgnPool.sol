@@ -168,6 +168,13 @@ contract DxMgnPool is Ownable {
         }
     }
 
+    /// @dev updates state and returns val
+    function updateAndGetCurrentState() public returns(State) {
+        checkForStateUpdate();
+
+        return currentState;
+    }
+
     /**
      * Public View Functions
      */
@@ -198,6 +205,20 @@ contract DxMgnPool is Ownable {
         } else {
             return (address(secondaryToken), address(depositToken)); 
         }
+    }
+
+    function getAllClaimableMgnAndDeposits(address userAddress) external view returns(uint[] memory, uint[] memory) {
+        uint length = participationsByAddress[userAddress].length;
+
+        uint[] memory allUserClaimableMgn = new uint[](length);
+        uint[] memory allUserClaimableDeposit = new uint[](length);
+
+        for (uint i = 0; i < length; i++) {
+            allUserClaimableMgn[i] = calculateClaimableMgn(participationsByAddress[userAddress][i]);
+            allUserClaimableDeposit[i] = calculateClaimableDeposit(participationsByAddress[userAddress][i]);
+        }
+
+        return (allUserClaimableMgn, allUserClaimableDeposit);
     }
 
     /**
