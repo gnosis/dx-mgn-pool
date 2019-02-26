@@ -872,4 +872,47 @@ contract("DxMgnPool", (accounts) => {
       await truffleAssert.reverts(instance.withdrawMagnolia())
     })
   })
+  describe("getAllClaimableMgnAndDeposits() view function", () => {
+    it("returns values correctly", async () => {
+      const dx = await DutchExchange.new()
+      
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+    
+      await depositTokenMock.givenAnyReturnBool(true)
+      const frtToken = dx.contract.methods.frtToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+      await dxMock.givenAnyReturnUint(42)
+      
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, 100)
+      
+      const { "0": claimableMgn, "1": claimableDeposits } = await instance.getAllClaimableMgnAndDeposits.call(accounts[0])
+
+      assert.equal(claimableMgn.length, 0, "ClaimableMGN return array must be empty aka 0 length")
+      assert.equal(claimableDeposits.length, 0, "claimableDeposits return array must be empty aka 0 length")
+    })
+  })
+  describe("updateAndGetCurrentState()", () => {
+    it("returns values correctly", async () => {
+      const dx = await DutchExchange.new()
+      
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+    
+      await depositTokenMock.givenAnyReturnBool(true)
+      const frtToken = dx.contract.methods.frtToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+      await dxMock.givenAnyReturnUint(42)
+      
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, 100)
+      
+      const state = await instance.updateAndGetCurrentState.call()
+      
+      assert(state, state.eq(web3.utils.toBN(0)), "Current state === 0 aka Pooling")
+    })
+  })
 })
