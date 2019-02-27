@@ -3,16 +3,16 @@
     "4": {
       "events": {},
       "links": {},
-      "address": "0xC41d07A171A93a3B3195Cb755B4be5Cf7D54015e",
-      "transactionHash": "0x94b094f5b1cd1c999b271515d6cc67aa5d172d25aa38d1578b0069d1c1065bd4"
+      "address": "0xc2e2a1A516bd62b65f5f7B57bCcc8aE698C19AFe",
+      "transactionHash": "0xc631222def1135a3760ae7ccaae202584b9c8be2a2efeef05a4e7ae604e487e2"
     }
   },
   "Migrations": {
     "4": {
       "events": {},
       "links": {},
-      "address": "0x64A0b74A92912BE79225A48A1C15b9cE1F73240A",
-      "transactionHash": "0xe43ac01a993310b5235cc797ae96bd7541e9d65163fbfac874aebcc0559ddc43"
+      "address": "0x99107e7C77Fea7534A9a8C9D36bfD0E67B0aE5dE",
+      "transactionHash": "0xbb88d6da97cc8879ac9b3edccb127e949b40fc3ee2c7d0dee299ca3db78d007e"
     }
   }
 }
