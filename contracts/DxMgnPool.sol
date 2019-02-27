@@ -238,7 +238,7 @@ contract DxMgnPool is Ownable {
 
     function calculateClaimableMgn(Participation memory participation) private view returns (uint) {
         if (totalPoolSharesCummulative == 0) {
-            return totalPoolSharesCummulative;
+            return 0;
         }
         uint duration = auctionCount - participation.startAuctionCount;
         return totalMgn.mul(participation.poolShares).mul(duration) / totalPoolSharesCummulative;
@@ -246,7 +246,7 @@ contract DxMgnPool is Ownable {
 
     function calculateClaimableDeposit(Participation memory participation) private view returns (uint) {
         if (totalPoolShares == 0) {
-            return totalPoolShares;
+            return 0;
         }
         return totalDeposit.mul(participation.poolShares) / totalPoolShares;
     }
