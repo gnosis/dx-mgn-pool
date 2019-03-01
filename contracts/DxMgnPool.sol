@@ -97,6 +97,7 @@ contract DxMgnPool is Ownable {
             totalMgnClaimed += calculateClaimableMgn(participations[i]);
         }
         delete participationsByAddress[msg.sender];
+        delete hasParticpationWithdrawn[msg.sender];
         SafeERC20.safeTransfer(address(mgnToken), msg.sender, totalMgnClaimed);
         return totalMgnClaimed;
     }
