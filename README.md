@@ -127,7 +127,7 @@ For Rinkeby
 
 ```
 docker build --rm -t participate .
-docker run -t -i -e NETWORK=rinkeby participate
+docker run -t -i -e NETWORK=rinkeby participate -e MNEMONIC='<YOUR_SECRET_MNEMONIC_PHRASE>'
 ```
 ## Security-Advice:
 
