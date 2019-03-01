@@ -217,7 +217,6 @@ contract DxMgnPool is Ownable {
             allUserClaimableMgn[i] = calculateClaimableMgn(participationsByAddress[userAddress][i]);
             allUserClaimableDeposit[i] = calculateClaimableDeposit(participationsByAddress[userAddress][i]);
         }
-
         return (allUserClaimableMgn, allUserClaimableDeposit);
     }
 
@@ -238,12 +237,17 @@ contract DxMgnPool is Ownable {
     }
 
     function calculateClaimableMgn(Participation memory participation) private view returns (uint) {
+        if (totalPoolSharesCummulative == 0) {
+            return 0;
+        }
         uint duration = auctionCount - participation.startAuctionCount;
         return totalMgn.mul(participation.poolShares).mul(duration) / totalPoolSharesCummulative;
     }
 
     function calculateClaimableDeposit(Participation memory participation) private view returns (uint) {
+        if (totalPoolShares == 0) {
+            return 0;
+        }
         return totalDeposit.mul(participation.poolShares) / totalPoolShares;
     }
-
 }
