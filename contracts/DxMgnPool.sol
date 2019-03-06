@@ -15,7 +15,7 @@ contract DxMgnPool is Ownable {
         uint startAuctionCount; // how many auction passed when this participation started contributing
         uint poolShares; // number of shares this participation accounts for (absolute)
     }
-    mapping (address => bool) hasParticpationWithdrawn;
+    mapping (address => bool) public hasParticpationWithdrawn;
     enum State {
         Pooling,
         PoolingEnded,
