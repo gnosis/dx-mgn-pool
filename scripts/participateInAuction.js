@@ -28,16 +28,16 @@ module.exports = async (callback) => {
       const pool1 = await DxMgnPool.at(await coordinator.dxMgnPool1())
       const pool2 = await DxMgnPool.at(await coordinator.dxMgnPool2())
 
-      const pool1State = (await pool1.currentState()).toNumber()
+      const pool1State = (await pool1.checkForStateUpdate()).toNumber()
+      const pool2State = (await pool2.checkForStateUpdate()).toNumber()
+
       if (pool1State == 1) {
+        console.log("Pool1 - State Transition")
         await pool1.triggerMGNunlockAndClaimTokens()
-        await pool2.triggerMGNunlockAndClaimTokens()
-      } else if (pool1State == 2) {
-        await pool1.withdrawUnlockedMagnoliaFromDx()
-        await pool2.withdrawUnlockedMagnoliaFromDx()
       }
-      if ((await pool1.currentState()).toNumber() > pool1State) {
-        console.log("Pooling state transitioned from {}", pool1State)
+      if  (pool2State == 1) {
+        console.log("Pool2 - State Transition")
+        await pool2.triggerMGNunlockAndClaimTokens()
       }
     }
     callback()
