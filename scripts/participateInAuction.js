@@ -39,7 +39,7 @@ module.exports = async (callback) => {
           await pool2.triggerMGNunlockAndClaimTokens()
         }
       } catch (error) {
-        console.log("Can't update state: Last auction still Running")
+        console.log("Can't update state: Last auction still running")
       }
 
     }
