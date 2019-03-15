@@ -28,17 +28,20 @@ module.exports = async (callback) => {
       const pool1 = await DxMgnPool.at(await coordinator.dxMgnPool1())
       const pool2 = await DxMgnPool.at(await coordinator.dxMgnPool2())
 
-      const pool1State = (await pool1.checkForStateUpdate()).toNumber()
-      const pool2State = (await pool2.checkForStateUpdate()).toNumber()
+      const pool1State = (await pool1.updateAndGetCurrentState.call()).toNumber()
+      const pool2State = (await pool2.updateAndGetCurrentState.call()).toNumber()
+      try {
+        console.log("Attempting to transition state to `DepositWithdrawnFromDx`")
+        if (pool1State == 1) {
+          await pool1.triggerMGNunlockAndClaimTokens()
+        }
+        if (pool2State == 1) {
+          await pool2.triggerMGNunlockAndClaimTokens()
+        }
+      } catch (error) {
+        console.log("Can't update state: Last auction still Running")
+      }
 
-      if (pool1State == 1) {
-        console.log("Pool1 - State Transition")
-        await pool1.triggerMGNunlockAndClaimTokens()
-      }
-      if  (pool2State == 1) {
-        console.log("Pool2 - State Transition")
-        await pool2.triggerMGNunlockAndClaimTokens()
-      }
     }
     callback()
   } catch (error) {
