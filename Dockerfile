@@ -15,6 +15,7 @@ RUN apk add --update --no-cache --virtual build-dependencies git python make bas
     apk add --no-cache git
 
 COPY . .
+RUN rm -r node_modules
 COPY tasks/cron-task /etc/crontabs/root
 
 RUN chmod +x tasks/participate.sh
