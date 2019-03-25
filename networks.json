@@ -9,8 +9,8 @@
     "4": {
       "events": {},
       "links": {},
-      "address": "0x749ecC75F470D3A853e19f909e0E308649C74e22",
-      "transactionHash": "0x1de9015d48b0a87731fd7075169d9b9a9c4ef1db450f5fd76df25fdd85f8145e"
+      "address": "0xf6B92571a7891e9147483f3AD62d47fdB69aEB69",
+      "transactionHash": "0xfd0cc19f74e8b035a35adc7f8cb6a4914b5019f59d6dbb69058a76f599902a42"
     }
   },
   "Migrations": {
@@ -23,8 +23,8 @@
     "4": {
       "events": {},
       "links": {},
-      "address": "0x9e7Ae704496746433CD1F9F89448b5aD9Ed67F12",
-      "transactionHash": "0x098ad7a65b02fb8922f996884501452d93df3b6567cfdd1d26f1bf758968dea8"
+      "address": "0x323E6B64dF831803d46BB930E0D99C26edd0cFa7",
+      "transactionHash": "0x564cc2ac41ada5df98db497620475c4ff879f0b699093ea5663cfd5164b514c4"
     }
   }
 }
