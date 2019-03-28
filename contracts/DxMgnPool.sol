@@ -102,6 +102,10 @@ contract DxMgnPool is Ownable {
         return totalMgnClaimed;
     }
 
+    function withdrawDepositandMagnolia() public returns(uint, uint){ 
+        return (withdrawDeposit(),withdrawMagnolia());
+    }
+
     function participateInAuction() public  onlyOwner() {
         checkForStateUpdate();
         require(currentState == State.Pooling, "Pooling period is over.");
