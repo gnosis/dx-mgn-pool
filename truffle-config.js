@@ -15,15 +15,16 @@ if (!privateKey && !mnemonic) {
   mnemonic = DEFAULT_MNEMONIC
 }
 
+const infuraProjectId = process.env.INFURA_KEY
 function truffleConfig ({
   mnemonic = DEFAULT_MNEMONIC,
   privateKey,
   gasPriceGWei = GAS_PRICE_GWEI,
   gas = GAS_LIMIT,
   optimizedEnabled = true,
-  urlRinkeby = 'https://rinkeby.infura.io/',
-  urlKovan = 'https://kovan.infura.io/',
-  urlMainnet = 'https://mainnet.infura.io',
+  urlRinkeby = 'https://rinkeby.infura.io/v3/' + infuraProjectId,
+  urlKovan = 'https://kovan.infura.io/v3/' + infuraProjectId,
+  urlMainnet = 'https://mainnet.infura.io/v3/' + infuraProjectId,
   urlDevelopment = 'localhost',
   portDevelopment = 8545
 } = {}) {
@@ -39,6 +40,7 @@ function truffleConfig ({
     console.log('Using private key')
     _getProvider = url => {
       return () => {
+        assert(infuraProjectId, "Need an infura ProjectID")
         return new HDWalletProvider([ privateKey ], url)
       }
     }
@@ -46,6 +48,7 @@ function truffleConfig ({
     console.log(mnemonic === DEFAULT_MNEMONIC ? 'Using default mnemonic' : 'Using custom mnemonic')    
     _getProvider = url => {
       return () => {
+        assert(infuraProjectId, "Need an infura ProjectID")
         return new HDWalletProvider(mnemonic, url)
       }
     }
