@@ -15,15 +15,17 @@ if (!privateKey && !mnemonic) {
   mnemonic = DEFAULT_MNEMONIC
 }
 
+const infuraProjectId = process.env.INFURA_KEY
+assert(infuraProjectId, "Need an infura ProjectID")
 function truffleConfig ({
   mnemonic = DEFAULT_MNEMONIC,
   privateKey,
   gasPriceGWei = GAS_PRICE_GWEI,
   gas = GAS_LIMIT,
   optimizedEnabled = true,
-  urlRinkeby = 'https://rinkeby.infura.io/',
-  urlKovan = 'https://kovan.infura.io/',
-  urlMainnet = 'https://mainnet.infura.io',
+  urlRinkeby = 'https://rinkeby.infura.io/v3/' + infuraProjectId,
+  urlKovan = 'https://kovan.infura.io/v3/' + infuraProjectId,
+  urlMainnet = 'https://mainnet.infura.io/v3/' + infuraProjectId,
   urlDevelopment = 'localhost',
   portDevelopment = 8545
 } = {}) {
