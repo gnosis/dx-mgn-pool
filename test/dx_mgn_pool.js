@@ -872,6 +872,59 @@ contract("DxMgnPool", (accounts) => {
       await truffleAssert.reverts(instance.withdrawMagnolia())
     })
   })
+  describe("withdrawDepositandMagnolia()", () => {
+    it("withdraws the same amounts when using withdrawDepositandMagnolia instead of native functions", async () => {
+      const mgn = await TokenFRT.new()
+      const depositTokenMock = await MockContract.new()
+      const secondaryTokenMock = await MockContract.new()
+      const mgnTokenMock = await MockContract.new()
+      const dxMock = await MockContract.new()
+      const dx = await DutchExchange.new()
+      const poolingTime = 100
+      
+      await depositTokenMock.givenAnyReturnBool(true)
+      
+      await dxMock.givenAnyReturnUint(10)
+      const postSellOrder = dx.contract.methods.postSellOrder(accounts[0], accounts[0], 0, 0).encodeABI()
+      const tupleResponse = (abi.rawEncode(["uint", "uint"], [2, 0]))
+      await dxMock.givenMethodReturn(postSellOrder, tupleResponse)
+      const claimSellerFunds = dx.contract.methods.claimSellerFunds(accounts[0], accounts[0], accounts[0], 0).encodeABI()
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
+      const frtToken = dx.contract.methods.frtToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const balanceOf = mgn.contract.methods.balanceOf(accounts[0]).encodeABI()
+      await mgnTokenMock.givenAnyReturnBool(true)
+      await mgnTokenMock.givenMethodReturnUint(balanceOf, 100)
+      
+      const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
+      
+      await instance.deposit(10)
+      await instance.participateInAuction()
+      await instance.participateInAuction()
+
+      await increaseTimeBy(101, web3)
+
+      await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
+
+      const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
+      await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
+
+      await instance.triggerMGNunlockAndClaimTokens()
+      await instance.withdrawUnlockedMagnoliaFromDx()
+
+      assert.equal(await instance.totalMgn.call(), 100)
+
+      const depositWithdraw = await instance.withdrawDeposit.call()
+
+      const withdrawOutputs = await instance.withdrawDepositandMagnolia.call()
+      await instance.withdrawDepositandMagnolia()
+      assert.equal(depositWithdraw.toString(), withdrawOutputs[0].toString(), "deposit\Withdraws are different")
+
+      const mgnTransfer = mgn.contract.methods.transfer(accounts[0], 100).encodeABI()
+      assert.equal(await mgnTokenMock.invocationCountForCalldata.call(mgnTransfer), 1)
+    })
+  })
   describe("getAllClaimableMgnAndDeposits() view function", () => {
     it("returns values correctly", async () => {
       const dx = await DutchExchange.new()
