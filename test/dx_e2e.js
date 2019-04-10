@@ -832,7 +832,6 @@ contract("e2e - tests", (accounts) => {
     await instance1.setOWLTokenApproval(mintedOWL);
     await owlToken.transfer(instance1.address, mintedOWL);
     assert.equal(await owlToken.allowance(instance1.address, dx.address), mintedOWL, "Tokens allowance is not set correctly")
-    const easdf = await PriceOracleInterface.at(await dx.ethUSDOracle());
 
     await coordinator.participateInAuction()
     assert.equal((await dx.sellerBalances.call(token_1.address, token_2.address, 2, instance1.address)).toNumber(), DEPOSIT_1_1*9975/10000)
