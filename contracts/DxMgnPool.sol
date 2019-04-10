@@ -137,8 +137,8 @@ contract DxMgnPool is Ownable {
         auctionCount += 1;
     }
 
-    function setOWLTokenApproval(address approvalTo, uint amount) public {
-        owlToken.approve(approvalTo, amount);
+    function setOWLTokenApproval(uint amount) public {
+        owlToken.approve(address(dx), amount);
     }
 
     function triggerMGNunlockAndClaimTokens() public {

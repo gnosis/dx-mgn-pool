@@ -1133,7 +1133,7 @@ contract("DxMgnPool", (accounts) => {
       const approveToken = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
       await owlTokenMock.givenMethodReturnBool(approveToken, true)
 
-      await instance.setOWLTokenApproval(dxMock.address, 100)
+      await instance.setOWLTokenApproval(100)
 
       const owlApproval = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
       assert.equal(await owlTokenMock.invocationCountForCalldata.call(owlApproval), 1)

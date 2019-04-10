@@ -830,7 +830,7 @@ contract("e2e - tests", (accounts) => {
     )
     // ensure that sells go into auction 2, as auction 1 will have been started
     await increaseTimeBy(60 * 60 * 6, web3)
-    await instance1.setOWLTokenApproval(dx.address, mintedOWL);
+    await instance1.setOWLTokenApproval(mintedOWL);
     await owlToken.transfer(instance1.address, mintedOWL);
     assert.equal(await owlToken.allowance(instance1.address, dx.address), mintedOWL, "Tokens allowance is not set correctly")
     const easdf = await PriceOracleInterface.at(await dx.ethUSDOracle());
