@@ -9,7 +9,6 @@ const Coordinator = artifacts.require("Coordinator")
 const DX = artifacts.require("DutchExchange")
 const DXProxy = artifacts.require("DutchExchangeProxy")
 const EtherToken = artifacts.require("EtherToken")
-const PriceOracleInterface = artifacts.require("PriceOracleInterface")
 
 const { 
   waitUntilPriceIsXPercentOfPreviousPrice,
