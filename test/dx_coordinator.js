@@ -22,6 +22,9 @@ contract("Coordinator", (accounts) => {
       
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
 
       const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingEndBlock)
 
@@ -55,6 +58,10 @@ contract("Coordinator", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
 
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
       const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingEndBlock)
 
       await depositTokenMock.givenAnyReturnBool(true)
@@ -79,6 +86,10 @@ contract("Coordinator", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
 
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
       const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingEndBlock)
 
       await dxMock.givenAnyReturnUint(0)
@@ -95,6 +106,10 @@ contract("Coordinator", (accounts) => {
 
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
 
       const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingEndBlock)
 

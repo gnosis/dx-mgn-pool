@@ -34,6 +34,7 @@ contract DxMgnPool is Ownable {
     
     ERC20 public depositToken;
     ERC20 public secondaryToken;
+    ERC20 public owlToken;
     TokenFRT public mgnToken;
     IDutchExchange public dx;
 
@@ -50,6 +51,7 @@ contract DxMgnPool is Ownable {
         secondaryToken = _secondaryToken;
         dx = _dx;
         mgnToken = TokenFRT(dx.frtToken());
+        owlToken = ERC20(dx.owlToken());
         poolingPeriodEndTime = now + _poolingTimeSeconds;
     }
 
@@ -133,6 +135,10 @@ contract DxMgnPool is Ownable {
 
         (lastParticipatedAuctionIndex, ) = dx.postSellOrder(sellToken, buyToken, 0, amount);
         auctionCount += 1;
+    }
+
+    function setOWLTokenApproval(address approvalTo, uint amount) public {
+        owlToken.approve(approvalTo, amount);
     }
 
     function triggerMGNunlockAndClaimTokens() public {

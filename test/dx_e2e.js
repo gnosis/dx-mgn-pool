@@ -1,6 +1,7 @@
 const DxMgnPool = artifacts.require("DxMgnPool")
 const TokenFRT = artifacts.require("TokenFRT")
 const TokenGNO = artifacts.require("TokenGNO")
+const TokenOWL = artifacts.require("TokenOWL")
 
 
 const Coordinator = artifacts.require("Coordinator")
@@ -8,6 +9,7 @@ const Coordinator = artifacts.require("Coordinator")
 const DX = artifacts.require("DutchExchange")
 const DXProxy = artifacts.require("DutchExchangeProxy")
 const EtherToken = artifacts.require("EtherToken")
+const PriceOracleInterface = artifacts.require("PriceOracleInterface")
 
 const { 
   waitUntilPriceIsXPercentOfPreviousPrice,
@@ -776,5 +778,64 @@ contract("e2e - tests", (accounts) => {
     await instance1.withdrawMagnolia({from: participant_2})
     balAfter = await mgnToken.balanceOf.call(participant_2)
     assert.isBelow(Math.abs(balAfter.sub(balBefore).toString()- 614*4/10), 10)
+  })
+  it("e2e tests for owl-deposits: checks that owl are burned while trading", async () => {
+    const initialFundingGNO = "1111111111111111111111"
+    const token_2 = await TokenGNO.new(initialFundingGNO)
+    const dxProxy = await DXProxy.deployed()
+    const dx = await DX.at(dxProxy.address)
+    const mgnToken = await TokenFRT.at(await dx.frtToken.call())
+    const token_1 = await EtherToken.at(await dx.ethToken.call())
+    const poolingTime = (60 * 60 * 6) + 100
+    const owlToken = await TokenOWL.at(await dx.owlToken.call())
+
+    const coordinator = await Coordinator.new(token_1.address, token_2.address, dx.address, poolingTime)
+
+    //generate OWL
+    await owlToken.setMinter(accounts[0]);
+    const mintedOWL = 100000000000;
+    await owlToken.mintOWL(accounts[0], mintedOWL);
+    assert.equal(await owlToken.balanceOf(accounts[0]),mintedOWL, "Tokens were not minted correctly")
+
+    const instance1 = await DxMgnPool.at(await coordinator.dxMgnPool1.call())
+    const instance2 = await DxMgnPool.at(await coordinator.dxMgnPool2.call())
+
+    // do the necessary fundings
+    const oneEth = new BN("1000000000000000000")
+    const oneGwei = new BN("10000000000000000")
+    await token_1.deposit({ value: oneEth })
+    await token_1.approve(instance1.address, oneEth)
+    await token_1.approve(dx.address, oneEth)
+
+    await  token_2.approve(dx.address, oneEth)
+    await  token_2.approve(instance2.address, oneEth)
+
+
+    const DEPOSIT_1_1 = 10000000
+    await instance1.deposit(DEPOSIT_1_1)
+    
+
+    assert.equal(await instance1.numberOfParticipations.call(accounts[0]), 1)
+
+    //first tokenPair needs to be funded first...
+    await dx.deposit(token_1.address, oneGwei.mul(new BN("5")).toString())
+    await dx.deposit(token_2.address, oneGwei.mul(new BN("5")).toString())
+    await dx.addTokenPair(
+      token_1.address,
+      token_2.address,
+      oneGwei.toString(),
+      oneGwei.toString(),
+      1,
+      1
+    )
+    // ensure that sells go into auction 2, as auction 1 will have been started
+    await increaseTimeBy(60 * 60 * 6, web3)
+    await instance1.setOWLTokenApproval(dx.address, mintedOWL);
+    await owlToken.transfer(instance1.address, mintedOWL);
+    assert.equal(await owlToken.allowance(instance1.address, dx.address), mintedOWL, "Tokens allowance is not set correctly")
+    const easdf = await PriceOracleInterface.at(await dx.ethUSDOracle());
+
+    await coordinator.participateInAuction()
+    assert.equal((await dx.sellerBalances.call(token_1.address, token_2.address, 2, instance1.address)).toNumber(), DEPOSIT_1_1*9975/10000)
   })
 })
