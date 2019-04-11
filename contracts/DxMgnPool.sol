@@ -51,8 +51,7 @@ contract DxMgnPool is Ownable {
         secondaryToken = _secondaryToken;
         dx = _dx;
         mgnToken = TokenFRT(dx.frtToken());
-        ERC20 owlToken = ERC20(dx.owlToken());
-        owlToken.approve(address(dx), OWL_ALLOWANCE);
+        ERC20(dx.owlToken()).approve(address(dx), OWL_ALLOWANCE);
         poolingPeriodEndTime = now + _poolingTimeSeconds;
     }
 
