@@ -3,6 +3,7 @@ const Coordinator = artifacts.require("Coordinator")
 const DutchExchange = artifacts.require("DutchExchange")
 const TokenFRT = artifacts.require("TokenFRT")
 const { increaseTimeBy } = require("./utilities")
+const TokenOWL = artifacts.require("TokenOWL")
 
 
 
@@ -25,6 +26,10 @@ contract("Coordinator", (accounts) => {
       const owlTokenMock = await MockContract.new()
       const owlToken = dx.contract.methods.owlToken().encodeABI()
       await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingEndBlock)
 
@@ -62,6 +67,10 @@ contract("Coordinator", (accounts) => {
       const owlToken = dx.contract.methods.owlToken().encodeABI()
       await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
 
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingEndBlock)
 
       await depositTokenMock.givenAnyReturnBool(true)
@@ -90,6 +99,10 @@ contract("Coordinator", (accounts) => {
       const owlToken = dx.contract.methods.owlToken().encodeABI()
       await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
 
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingEndBlock)
 
       await dxMock.givenAnyReturnUint(0)
@@ -110,6 +123,10 @@ contract("Coordinator", (accounts) => {
       const owlTokenMock = await MockContract.new()
       const owlToken = dx.contract.methods.owlToken().encodeABI()
       await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       const coordinator = await Coordinator.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingEndBlock)
 

@@ -11,6 +11,7 @@ import "@daostack/arc/contracts/libs/SafeERC20.sol";
 contract DxMgnPool is Ownable {
     using SafeMath for uint;
 
+    uint constant OWL_ALLOWANCE = 100000000000000000000000000000;
     struct Participation {
         uint startAuctionCount; // how many auction passed when this participation started contributing
         uint poolShares; // number of shares this participation accounts for (absolute)
@@ -34,7 +35,6 @@ contract DxMgnPool is Ownable {
     
     ERC20 public depositToken;
     ERC20 public secondaryToken;
-    ERC20 public owlToken;
     TokenFRT public mgnToken;
     IDutchExchange public dx;
 
@@ -51,7 +51,8 @@ contract DxMgnPool is Ownable {
         secondaryToken = _secondaryToken;
         dx = _dx;
         mgnToken = TokenFRT(dx.frtToken());
-        owlToken = ERC20(dx.owlToken());
+        ERC20 owlToken = ERC20(dx.owlToken());
+        owlToken.approve(address(dx), OWL_ALLOWANCE);
         poolingPeriodEndTime = now + _poolingTimeSeconds;
     }
 
@@ -135,10 +136,6 @@ contract DxMgnPool is Ownable {
 
         (lastParticipatedAuctionIndex, ) = dx.postSellOrder(sellToken, buyToken, 0, amount);
         auctionCount += 1;
-    }
-
-    function setOWLTokenApproval(uint amount) public {
-        owlToken.approve(address(dx), amount);
     }
 
     function triggerMGNunlockAndClaimTokens() public {
