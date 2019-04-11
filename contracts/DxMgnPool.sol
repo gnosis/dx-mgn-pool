@@ -11,7 +11,7 @@ import "@daostack/arc/contracts/libs/SafeERC20.sol";
 contract DxMgnPool is Ownable {
     using SafeMath for uint;
 
-    uint constant OWL_ALLOWANCE = 100000000000000000000000000000;
+    uint constant OWL_ALLOWANCE = 1000000000000000000000000000000; //10**30
     struct Participation {
         uint startAuctionCount; // how many auction passed when this participation started contributing
         uint poolShares; // number of shares this participation accounts for (absolute)
