@@ -1,6 +1,7 @@
 const DxMgnPool = artifacts.require("DxMgnPool")
 const DutchExchange = artifacts.require("DutchExchange")
 const TokenFRT = artifacts.require("TokenFRT")
+const TokenOWL = artifacts.require("TokenOWL")
 
 const abi = require("ethereumjs-abi")
 
@@ -24,6 +25,13 @@ contract("DxMgnPool", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
       await dxMock.givenAnyReturnUint(42)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
       
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, 100)
       
@@ -54,6 +62,14 @@ contract("DxMgnPool", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
 
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       
       await instance.deposit(10)
@@ -81,6 +97,14 @@ contract("DxMgnPool", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
       
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, 0)
       await truffleAssert.reverts(instance.deposit(10))
     })
@@ -97,6 +121,14 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenAnyReturnUint(42)
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       await increaseTimeBy(102, web3)
@@ -116,7 +148,15 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenAnyReturnUint(42)
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
-      
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       
       await instance.deposit(10)
@@ -150,6 +190,14 @@ contract("DxMgnPool", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
 
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       
       await instance.deposit(10)
@@ -173,6 +221,14 @@ contract("DxMgnPool", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
 
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       
       await instance.deposit(10)
@@ -192,6 +248,14 @@ contract("DxMgnPool", (accounts) => {
 
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
 
@@ -218,6 +282,14 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       
@@ -253,6 +325,14 @@ contract("DxMgnPool", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
 
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       
       await instance.deposit(10)
@@ -278,6 +358,15 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const getAuctionIndex = dx.contract.methods.getAuctionIndex(accounts[0], accounts[0]).encodeABI()
       
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
@@ -308,7 +397,15 @@ contract("DxMgnPool", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
       await dxMock.givenAnyReturnUint(42)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
       
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, 100)
       
       await depositTokenMock.givenAnyReturnBool(true) 
@@ -340,6 +437,14 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(postSellOrder, reponseType)
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       
@@ -382,6 +487,14 @@ contract("DxMgnPool", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
 
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       
       await instance.deposit(10)
@@ -423,6 +536,14 @@ contract("DxMgnPool", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
 
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       
       await instance.deposit(10)
@@ -458,6 +579,14 @@ contract("DxMgnPool", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
 
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       await truffleAssert.reverts(instance.withdrawDeposit(), "Funds not yet withdrawn from dx")
     })
@@ -481,6 +610,14 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(postSellOrder, reponseType)
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       
@@ -508,6 +645,14 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
@@ -546,6 +691,14 @@ contract("DxMgnPool", (accounts) => {
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
       
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       await increaseTimeBy(poolingTime, web3)
       await instance.triggerMGNunlockAndClaimTokens()
@@ -563,6 +716,14 @@ contract("DxMgnPool", (accounts) => {
 
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
 
@@ -593,6 +754,14 @@ contract("DxMgnPool", (accounts) => {
       
       const balanceOf = token.contract.methods.balanceOf(accounts[0]).encodeABI()
       await depositTokenMock.givenMethodReturnUint(balanceOf, 2)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
       
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       await instance.triggerMGNunlockAndClaimTokens()
@@ -615,6 +784,14 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturnUint(balances, 0)
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       const unlockTokens = mgn.contract.methods.unlockTokens().encodeABI()
       await mgnTokenMock.givenMethodReturn(unlockTokens, tupleResponse)
@@ -648,6 +825,14 @@ contract("DxMgnPool", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
 
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       
       await instance.deposit(10)
@@ -674,6 +859,14 @@ contract("DxMgnPool", (accounts) => {
 
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
 
@@ -703,6 +896,14 @@ contract("DxMgnPool", (accounts) => {
       const balanceOf = mgn.contract.methods.balanceOf(accounts[0]).encodeABI()
       await mgnTokenMock.givenAnyReturnBool(true)
       await mgnTokenMock.givenMethodReturnUint(balanceOf, 100)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
       
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       
@@ -748,6 +949,14 @@ contract("DxMgnPool", (accounts) => {
       const balanceOf = mgn.contract.methods.balanceOf(accounts[0]).encodeABI()
       await mgnTokenMock.givenAnyReturnBool(true)
       await mgnTokenMock.givenMethodReturnUint(balanceOf, 100)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
       
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
       
@@ -785,6 +994,14 @@ contract("DxMgnPool", (accounts) => {
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
 
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, poolingTime)
 
       await truffleAssert.reverts(instance.withdrawMagnolia(), "MGN has not been unlocked, yet")
@@ -808,6 +1025,14 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       await mgnTokenMock.givenAnyReturnUint(100)
       
@@ -849,6 +1074,14 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       const balanceOf = mgnToken.contract.methods.balanceOf(accounts[0]).encodeABI()
       await mgnTokenMock.givenAnyReturnBool(false)
@@ -892,6 +1125,14 @@ contract("DxMgnPool", (accounts) => {
       await dxMock.givenMethodReturn(claimSellerFunds, tupleResponse)
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
 
       const balanceOf = mgn.contract.methods.balanceOf(accounts[0]).encodeABI()
       await mgnTokenMock.givenAnyReturnBool(true)
@@ -937,6 +1178,15 @@ contract("DxMgnPool", (accounts) => {
       await depositTokenMock.givenAnyReturnBool(true)
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       await dxMock.givenAnyReturnUint(42)
       
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, 100)
@@ -959,6 +1209,15 @@ contract("DxMgnPool", (accounts) => {
       await depositTokenMock.givenAnyReturnBool(true)
       const frtToken = dx.contract.methods.frtToken().encodeABI()
       await dxMock.givenMethodReturnAddress(frtToken, mgnTokenMock.address)
+
+      const owlTokenMock = await MockContract.new()
+      const owlToken = dx.contract.methods.owlToken().encodeABI()
+      await dxMock.givenMethodReturnAddress(owlToken, owlTokenMock.address)
+
+      const owl = await TokenOWL.new();
+      const owlTokenApproveFunctionality = owl.contract.methods.approve(dxMock.address, 100).encodeABI()
+      await owlTokenMock.givenMethodReturnBool(owlTokenApproveFunctionality, true)
+
       await dxMock.givenAnyReturnUint(42)
       
       const instance = await DxMgnPool.new(depositTokenMock.address, secondaryTokenMock.address, dxMock.address, 100)
