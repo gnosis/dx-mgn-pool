@@ -1,9 +1,13 @@
-/* eslint-disable no-undef */
+/* eslint-disable no-console, no-undef */
 
-// eslint-disable-next-line no-undef
-  abi = require("ethereumjs-abi")
+abi = require("ethereumjs-abi")
 
-const TRADING_PERIOD_IN_HOURS = 3 * 60 * 60 * 24 // 3 days for testing
+console.log("TRADING PERIOD DAYS ENV? ", process.env.TRADING_PERIOD_DAYS)
+const TRADING_PERIOD_IN_HOURS = (process.env.TRADING_PERIOD_DAYS || 3) * 60 * 60 * 24 // 3 days for testing
+console.log(`
+TRADING_PERIOD_IN_HOURS: ${TRADING_PERIOD_IN_HOURS}
+DATE END: ${new Date(Date.now() + TRADING_PERIOD_IN_HOURS * 1000)}
+`)
 
 async function migrate({
   artifacts,
