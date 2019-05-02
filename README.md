@@ -93,6 +93,14 @@ npm run rpc
 ```
 
 ## Migrations
+
+Set migration configuration:
+```
+export MNEMONIC='<YOUR_SECRET_MNEMONIC_PHRASE>'
+export GAS_PRICE_GWEI='<Your GWEI config>'
+export TRADING_END_TIME= '<Date in iso format,eg '2019-05-03T16:00:00+02:00'>'
+```
+
 Local:
 ```bash
 npm run migrate
@@ -129,6 +137,49 @@ For Rinkeby
 docker build --rm -t participate .
 docker run -t -i -e NETWORK=rinkeby -e MNEMONIC='<YOUR_SECRET_MNEMONIC_PHRASE>' participate
 ```
+
+For Mainnet
+
+```
+docker build --rm -t participate .
+docker run -t -i -e NETWORK=mainnet -e MNEMONIC='<YOUR_SECRET_MNEMONIC_PHRASE>' participate
+```
+
+## Current high-level deployment process
+
+
+Process
+- Check that all depend smart contracts (e.g. dx) have already been deployed and npm packages are updated
+- Checkout new git release branch
+- Set migration config and run scripts as listed in migration process 
+- Change npm version: `npm version major|patch|minor`
+- Publish npm package: `npm publish --access public`
+- Push pr and merge into master branch
+- Travis will build the bot and publish it to dockerhub. The name is gnosispm/'prefix'-dx-mgn-pool
+- For production release, deploy the bots with the commands of deployment section
+- Bot can be started by:
+```
+STOP RINKEBY version:
+kubectl patch deployment dev-dx-mgn-pool -p '{"spec":{"replicas":0}}' -n dutchx
+
+START RINKEBY version:
+kubectl patch deployment dev-dx-mgn-pool -p '{"spec":{"replicas":1}}' -n dutchx
+
+STOP MAINNET version:
+kubectl patch deployment staging-dx-mgn-pool -p '{"spec":{"replicas":0}}' -n dutchx
+
+START MAINNET version:
+kubectl patch deployment staging-dx-mgn-pool -p '{"spec":{"replicas":1}}' -n dutchx
+```
+- Logs of the bots can be seen here:
+```
+RINKEBY
+https://logs.gnosisdev.com/_plugin/kibana/app/kibana#/discover?_g=(refreshInterval:('$$hashKey':'object:2363',display:'5%20seconds',pause:!f,section:1,value:5000),time:(from:now%2Fd,mode:quick,to:now%2Fd))&_a=(columns:!(log,kubernetes.labels.network),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:kubernetes.labels.app,negate:!f,type:phrase,value:dx-mgn-pool),query:(match:(kubernetes.labels.app:(query:dx-mgn-pool,type:phrase)))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:kubernetes.labels.network,negate:!f,type:phrase,value:rinkeby),query:(match:(kubernetes.labels.network:(query:rinkeby,type:phrase))))),index:'logstash-*',interval:auto,query:(match_all:()),sort:!('@timestamp',desc))
+
+MAINNET
+https://logs.gnosisdev.com/_plugin/kibana/app/kibana#/discover?_g=(refreshInterval:('$$hashKey':'object:2363',display:'5%20seconds',pause:!f,section:1,value:5000),time:(from:now%2Fd,mode:quick,to:now%2Fd))&_a=(columns:!(log,kubernetes.labels.network),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:kubernetes.labels.app,negate:!f,type:phrase,value:dx-mgn-pool),query:(match:(kubernetes.labels.app:(query:dx-mgn-pool,type:phrase)))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:kubernetes.labels.network,negate:!f,type:phrase,value:mainnet),query:(match:(kubernetes.labels.network:(query:mainnet,type:phrase))))),index:'logstash-*',interval:auto,query:(match_all:()),sort:!('@timestamp',desc)) (edited) 
+```
+
 ## Security-Advice:
 
 If the operator of the dutchX protocol is proposing malicious changes, everyone in the pool should still be able to withdraw their funds before the malicious changes will be implemented. Hence, the deployed pooling time should never be greater than the review time of a new proposal for a dutchX upgrade.
