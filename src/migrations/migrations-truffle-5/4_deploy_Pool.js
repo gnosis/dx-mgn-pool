@@ -2,47 +2,37 @@
 
 abi = require("ethereumjs-abi")
 
-console.log("TRADING PERIOD DAYS ENV? ", process.env.TRADING_PERIOD_DAYS)
-console.log("TRADING_END_TIME ENV? ", process.env.TRADING_END_TIME)
-
-var TRADING_PERIOD_IN_HOURS 
-if (process.env.TRADING_END_TIME) {
-  tradingEndTime = new Date(Date.parse(process.env.TRADING_END_TIME))
-  currentTime = new Date()
-  TRADING_PERIOD_IN_HOURS = Math.floor(Math.abs(tradingEndTime - currentTime) / 36e5)
-} else {
-  TRADING_PERIOD_IN_HOURS = (process.env.TRADING_PERIOD_DAYS || 3) * 60 * 60 * 24 // 3 days for testing
-}
-console.log(`
-TRADING_PERIOD_IN_HOURS: ${TRADING_PERIOD_IN_HOURS}
-`)
 
 async function migrate({
   artifacts,
   deployer,
   network,
 }) {
-  
+  if (network === "development" && !process.env.TRADING_END_TIME) {
+    process.env.TRADING_END_TIME = new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000) // 3 days for testing
+  }
+  console.log("TRADING_END_TIME ENV: ", process.env.TRADING_END_TIME)
+
   const Coordinator = artifacts.require("Coordinator"),
     DXProxyArtifact = artifacts.require("@gnosis.pm/dx-contracts/contracts/DutchExchangeProxy"),
     WETHArtifact = artifacts.require("@gnosis.pm/util-contracts/contracts/EtherToken"),
     GNOArtifact = artifacts.require("@gnosis.pm/gno-token/contracts/TokenGNO")
 
   // temp vars
-  let etherToken, tokenGNO, dxProxy 
-  
+  let etherToken, tokenGNO, dxProxy
+
   if (network === "development") {
-    ([etherToken, tokenGNO, dxProxy]= await Promise.all([
+    ([etherToken, tokenGNO, dxProxy] = await Promise.all([
       WETHArtifact.deployed(),
       GNOArtifact.deployed(),
       DXProxyArtifact.deployed(),
     ]))
   } else {
     const TC = require("truffle-contract")
-    
+
     const contractArtFilePaths = [
-      "@gnosis.pm/dx-contracts/build/contracts/DutchExchangeProxy.json", 
-      "@gnosis.pm/util-contracts/build/contracts/EtherToken.json", 
+      "@gnosis.pm/dx-contracts/build/contracts/DutchExchangeProxy.json",
+      "@gnosis.pm/util-contracts/build/contracts/EtherToken.json",
       "@gnosis.pm/gno-token/build/contracts/TokenGNO.json",
     ]
 
@@ -53,9 +43,23 @@ async function migrate({
     ([dxProxy, etherToken, tokenGNO] = await Promise.all(contractsMapped.map(contract => contract.deployed())))
   }
 
-  const poolingTime = TRADING_PERIOD_IN_HOURS
-    
+  const poolingTime = _getPoolingTime()
   await deployer.deploy(Coordinator, etherToken.address, tokenGNO.address, dxProxy.address, poolingTime)
+}
+
+function _getPoolingTime() {
+  let tradingEndTime
+  if (process.env.TRADING_END_TIME) {
+    tradingEndTime = new Date(Date.parse(process.env.TRADING_END_TIME))
+  } else {
+    throw new Error("TRADING_END_TIME env is mandatory. i.e. TRADING_END_TIME=\"2019-05-12T12:00:00+02:00\"")
+  }
+
+  const now = new Date()
+  if (tradingEndTime <= now) {
+    throw new Error("The TRADING_END_TIME is incorrect. It should be a future date")
+  }
+  return Math.floor(tradingEndTime - now / 1000)
 }
 
 module.exports = migrate

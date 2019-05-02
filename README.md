@@ -99,6 +99,7 @@ Set migration configuration:
 export MNEMONIC='<YOUR_SECRET_MNEMONIC_PHRASE>'
 export GAS_PRICE_GWEI='<Your GWEI config>'
 export TRADING_END_TIME= '<Date in iso format,eg '2019-05-03T16:00:00+02:00'>'
+export INFURA_KEY='your infura project id'
 ```
 
 Local:
@@ -109,40 +110,51 @@ npm run migrate
 Rinkeby:
 ```bash
 npm run restore
-npm run networks --clean
-npm run migrate --reset --network rinkeby
+npm run networks -- --clean
+npm run migrate -- --reset --network rinkeby
 npm run networks-extract
 ```
 
 Mainnet:
 ```bash
 npm run restore
-npm run networks --clean
-npm run migrate --reset --network mainnet
+npm run networks -- --clean
+npm run migrate -- --reset --network mainnet
 npm run networks-extract
 ```
 
 ## Participation Bot
 
+The bot allow to define several coordinator addresses. At least one coordinaor
+is mandatory.
+
+To define the coordinators, use secuencial env vars like these ones:
+```
+COORDINATOR_ADDRESS_1=<address1>
+COORDINATOR_ADDRESS_2=<address2>
+COORDINATOR_ADDRESS_3=<address3>
+...
+```
+
 For Ganache (deterministic)
 
 ```
 docker build --rm -t participate .
-docker run -t -i -e NETWORK=development -e RPC_URL=host.docker.internal participate
+docker run -t -i -e NETWORK=development COORDINATOR_ADDRESS_1=<address1> -e RPC_URL=host.docker.internal participate
 ```
 
 For Rinkeby
 
 ```
 docker build --rm -t participate .
-docker run -t -i -e NETWORK=rinkeby -e MNEMONIC='<YOUR_SECRET_MNEMONIC_PHRASE>' participate
+docker run -t -i -e NETWORK=rinkeby COORDINATOR_ADDRESS_1=<address1> -e MNEMONIC='<YOUR_SECRET_MNEMONIC_PHRASE>' participate
 ```
 
 For Mainnet
 
 ```
 docker build --rm -t participate .
-docker run -t -i -e NETWORK=mainnet -e MNEMONIC='<YOUR_SECRET_MNEMONIC_PHRASE>' participate
+docker run -t -i -e NETWORK=mainnet COORDINATOR_ADDRESS_1=<address1> -e MNEMONIC='<YOUR_SECRET_MNEMONIC_PHRASE>' participate
 ```
 
 ## Current high-level deployment process

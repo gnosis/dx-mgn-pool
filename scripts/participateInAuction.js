@@ -1,31 +1,26 @@
 /* eslint-disable no-console */
+const assert = require("assert")
 const Coordinator = artifacts.require("Coordinator")
 const DxMgnPool = artifacts.require("DxMgnPool")
 const DutchExchange = artifacts.require("DutchExchange")
 const { Gastimator } = require("./gasStation")
-const priceUrl = require("../gas-config")
+const gasPriceUrl = require("../gas-config")
 const GasStation = new Gastimator()
 
-// Use price feed based on current network (if listed) else rinkeby.
-const url = priceUrl[process.env.NETWORK] || priceUrl.rinkeby
-
-module.exports = async (callback) => {
+async function participateInAuction(coordinatorAddress, network) {
+  console.log("[%s] Do articipate in auction", coordinatorAddress)
   try {
-    const coordinator = await Coordinator.deployed()
-    console.log("Coordinator deployed at %s", coordinator.address)
-
+    const coordinator = await Coordinator.at(coordinatorAddress)
     if (await coordinator.canParticipate.call()) {
-      let fastPrice = 20000000000  // 20 GWei
-      try {
-        fastPrice = (await GasStation.estimateGas(url)).fast
-      } catch (error) {
-        console.error("GasPrice etimate failed: Using default fast price of 20 GWei.")
-      }
+      // Use price feed based on current network (if listed) else rinkeby.    
+      const url = gasPriceUrl[network]
+      const fastPrice = (await GasStation.estimateGas(url)).fast
+
       // Send transaction with fast gas price estimate
-      await coordinator.participateInAuction({ "gasPrice" : fastPrice })
-      console.log("Successfully called participateInAuction!")
+      await coordinator.participateInAuction({ "gasPrice": fastPrice })
+      console.log("[%s] Successfully called participateInAuction!", coordinatorAddress)
     } else {
-      console.log("Can't participate in auction yet.")
+      console.log("[%s] Can't participate in auction yet.", coordinatorAddress)
       const pool1 = await DxMgnPool.at(await coordinator.dxMgnPool1())
       const pool2 = await DxMgnPool.at(await coordinator.dxMgnPool2())
 
@@ -45,17 +40,59 @@ module.exports = async (callback) => {
       const dxAuctionIndex2 = (await dx2.getAuctionIndex.call(secondaryToken, depositToken)).toNumber()
 
       if (pool1State == 1 && dxAuctionIndex1 > lastAuction1) {
-        console.log("Pool 1: Transitioning state to `DepositWithdrawnFromDx`")
+        console.log("[%s] Pool 1: Transitioning state to `DepositWithdrawnFromDx`", coordinatorAddress)
         await pool1.triggerMGNunlockAndClaimTokens()
       }
       if (pool2State == 1 && dxAuctionIndex2 > lastAuction2) {
-        console.log("Pool 2: Transitioning state to `DepositWithdrawnFromDx`")
+        console.log("[%s] Pool 2: Transitioning state to `DepositWithdrawnFromDx`", coordinatorAddress)
         await pool2.triggerMGNunlockAndClaimTokens()
       }
     }
-    callback()
+    return null
   } catch (error) {
     console.error(error)
-    callback(error)
+    return error
+  }
+}
+
+module.exports = async (callback) => {
+  let result
+  try {
+    // Get the network, and all the coordinator addresses
+    const network = process.env.NETWORK
+    assert(network, "NETWORK env is mandarory")
+    let count = 0
+    const coordinatorAddresses = []
+    do {
+      count++
+      const envName = "COORDINATOR_ADDRESS_" + count
+      const address = process.env[envName]
+      assert(address, envName + " is mandatory")
+
+      coordinatorAddresses.push(address)
+    } while (process.env["COORDINATOR_ADDRESS_" + (count + 1)])
+
+
+    console.log("Participate in auction for %d pools: %s", coordinatorAddresses.length, coordinatorAddresses.join(", "))
+
+    // Participate in the auction for all the coordinators
+    const participationPromises = coordinatorAddresses
+      .map(async coordinatorAddress => participateInAuction(coordinatorAddress, network))
+
+    // Wait for all the participations
+    const results = await Promise.all(participationPromises)
+
+    // Check if any participartion returned an error, return the first one  
+    result = results.find(result => result !== null)
+  } catch (error) {
+    result = error
+  }
+
+  if (result) {
+    console.log("Some pools had an error")
+    callback(result)
+  } else {
+    console.log("Done!")
+    callback()
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@gnosis.pm/dx-mgn-pool",
-  "version": "0.2.0-RC1-rinkeby",
+  "version": "0.2.1",
   "description": "Smart contracts and migration scripts for the MGN-pool for trading at the dutch-Exchange",
   "main": "truffle-config.js",
   "directories": {
@@ -15,7 +15,7 @@
     "compile": "truffle compile",
     "migrate": "truffle migrate",
     "preversion": "npm run restore",
-    "restore": "rm -rf build && npm run compile",
+    "restore": "rm -rf build && npm run compile && npm run networks-inject",
     "networks": "truffle networks",
     "lint": "eslint .",
     "participate": "truffle exec scripts/participateInAuction.js"
@@ -40,13 +40,14 @@
     "url": "https://github.com/gnosis/dx-mgn-pool/issues"
   },
   "devDependencies": {
-    "solidity-coverage": "^0.5.11",
     "@digix/tempo": "^0.2.0",
     "@gnosis.pm/truffle-nice-tools": "^1.2.1",
     "eslint": "^5.12.0",
     "ganache-cli": "^6.2.5",
+    "solidity-coverage": "^0.5.11",
     "truffle": "^5.0.2",
-    "truffle-flattener": "^1.2.10"
+    "truffle-flattener": "^1.2.10",
+    "verify-on-etherscan": "^1.1.1"
   },
   "dependencies": {
     "@daostack/arc": "0.0.1-rc.8",
@@ -54,10 +55,10 @@
     "@gnosis.pm/gno-token": "2.0.0",
     "@gnosis.pm/mock-contract": "^3.0.7",
     "@gnosis.pm/util-contracts": "2.0.0",
+    "chai": "^4.2.0",
     "got": "^9.6.0",
     "i": "^0.3.6",
     "npm": "^6.7.0",
-    "chai": "^4.2.0",
     "openzeppelin-solidity": "^2.1.2",
     "truffle-assertions": "^0.7.2",
     "truffle-contract": "^4.0.4",
