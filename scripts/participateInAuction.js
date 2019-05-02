@@ -15,14 +15,10 @@ module.exports = async (callback) => {
     console.log("Coordinator deployed at %s", coordinator.address)
 
     if (await coordinator.canParticipate.call()) {
-      let fastPrice = 20000000000  // 20 GWei
-      try {
-        fastPrice = (await GasStation.estimateGas(url)).fast
-      } catch (error) {
-        console.error("GasPrice etimate failed: Using default fast price of 20 GWei.")
-      }
+      const fastPrice = (await GasStation.estimateGas(url)).fast
+
       // Send transaction with fast gas price estimate
-      await coordinator.participateInAuction({ "gasPrice" : fastPrice })
+      await coordinator.participateInAuction({ "gasPrice": fastPrice })
       console.log("Successfully called participateInAuction!")
     } else {
       console.log("Can't participate in auction yet.")
