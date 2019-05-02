@@ -6,12 +6,20 @@ console.log("TRADING PERIOD DAYS ENV? ", process.env.TRADING_PERIOD_DAYS)
 console.log("TRADING_END_TIME ENV? ", process.env.TRADING_END_TIME)
 
 var TRADING_PERIOD_IN_HOURS 
+
+if (network === 'development') {
+  TRADING_PERIOD_IN_HOURS = (process.env.TRADING_PERIOD_DAYS || 3) * 60 * 60 * 24 // 3 days for testing
+}
 if (process.env.TRADING_END_TIME) {
   tradingEndTime = new Date(Date.parse(process.env.TRADING_END_TIME))
   currentTime = new Date()
   TRADING_PERIOD_IN_HOURS = Math.floor(Math.abs(tradingEndTime - currentTime) / 36e5)
 } else {
-  TRADING_PERIOD_IN_HOURS = (process.env.TRADING_PERIOD_DAYS || 3) * 60 * 60 * 24 // 3 days for testing
+  throw new Error(`
+    LOCK_END_TIME environment variable is not specified
+    It must be in ISO date format, e.g:
+    LOCK_END_TIME='2019-06-12T16:00:00+02:00' npm run migrate
+    `)
 }
 console.log(`
 TRADING_PERIOD_IN_HOURS: ${TRADING_PERIOD_IN_HOURS}
