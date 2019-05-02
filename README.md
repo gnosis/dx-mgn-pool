@@ -99,6 +99,7 @@ Set migration configuration:
 export MNEMONIC='<YOUR_SECRET_MNEMONIC_PHRASE>'
 export GAS_PRICE_GWEI='<Your GWEI config>'
 export TRADING_END_TIME= '<Date in iso format,eg '2019-05-03T16:00:00+02:00'>'
+export INFURA_KEY='your infura project id'
 ```
 
 Local:
@@ -109,16 +110,16 @@ npm run migrate
 Rinkeby:
 ```bash
 npm run restore
-npm run networks --clean
-npm run migrate --reset --network rinkeby
+npm run networks -- --clean
+npm run migrate -- --reset --network rinkeby
 npm run networks-extract
 ```
 
 Mainnet:
 ```bash
 npm run restore
-npm run networks --clean
-npm run migrate --reset --network mainnet
+npm run networks -- --clean
+npm run migrate -- --reset --network mainnet
 npm run networks-extract
 ```
 
