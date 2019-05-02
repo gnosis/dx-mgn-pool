@@ -98,7 +98,7 @@ Set migration configuration:
 ```
 export MNEMONIC='<YOUR_SECRET_MNEMONIC_PHRASE>'
 export GAS_PRICE_GWEI='<Your GWEI config>'
-export TRADING_PERIOD_DAYS= '<Exact time of the trading period starting from the deployment date>'
+export TRADING_END_TIME= '<Date in iso format,eg '2019-05-03T16:00:00+02:00'>'
 ```
 
 Local:

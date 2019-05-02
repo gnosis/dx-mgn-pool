@@ -3,10 +3,18 @@
 abi = require("ethereumjs-abi")
 
 console.log("TRADING PERIOD DAYS ENV? ", process.env.TRADING_PERIOD_DAYS)
-const TRADING_PERIOD_IN_HOURS = (process.env.TRADING_PERIOD_DAYS || 3) * 60 * 60 * 24 // 3 days for testing
+console.log("TRADING_END_TIME ENV? ", process.env.TRADING_END_TIME)
+
+var TRADING_PERIOD_IN_HOURS 
+if (process.env.TRADING_END_TIME) {
+  tradingEndTime = new Date(Date.parse(process.env.TRADING_END_TIME))
+  currentTime = new Date()
+  TRADING_PERIOD_IN_HOURS = Math.floor(Math.abs(tradingEndTime - currentTime) / 36e5)
+} else {
+  TRADING_PERIOD_IN_HOURS = (process.env.TRADING_PERIOD_DAYS || 3) * 60 * 60 * 24 // 3 days for testing
+}
 console.log(`
 TRADING_PERIOD_IN_HOURS: ${TRADING_PERIOD_IN_HOURS}
-DATE END: ${new Date(Date.now() + TRADING_PERIOD_IN_HOURS * 1000)}
 `)
 
 async function migrate({
