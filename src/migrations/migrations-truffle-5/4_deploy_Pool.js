@@ -16,9 +16,9 @@ if (process.env.TRADING_END_TIME) {
   TRADING_PERIOD_IN_HOURS = Math.floor(Math.abs(tradingEndTime - currentTime) / 36e5)
 } else {
   throw new Error(`
-    LOCK_END_TIME environment variable is not specified
+    TRADING_END_TIME environment variable is not specified
     It must be in ISO date format, e.g:
-    LOCK_END_TIME='2019-06-12T16:00:00+02:00' npm run migrate
+    TRADING_END_TIME='2019-06-12T16:00:00+02:00' npm run migrate
     `)
 }
 console.log(`
