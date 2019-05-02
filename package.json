@@ -15,7 +15,7 @@
     "compile": "truffle compile",
     "migrate": "truffle migrate",
     "preversion": "npm run restore",
-    "restore": "rm -rf build && npm run compile",
+    "restore": "rm -rf build && npm run compile && npm run networks-inject",
     "networks": "truffle networks",
     "lint": "eslint .",
     "participate": "truffle exec scripts/participateInAuction.js"
