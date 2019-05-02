@@ -1,30 +1,30 @@
 {
   "Coordinator": {
-    "4": {
-      "events": {},
-      "links": {},
-      "address": "0xf3184d1A59332eB626c665C803ddd86b0B8D7Ea0",
-      "transactionHash": "0x2730a9c4a01db76a907016410e8e05084ab87a61b74c2fd910aa29cba32fd578"
-    },
     "1": {
       "events": {},
       "links": {},
       "address": "0xb596B1A108075Ed4cd9ae7c680Fc57Fcf92623d8",
       "transactionHash": "0xcf88c3885d91a2c374198a026e41d4985f5fcc1fe4c248ae1bc2636464fc7c1d"
-    }
-  },
-  "Migrations": {
+    },
     "4": {
       "events": {},
       "links": {},
-      "address": "0x00D19bc79fB5354fbeb55D81f4eD9302c2505A58",
-      "transactionHash": "0x6e3d26d547e2c4aa2a0633b5d085ca96bbc97ee853d0734d587d05510f4ab127"
-    },
+      "address": "0x9794257a4E2f45E5d6D38e9EB8B98Be9568D024b",
+      "transactionHash": "0x03e6152601e2820fcad971f5328fae6022218ffd292a31488fdff18fe198ba6e"
+    }
+  },
+  "Migrations": {
     "1": {
       "events": {},
       "links": {},
       "address": "0xCDD9B08347bC9ECe617e0b5E9ea01249F20c11d3",
       "transactionHash": "0xe0161ed992f5819852594510d4dc9dedcc92f0ac833f888c01bd6358da63a5b1"
+    },
+    "4": {
+      "events": {},
+      "links": {},
+      "address": "0x748Ee92ab526922209B7b78EA7bD8Cb87E00d8d4",
+      "transactionHash": "0xfc94f5ee50c81b065c18b524051eef6d8e79a00a6302ff6b070080a2a454254a"
     }
   }
 }
