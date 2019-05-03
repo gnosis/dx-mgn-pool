@@ -59,7 +59,7 @@ function _getPoolingTime() {
   if (tradingEndTime <= now) {
     throw new Error("The TRADING_END_TIME is incorrect. It should be a future date")
   }
-  return Math.floor(tradingEndTime - now / 1000)
+  return Math.floor((tradingEndTime - now) / 1000)
 }
 
 module.exports = migrate

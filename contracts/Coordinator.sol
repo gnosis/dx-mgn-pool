@@ -7,8 +7,8 @@ contract Coordinator {
     DxMgnPool public dxMgnPool2;
 
     constructor (
-        ERC20 _token1, 
-        ERC20 _token2, 
+        ERC20 _token1,
+        ERC20 _token2,
         IDutchExchange _dx,
         uint _poolingTime
     ) public {
