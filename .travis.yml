@@ -20,7 +20,7 @@ script:
   - cd $TRAVIS_BUILD_DIR/travscripts
   - "chmod +x ./BranchScript.sh && ./BranchScript.sh"
   - cd $TRAVIS_BUILD_DIR
-deploy:
+after_success:
 - |
   # Create Docker image if branch master or develop and not on pull requests
   if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
