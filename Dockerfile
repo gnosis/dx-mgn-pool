@@ -1,33 +1,32 @@
-FROM node:8.11-alpine
+FROM node:8.11 as builder
 
-# Create app directory
-WORKDIR /usr/src/app/
+# Create build directory
+WORKDIR /tmp/build
 
-
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
+# Install first dependencies, so docker can cache this layer
 COPY package*.json truffle-config.js ./
 COPY contracts contracts
 
-# Compile necesary contracts for app and cleanup unnecesary files
-RUN apk add --update --no-cache --virtual build-dependencies git python make bash g++ ca-certificates && \
-    apk add --no-cache git
-
+# Then the rest of files
 COPY . .
-COPY tasks/cron-task /etc/crontabs/root
-
-RUN chmod +x tasks/participate.sh
 
 RUN npm install
 
-RUN apk del build-dependencies
-
 RUN ./node_modules/.bin/truffle compile
+
+# Use release image (smaller)
+FROM node:8.11-alpine
+
+# Create app directory
+WORKDIR /usr/src/app
+
+COPY --from=builder /tmp/build .
 
 RUN npm run networks-inject
 
+
 # Apply cron job
+COPY tasks/cron-task /etc/crontabs/root
 RUN crontab /etc/crontabs/root
 
 # Run the command on container startup
