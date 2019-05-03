@@ -1,4 +1,4 @@
-FROM node:8.11 as builder
+FROM node:8.16 as builder
 
 # Create build directory
 WORKDIR /tmp/build
@@ -15,7 +15,7 @@ RUN npm install
 RUN ./node_modules/.bin/truffle compile
 
 # Use release image (smaller)
-FROM node:8.11-alpine
+FROM node:8.16-alpine
 
 # Create app directory
 WORKDIR /usr/src/app

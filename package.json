@@ -58,7 +58,6 @@
     "chai": "^4.2.0",
     "got": "^9.6.0",
     "i": "^0.3.6",
-    "npm": "^6.7.0",
     "openzeppelin-solidity": "^2.1.2",
     "truffle-assertions": "^0.7.2",
     "truffle-contract": "^4.0.4",
