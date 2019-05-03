@@ -33,11 +33,11 @@ after_success:
       docker push gnosispm/dx-mgn-pool:staging;
     elif [ "$TRAVIS_BRANCH" == "develop" ]; then
       echo "Pushing image develop...";
-      docker tag dx-services gnosispm/dx-mgn-pool:develop;
+      docker tag dx-mgn-pool gnosispm/dx-mgn-pool:develop;
       docker push gnosispm/dx-mgn-pool:develop;
     elif [[ $TRAVIS_TAG = $TRAVIS_BRANCH ]]; then
       echo "Pushing image tag $TRAVIS_TAG...";
-      docker tag dx-services gnosispm/dx-mgn-pool:$TRAVIS_TAG;
+      docker tag dx-mgn-pool gnosispm/dx-mgn-pool:$TRAVIS_TAG;
       docker push gnosispm/dx-mgn-pool:$TRAVIS_TAG;
     fi
     echo "The image has been pushed";
