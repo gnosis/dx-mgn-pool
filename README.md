@@ -195,3 +195,6 @@ https://logs.gnosisdev.com/_plugin/kibana/app/kibana#/discover?_g=(refreshInterv
 ## Security-Advice:
 
 If the operator of the dutchX protocol is proposing malicious changes, everyone in the pool should still be able to withdraw their funds before the malicious changes will be implemented. Hence, the deployed pooling time should never be greater than the review time of a new proposal for a dutchX upgrade.
+
+## Disclaimer:
+Please note that due to the mechanism design of the DutchX MGN Pool, it is expected that when participating in the DutchX MGN Pool the remaining number of the deposited tokens, which may be reclaimed following the end of the trading period, will be significantly lower than the initially deposited number of tokens and may in fact be nil (0). It is therefore advised to only participate in the DutchX MGN Pool, if one wishes to accrue MGN and values such accrued MGN sufficiently high to justify the significant risk of losing all tokens initially deposited into the DutchX MGN Pool.
