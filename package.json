@@ -42,6 +42,7 @@
   "devDependencies": {
     "@digix/tempo": "^0.2.0",
     "@gnosis.pm/truffle-nice-tools": "^1.2.1",
+    "debug": "^4.1.1",
     "eslint": "^5.12.0",
     "ganache-cli": "^6.2.5",
     "solidity-coverage": "^0.5.11",
@@ -54,7 +55,7 @@
     "@gnosis.pm/dx-contracts": "2.0.0",
     "@gnosis.pm/gno-token": "2.0.0",
     "@gnosis.pm/mock-contract": "^3.0.7",
-    "@gnosis.pm/util-contracts": "2.0.0",
+    "@gnosis.pm/util-contracts": "^2.0.1",
     "chai": "^4.2.0",
     "got": "^9.6.0",
     "i": "^0.3.6",
