@@ -1,8 +1,4 @@
 /* eslint-disable no-console */
-
-const Debug = require("debug")
-const debug = Debug("DEBUG-participate")
-
 const assert = require("assert")
 const Coordinator = artifacts.require("Coordinator")
 const DxMgnPool = artifacts.require("DxMgnPool")
@@ -12,10 +8,7 @@ const gasPriceUrl = require("../gas-config")
 const GasStation = new Gastimator()
 
 async function participateInAuction(coordinatorAddress, network) {
-  const debugAuction = Debug("DEBUG-participate:" + coordinatorAddress)
-  const infoAuction = Debug("INFO-participate:" + coordinatorAddress)
-
-  debugAuction("Do participate in auction")
+  console.log("[%s] Do articipate in auction", coordinatorAddress)
   try {
     const coordinator = await Coordinator.at(coordinatorAddress)
     if (await coordinator.canParticipate.call()) {
@@ -24,13 +17,10 @@ async function participateInAuction(coordinatorAddress, network) {
       const fastPrice = (await GasStation.estimateGas(url)).fast
 
       // Send transaction with fast gas price estimate
-      const result = await coordinator.participateInAuction({
-        "gasPrice": fastPrice
-      })
-
-      infoAuction("Successfully called participateInAuction! in tx: %s", result.tx)
+      await coordinator.participateInAuction({ "gasPrice": fastPrice })
+      console.log("[%s] Successfully called participateInAuction!", coordinatorAddress)
     } else {
-      debugAuction("Can't participate in auction yet.")
+      console.log("[%s] Can't participate in auction yet.", coordinatorAddress)
       const pool1 = await DxMgnPool.at(await coordinator.dxMgnPool1())
       const pool2 = await DxMgnPool.at(await coordinator.dxMgnPool2())
 
@@ -50,11 +40,11 @@ async function participateInAuction(coordinatorAddress, network) {
       const dxAuctionIndex2 = (await dx2.getAuctionIndex.call(secondaryToken, depositToken)).toNumber()
 
       if (pool1State == 1 && dxAuctionIndex1 > lastAuction1) {
-        debugAuction("Pool 1: Transitioning state to `DepositWithdrawnFromDx`")
+        console.log("[%s] Pool 1: Transitioning state to `DepositWithdrawnFromDx`", coordinatorAddress)
         await pool1.triggerMGNunlockAndClaimTokens()
       }
       if (pool2State == 1 && dxAuctionIndex2 > lastAuction2) {
-        debugAuction("Pool 2: Transitioning state to `DepositWithdrawnFromDx`")
+        console.log("[%s] Pool 2: Transitioning state to `DepositWithdrawnFromDx`", coordinatorAddress)
         await pool2.triggerMGNunlockAndClaimTokens()
       }
     }
@@ -83,7 +73,7 @@ module.exports = async (callback) => {
     } while (process.env["COORDINATOR_ADDRESS_" + (count + 1)])
 
 
-    debug("Participate in auction for %d pools: %s", coordinatorAddresses.length, coordinatorAddresses.join(", "))
+    console.log("Participate in auction for %d pools: %s", coordinatorAddresses.length, coordinatorAddresses.join(", "))
 
     // Participate in the auction for all the coordinators
     const participationPromises = coordinatorAddresses
@@ -99,10 +89,10 @@ module.exports = async (callback) => {
   }
 
   if (result) {
-    console.error("Some pools had an error")
+    console.log("Some pools had an error")
     callback(result)
   } else {
-    debug("Done!")
+    console.log("Done!")
     callback()
   }
 }

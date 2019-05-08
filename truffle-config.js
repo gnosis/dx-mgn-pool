@@ -1,8 +1,4 @@
-// TODO: Remove after test
-process.env.DEBUG = process.env.DEBUG || "DEBUG-*,INFO-*"
-
 const assert = require('assert')
-const debug = require("debug")("DEBUG-truffle")
 const HDWalletProvider = require('truffle-hdwallet-provider')
 const GAS_PRICE_GWEI = process.env.GAS_PRICE_GWEI || 5
 const GAS_LIMIT = 6.5e6
@@ -19,7 +15,7 @@ if (!privateKey && !mnemonic) {
   mnemonic = DEFAULT_MNEMONIC
 }
 
-const infuraProjectId = process.env.INFURA_KEY || '9408f47dedf04716a03ef994182cf150'
+const infuraProjectId = process.env.INFURA_KEY
 function truffleConfig({
   mnemonic = DEFAULT_MNEMONIC,
   privateKey,
@@ -33,15 +29,15 @@ function truffleConfig({
   portDevelopment = 8545
 } = {}) {
   assert(mnemonic, 'The mnemonic has not been provided');
-  debug(`Using gas limit: ${gas / 1000} K`);
-  debug(`Using gas price: ${gasPriceGWei} Gwei`);
-  debug(`Optimizer enabled: ${optimizedEnabled}`);
-  debug('Using default mnemonic: %s', mnemonic === DEFAULT_MNEMONIC);
+  console.log(`Using gas limit: ${gas / 1000} K`);
+  console.log(`Using gas price: ${gasPriceGWei} Gwei`);
+  console.log(`Optimizer enabled: ${optimizedEnabled}`);
+  console.log('Using default mnemonic: %s', mnemonic === DEFAULT_MNEMONIC);
   const gasPrice = gasPriceGWei * 1e9;
 
   let _getProvider
   if (privateKey) {
-    debug('Using private key')
+    console.log('Using private key')
     _getProvider = url => {
       return () => {
         assert(infuraProjectId, "Need an infura ProjectID. INFURA_KEY env var")
@@ -49,7 +45,7 @@ function truffleConfig({
       }
     }
   } else {
-    debug(mnemonic === DEFAULT_MNEMONIC ? 'Using default mnemonic' : 'Using custom mnemonic')
+    console.log(mnemonic === DEFAULT_MNEMONIC ? 'Using default mnemonic' : 'Using custom mnemonic')
     _getProvider = url => {
       return () => {
         assert(infuraProjectId, "Need an infura ProjectID. INFURA_KEY env var")
