@@ -1,6 +1,6 @@
 {
   "name": "@gnosis.pm/dx-mgn-pool",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Smart contracts and migration scripts for the MGN-pool for trading at the dutch-Exchange",
   "main": "truffle-config.js",
   "directories": {
