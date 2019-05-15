@@ -11,6 +11,11 @@ const { Gastimator } = require("./gasStation")
 const gasPriceUrl = require("../gas-config")
 const GasStation = new Gastimator()
 
+// const STATE_POOLING = 0 // Pooling
+const STATE_POOLING_ENDED = 1 // PoolingEnded
+// const STATE_UNLOCKING_MGN = 2 // DepositWithdrawnFromDx
+// const STATE_MGN_UNLOCKED = 3 // MgnUnlocked
+
 async function participateInAuction(coordinatorAddress, network) {
   const debugAuction = Debug("DEBUG-participate:" + coordinatorAddress)
   const infoAuction = Debug("INFO-participate:" + coordinatorAddress)
@@ -37,8 +42,8 @@ async function participateInAuction(coordinatorAddress, network) {
       const pool1State = (await pool1.updateAndGetCurrentState.call()).toNumber()
       const pool2State = (await pool2.updateAndGetCurrentState.call()).toNumber()
 
-      if (pool1State === 1 || pool2State === 1) {
-        await claimMgnAndTokens({ debugAuction, pool1, pool2 })
+      if (pool1State === STATE_POOLING_ENDED || pool2State === STATE_POOLING_ENDED) {
+        await unlockMgnAndTokens({ debugAuction, pool1, pool2 })
       }
     }
     return null
@@ -48,7 +53,7 @@ async function participateInAuction(coordinatorAddress, network) {
   }
 }
 
-async function claimMgnAndTokens({ pool1, pool2, debugAuction }) {
+async function unlockMgnAndTokens({ pool1, pool2, debugAuction }) {
   const depositToken = await pool1.depositToken()
   const secondaryToken = await pool1.secondaryToken()
 
