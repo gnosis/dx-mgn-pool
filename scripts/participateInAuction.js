@@ -37,31 +37,37 @@ async function participateInAuction(coordinatorAddress, network) {
       const pool1State = (await pool1.updateAndGetCurrentState.call()).toNumber()
       const pool2State = (await pool2.updateAndGetCurrentState.call()).toNumber()
 
-      const depositToken = await pool1.depositToken()
-      const secondaryToken = await pool1.secondaryToken()
-
-      const dx1 = await DutchExchange.at(await pool1.dx())
-      const dx2 = await DutchExchange.at(await pool2.dx())
-
-      const lastAuction1 = (await pool1.lastParticipatedAuctionIndex()).toNumber()
-      const lastAuction2 = (await pool2.lastParticipatedAuctionIndex()).toNumber()
-
-      const dxAuctionIndex1 = (await dx1.getAuctionIndex.call(depositToken, secondaryToken)).toNumber()
-      const dxAuctionIndex2 = (await dx2.getAuctionIndex.call(secondaryToken, depositToken)).toNumber()
-
-      if (pool1State == 1 && dxAuctionIndex1 > lastAuction1) {
-        debugAuction("Pool 1: Transitioning state to `DepositWithdrawnFromDx`")
-        await pool1.triggerMGNunlockAndClaimTokens()
-      }
-      if (pool2State == 1 && dxAuctionIndex2 > lastAuction2) {
-        debugAuction("Pool 2: Transitioning state to `DepositWithdrawnFromDx`")
-        await pool2.triggerMGNunlockAndClaimTokens()
+      if (pool1State === 1 || pool2State === 1) {
+        await claimMgnAndTokens({ debugAuction, pool1, pool2 })
       }
     }
     return null
   } catch (error) {
     console.error(error)
     return error
+  }
+}
+
+async function claimMgnAndTokens({ pool1, pool2, debugAuction }) {
+  const depositToken = await pool1.depositToken()
+  const secondaryToken = await pool1.secondaryToken()
+
+  const dx1 = await DutchExchange.at(await pool1.dx())
+  const dx2 = await DutchExchange.at(await pool2.dx())
+
+  const lastAuction1 = (await pool1.lastParticipatedAuctionIndex()).toNumber()
+  const lastAuction2 = (await pool2.lastParticipatedAuctionIndex()).toNumber()
+
+  const dxAuctionIndex1 = (await dx1.getAuctionIndex.call(depositToken, secondaryToken)).toNumber()
+  const dxAuctionIndex2 = (await dx2.getAuctionIndex.call(secondaryToken, depositToken)).toNumber()
+
+  if (dxAuctionIndex1 > lastAuction1) {
+    debugAuction("Pool 1: Transitioning state to `DepositWithdrawnFromDx`")
+    await pool1.triggerMGNunlockAndClaimTokens()
+  }
+  if (dxAuctionIndex2 > lastAuction2) {
+    debugAuction("Pool 2: Transitioning state to `DepositWithdrawnFromDx`")
+    await pool2.triggerMGNunlockAndClaimTokens()
   }
 }
 
