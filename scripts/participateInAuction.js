@@ -35,19 +35,22 @@ async function participateInAuction(coordinatorAddress, network) {
 
       infoAuction("Successfully called participateInAuction! in tx: %s", result.tx)
     } else {
-      debugAuction("Can't participate in auction yet.")
+      debugAuction("Can't participate in auction")
       const pool1 = await DxMgnPool.at(await coordinator.dxMgnPool1())
       const pool2 = await DxMgnPool.at(await coordinator.dxMgnPool2())
 
+      // Get state of the pools
       const pool1State = (await pool1.updateAndGetCurrentState.call()).toNumber()
       const pool2State = (await pool2.updateAndGetCurrentState.call()).toNumber()
 
+      // Unlock the MGN when it's time
       if (pool1State === STATE_POOLING_ENDED || pool2State === STATE_POOLING_ENDED) {
         await unlockMgnAndTokens({
           pool1, pool2, pool1State, pool2State, debugAuction, infoAuction
         })
       }
 
+      // Claim the MGN when it's time
       if (pool1State === STATE_UNLOCKING_MGN || pool2State === STATE_UNLOCKING_MGN) {
         await claimMgn({
           pool1, pool2, pool1State, pool2State, debugAuction, infoAuction
@@ -99,7 +102,8 @@ async function claimMgn({
   // We could check the expire time easily of the MGN, but we will take the simple approach of
   // executing "withdrawUnlockedMagnoliaFromDx" if the call succeeds
 
-  const logMessage = "Pool %d: The MGN is unlocked. Claiming MGN (transition to final state DepositWithdrawnFromDx: 3)"
+  const logBeforeMsg = "Pool %d: The MGN is unlocked. Claiming MGN (transition to final state DepositWithdrawnFromDx: 3)"
+  const logAfterMsg = "Pool %d: Successfully called withdrawUnlockedMagnoliaFromDx! in tx: %s"
   if (pool1State === STATE_UNLOCKING_MGN) {
     const canClaim = await pool1.withdrawUnlockedMagnoliaFromDx.call()
       .then(() => true)
@@ -107,8 +111,9 @@ async function claimMgn({
 
     if (canClaim) {
       // Dry-run succeeded: Claim Pool 1
-      infoAuction(logMessage, 1)
-      await pool1.withdrawUnlockedMagnoliaFromDx()
+      infoAuction(logBeforeMsg, 1)
+      const result = await pool1.withdrawUnlockedMagnoliaFromDx()
+      infoAuction(logAfterMsg, 2, result.tx)
     }
   }
 
@@ -119,8 +124,9 @@ async function claimMgn({
 
     if (canClaim) {
       // Dry-run succeeded: Claim Pool 2
-      infoAuction(logMessage, 2)
-      return pool2.withdrawUnlockedMagnoliaFromDx()
+      infoAuction(logBeforeMsg, 2)
+      const result = await pool2.withdrawUnlockedMagnoliaFromDx()
+      infoAuction(logAfterMsg, 2, result.tx)
     }
   }
 
