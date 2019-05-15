@@ -13,7 +13,7 @@ const GasStation = new Gastimator()
 
 // const STATE_POOLING = 0 // Pooling
 const STATE_POOLING_ENDED = 1 // PoolingEnded
-// const STATE_UNLOCKING_MGN = 2 // DepositWithdrawnFromDx
+const STATE_UNLOCKING_MGN = 2 // DepositWithdrawnFromDx
 // const STATE_MGN_UNLOCKED = 3 // MgnUnlocked
 
 async function participateInAuction(coordinatorAddress, network) {
@@ -43,7 +43,15 @@ async function participateInAuction(coordinatorAddress, network) {
       const pool2State = (await pool2.updateAndGetCurrentState.call()).toNumber()
 
       if (pool1State === STATE_POOLING_ENDED || pool2State === STATE_POOLING_ENDED) {
-        await unlockMgnAndTokens({ debugAuction, pool1, pool2 })
+        await unlockMgnAndTokens({
+          pool1, pool2, pool1State, pool2State, debugAuction, infoAuction
+        })
+      }
+
+      if (pool1State === STATE_UNLOCKING_MGN || pool2State === STATE_UNLOCKING_MGN) {
+        await claimMgn({
+          pool1, pool2, pool1State, pool2State, debugAuction, infoAuction
+        })
       }
     }
     return null
@@ -53,7 +61,10 @@ async function participateInAuction(coordinatorAddress, network) {
   }
 }
 
-async function unlockMgnAndTokens({ pool1, pool2, debugAuction }) {
+async function unlockMgnAndTokens({
+  pool1, pool2, pool1State, pool2State, debugAuction, infoAuction
+}) {
+  debugAuction("Pool period is over. Checking if we can unlock the MGN")
   const depositToken = await pool1.depositToken()
   const secondaryToken = await pool1.secondaryToken()
 
@@ -66,14 +77,53 @@ async function unlockMgnAndTokens({ pool1, pool2, debugAuction }) {
   const dxAuctionIndex1 = (await dx1.getAuctionIndex.call(depositToken, secondaryToken)).toNumber()
   const dxAuctionIndex2 = (await dx2.getAuctionIndex.call(secondaryToken, depositToken)).toNumber()
 
-  if (dxAuctionIndex1 > lastAuction1) {
-    debugAuction("Pool 1: Transitioning state to `DepositWithdrawnFromDx`")
-    await pool1.triggerMGNunlockAndClaimTokens()
+  const logBeforeMsg = "Pool %d: The period is over. Unlocking MGN (transition to state DepositWithdrawnFromDx: 2)"
+  const logAfterMsg = "Pool %d: Successfully called triggerMGNunlockAndClaimTokens! in tx: %s"
+  if (pool1State === STATE_POOLING_ENDED && dxAuctionIndex1 > lastAuction1) {
+    infoAuction(logBeforeMsg, 1)
+    const result = await pool1.triggerMGNunlockAndClaimTokens()
+    infoAuction(logAfterMsg, 1, result.tx)
   }
-  if (dxAuctionIndex2 > lastAuction2) {
-    debugAuction("Pool 2: Transitioning state to `DepositWithdrawnFromDx`")
-    await pool2.triggerMGNunlockAndClaimTokens()
+  if (pool2State === STATE_POOLING_ENDED && dxAuctionIndex2 > lastAuction2) {
+    infoAuction(logBeforeMsg, 2)
+    const result = await pool2.triggerMGNunlockAndClaimTokens()
+    infoAuction(logAfterMsg, 2, result.tx)
   }
+}
+
+async function claimMgn({
+  pool1, pool2, pool1State, pool2State, debugAuction, infoAuction
+}) {
+  debugAuction("Waiting for the MGN unlock. Checking if we can claim the MGN")
+
+  // We could check the expire time easily of the MGN, but we will take the simple approach of
+  // executing "withdrawUnlockedMagnoliaFromDx" if the call succeeds
+
+  const logMessage = "Pool %d: The MGN is unlocked. Claiming MGN (transition to final state DepositWithdrawnFromDx: 3)"
+  if (pool1State === STATE_UNLOCKING_MGN) {
+    const canClaim = await pool1.withdrawUnlockedMagnoliaFromDx.call()
+      .then(() => true)
+      .catch(() => false)
+
+    if (canClaim) {
+      // Dry-run succeeded: Claim Pool 1
+      infoAuction(logMessage, 1)
+      await pool1.withdrawUnlockedMagnoliaFromDx()
+    }
+  }
+
+  if (pool2State === STATE_UNLOCKING_MGN) {
+    const canClaim = await pool2.withdrawUnlockedMagnoliaFromDx.call()
+      .then(() => true)
+      .catch(() => false)
+
+    if (canClaim) {
+      // Dry-run succeeded: Claim Pool 2
+      infoAuction(logMessage, 2)
+      return pool2.withdrawUnlockedMagnoliaFromDx()
+    }
+  }
+
 }
 
 module.exports = async (callback) => {
