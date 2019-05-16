@@ -1,5 +1,4 @@
-// TODO: Remove after test
-process.env.DEBUG = process.env.DEBUG || "DEBUG-*,INFO-*"
+process.env.DEBUG = process.env.DEBUG || "DEBUG-*,INFO-*,WARN-*,ERROR-*"
 
 const assert = require('assert')
 const debug = require("debug")("DEBUG-truffle")
