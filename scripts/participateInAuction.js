@@ -55,8 +55,8 @@ async function participateInAuction(coordinatorAddress, network) {
       if (pool1State === STATE_UNLOCKING_MGN || pool2State === STATE_UNLOCKING_MGN) {
         debugAuction("Waiting for the MGN unlock. Checking if we can claim the MGN")
 
-        claimMgn({ poolNumber: 1, pool: pool1, state: pool1State, infoAuction })
-        claimMgn({ poolNumber: 2, pool: pool2, state: pool2State, infoAuction })
+        await claimMgn({ poolNumber: 1, pool: pool1, state: pool1State, infoAuction })
+        await claimMgn({ poolNumber: 2, pool: pool2, state: pool2State, infoAuction })
       }
     }
     return null
@@ -96,11 +96,7 @@ async function unlockMgnAndTokens({
 }
 
 
-async function claimMgn({
-  poolNumber, pool, state, debugAuction, infoAuction
-}) {
-  debugAuction("Waiting for the MGN unlock. Checking if we can claim the MGN")
-
+async function claimMgn({ poolNumber, pool, state, infoAuction }) {
   // We could check the expire time easily of the MGN, but we will take the simple approach of
   // executing "withdrawUnlockedMagnoliaFromDx" if the call succeeds
 
