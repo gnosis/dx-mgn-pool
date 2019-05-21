@@ -6,6 +6,8 @@ const debug = Debug("DEBUG-participate")
 const assert = require("assert")
 const Coordinator = artifacts.require("Coordinator")
 const DxMgnPool = artifacts.require("DxMgnPool")
+const TokenFRT = artifacts.require("TokenFRT")
+
 const DutchExchange = artifacts.require("DutchExchange")
 const { Gastimator } = require("./gasStation")
 const gasPriceUrl = require("../gas-config")
@@ -54,14 +56,15 @@ async function participateInAuction(coordinatorAddress, network) {
       // Claim the MGN when it's time
       if (pool1State === STATE_UNLOCKING_MGN || pool2State === STATE_UNLOCKING_MGN) {
         debugAuction("Waiting for the MGN unlock. Checking if we can claim the MGN")
+        const mgn = await TokenFRT.at(await pool1.mgnToken.call())
 
-        await claimMgn({ poolNumber: 1, pool: pool1, state: pool1State, infoAuction })
-        await claimMgn({ poolNumber: 2, pool: pool2, state: pool2State, infoAuction })
+        await claimMgn({ poolNumber: 1, pool: pool1, state: pool1State, mgn, infoAuction, debugAuction })
+        await claimMgn({ poolNumber: 2, pool: pool2, state: pool2State, mgn, infoAuction, debugAuction })
       }
     }
     return null
   } catch (error) {
-    console.error(error)
+    console.error("Error executing participateInAuction for " + coordinatorAddress, error)
     return error
   }
 }
@@ -96,20 +99,24 @@ async function unlockMgnAndTokens({
 }
 
 
-async function claimMgn({ poolNumber, pool, state, infoAuction }) {
+async function claimMgn({ poolNumber, pool, mgn, state, infoAuction, debugAuction }) {
   // We could check the expire time easily of the MGN, but we will take the simple approach of
   // executing "withdrawUnlockedMagnoliaFromDx" if the call succeeds
 
   if (state === STATE_UNLOCKING_MGN) {
-    const canClaim = await pool.withdrawUnlockedMagnoliaFromDx.call()
-      .then(() => true)
-      .catch(() => false)
+    const unlockedTokens = await mgn.unlockedTokens(pool.address)
+    const withdrawalTime = new Date(unlockedTokens.withdrawalTime.toNumber() * 1000)
+    const now = new Date()
 
-    if (canClaim) {
+
+    if (now >= withdrawalTime) {
       // Dry-run succeeded: Claim Pool 1
       infoAuction("Pool %d: The MGN is unlocked. Claiming MGN (transition to final state DepositWithdrawnFromDx: 3)", poolNumber)
       const result = await pool.withdrawUnlockedMagnoliaFromDx()
       infoAuction("Pool %d: Successfully called withdrawUnlockedMagnoliaFromDx! in tx: %s", poolNumber, result.tx)
+    } else {
+      const pendingHours = ((withdrawalTime - now) / 3600000).toFixed(1)
+      debugAuction("Pool %d: The MGN is not unlocked yet. We need to wait %d hours", poolNumber, pendingHours)
     }
   }
 
