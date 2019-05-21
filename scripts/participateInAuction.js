@@ -100,9 +100,6 @@ async function unlockMgnAndTokens({
 
 
 async function claimMgn({ poolNumber, pool, mgn, state, infoAuction, debugAuction }) {
-  // We could check the expire time easily of the MGN, but we will take the simple approach of
-  // executing "withdrawUnlockedMagnoliaFromDx" if the call succeeds
-
   if (state === STATE_UNLOCKING_MGN) {
     const unlockedTokens = await mgn.unlockedTokens(pool.address)
     const withdrawalTime = new Date(unlockedTokens.withdrawalTime.toNumber() * 1000)
@@ -119,7 +116,6 @@ async function claimMgn({ poolNumber, pool, mgn, state, infoAuction, debugAuctio
       debugAuction("Pool %d: The MGN is not unlocked yet. We need to wait %d hours", poolNumber, pendingHours)
     }
   }
-
 }
 
 module.exports = async (callback) => {
