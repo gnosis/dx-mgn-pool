@@ -19,11 +19,11 @@ async function migrate({
     GNOArtifact = artifacts.require("@gnosis.pm/gno-token/contracts/TokenGNO")
 
   // temp vars
-  // tokenB is variable - defaults to GNO
-  let etherToken, tokenB, dxProxy
+  // otherToken is variable - defaults to GNO
+  let etherToken, otherToken, dxProxy
 
   if (network === "development") {
-    ([etherToken, tokenB, dxProxy] = await Promise.all([
+    ([etherToken, otherToken, dxProxy] = await Promise.all([
       WETHArtifact.deployed(),
       GNOArtifact.deployed(),
       DXProxyArtifact.deployed(),
@@ -41,17 +41,11 @@ async function migrate({
     const contractsMapped = contractArtFilePaths.map(path => TC(require(path)))
     // Set deployer provider to each contract
     contractsMapped.forEach(tcArt => tcArt.setProvider(deployer.provider));
-    ([dxProxy, etherToken, tokenB] = await Promise.all(contractsMapped.map((contract, idx) => (process.env.TOKEN_B_ADDRESS && idx == 2) ? contract.at(process.env.TOKEN_B_ADDRESS) : contract.deployed())))
+    ([dxProxy, etherToken, otherToken] = await Promise.all(contractsMapped.map((contract, idx) => (process.env.TOKEN_B_ADDRESS && idx == 2) ? contract.at(process.env.TOKEN_B_ADDRESS) : contract.deployed())))
   }
   const poolingTime = _getPoolingTime()
 
-  console.log(`Deploying a new Coordingator:
-    Ether Token address: ${etherToken.address}
-    Token address: ${tokenB.address}
-    DutchX: ${dxProxy.address}
-    Pool time: ${poolingTime}
-`)
-  await deployer.deploy(Coordinator, etherToken.address, tokenB.address, dxProxy.address, poolingTime)
+  await deployer.deploy(Coordinator, etherToken.address, otherToken.address, dxProxy.address, poolingTime)
 }
 
 function _getPoolingTime() {
