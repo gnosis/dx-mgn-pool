@@ -41,7 +41,7 @@ async function migrate({
     const contractsMapped = contractArtFilePaths.map(path => TC(require(path)))
     // Set deployer provider to each contract
     contractsMapped.forEach(tcArt => tcArt.setProvider(deployer.provider));
-    ([dxProxy, etherToken, tokenB] = await Promise.all(contractsMapped.map(contract => process.env.TOKEN_B_ADDRESS ? contract.at(process.env.TOKEN_B_ADDRESS) : contract.deployed())))
+    ([dxProxy, etherToken, tokenB] = await Promise.all(contractsMapped.map((contract, idx) => (process.env.TOKEN_B_ADDRESS && idx == 2) ? contract.at(process.env.TOKEN_B_ADDRESS) : contract.deployed())))
   }
   const poolingTime = _getPoolingTime()
 
