@@ -12,7 +12,19 @@
           "4": {
             "events": {},
             "links": {},
-            "address": "0xc2425e2B18cc3dF29BB9917bD3Cc7bCb4BCBde1A",
+            "address": "0xC1BE999de97dE9EB87Ef119bAB9dc396e4Eaf70C",
+            "transactionHash": "0x975468d49db21f7ea8056c30f014b1f634a1436874179553ebec771a3fff32ff"
+          }
+        }
+      },
+      {
+        "tokenA": "Wrapped Ether [WETH]",
+        "tokenB": "Raiden [RDN]",
+        "Coordinator": {
+          "4": {
+            "events": {},
+            "links": {},
+            "address": "0x3E46d875f7E88974117ABFA560c3A7250a39E1bd",
             "transactionHash": "0x975468d49db21f7ea8056c30f014b1f634a1436874179553ebec771a3fff32ff"
           }
         }
