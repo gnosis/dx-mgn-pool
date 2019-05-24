@@ -45,6 +45,12 @@ async function migrate({
   }
   const poolingTime = _getPoolingTime()
 
+  console.log(`Deploying a new Coordingator:
+    Ether Token address: ${etherToken.address}
+    Token address: ${tokenB.address}
+    DutchX: ${dxProxy.address}
+    Pool time: ${poolingTime}
+`)
   await deployer.deploy(Coordinator, etherToken.address, tokenB.address, dxProxy.address, poolingTime)
 }
 
