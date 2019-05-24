@@ -1,0 +1,20 @@
+[
+    {
+        "tokenA": "Wrapped Ether [WETH]",
+        "tokenB": "Gnosis [GNO]",
+        "Coordinator": {
+          "1": {
+            "events": {},
+            "links": {},
+            "address": "0xD4D3e3Ea73a7370e8e0A0cb5FD24DC13DC1668f4",
+            "transactionHash": "0xd9d3792eecf23501549b867a6e9d04a116e985efe15d130d60f1dd3a728061fd"
+          },
+          "4": {
+            "events": {},
+            "links": {},
+            "address": "0xc2425e2B18cc3dF29BB9917bD3Cc7bCb4BCBde1A",
+            "transactionHash": "0x975468d49db21f7ea8056c30f014b1f634a1436874179553ebec771a3fff32ff"
+          }
+        }
+      }
+]

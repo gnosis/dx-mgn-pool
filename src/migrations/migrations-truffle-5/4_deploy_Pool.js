@@ -19,10 +19,11 @@ async function migrate({
     GNOArtifact = artifacts.require("@gnosis.pm/gno-token/contracts/TokenGNO")
 
   // temp vars
-  let etherToken, tokenGNO, dxProxy
+  // tokenB is variable - defaults to GNO
+  let etherToken, tokenB, dxProxy
 
   if (network === "development") {
-    ([etherToken, tokenGNO, dxProxy] = await Promise.all([
+    ([etherToken, tokenB, dxProxy] = await Promise.all([
       WETHArtifact.deployed(),
       GNOArtifact.deployed(),
       DXProxyArtifact.deployed(),
@@ -33,18 +34,18 @@ async function migrate({
     const contractArtFilePaths = [
       "@gnosis.pm/dx-contracts/build/contracts/DutchExchangeProxy.json",
       "@gnosis.pm/util-contracts/build/contracts/EtherToken.json",
-      "@gnosis.pm/gno-token/build/contracts/TokenGNO.json",
+      process.env.TOKEN_B_ADDRESS ? "@gnosis.pm/util-contracts/build/contracts/HumanFriendlyToken.json" : "@gnosis.pm/gno-token/build/contracts/TokenGNO.json",
     ]
 
     // we need to setProvider to get correct networks from artifacts
     const contractsMapped = contractArtFilePaths.map(path => TC(require(path)))
     // Set deployer provider to each contract
     contractsMapped.forEach(tcArt => tcArt.setProvider(deployer.provider));
-    ([dxProxy, etherToken, tokenGNO] = await Promise.all(contractsMapped.map(contract => contract.deployed())))
+    ([dxProxy, etherToken, tokenB] = await Promise.all(contractsMapped.map(contract => process.env.TOKEN_B_ADDRESS ? contract.at(process.env.TOKEN_B_ADDRESS) : contract.deployed())))
   }
-
   const poolingTime = _getPoolingTime()
-  await deployer.deploy(Coordinator, etherToken.address, tokenGNO.address, dxProxy.address, poolingTime)
+
+  await deployer.deploy(Coordinator, etherToken.address, tokenB.address, dxProxy.address, poolingTime)
 }
 
 function _getPoolingTime() {
