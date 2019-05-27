@@ -1,0 +1,24 @@
+[
+  {
+    "tokenA": "Wrapped Ether [WETH]",
+    "tokenB": "Gnosis [GNO]",
+    "Coordinator": {
+      "1": "0x7882AFc0B3e3E83eD45d96526C4367A458a58EC7",
+      "4": "0xC1BE999de97dE9EB87Ef119bAB9dc396e4Eaf70C"
+    }
+  },
+  {
+    "tokenA": "Wrapped Ether [WETH]",
+    "tokenB": "Maker [DAI]",
+    "Coordinator": {
+      "1": "0x9D536f27A9C4a36229295d5b21dAd01AFF47486d"
+    }
+  },
+  {
+    "tokenA": "Wrapped Ether [WETH]",
+    "tokenB": "Raiden [RDN]",
+    "Coordinator": {
+      "4": "0x3E46d875f7E88974117ABFA560c3A7250a39E1bd"
+    }
+  }
+]
