@@ -4,7 +4,7 @@
     "tokenB": "Gnosis [GNO]",
     "Coordinator": {
       "1": "0x7882AFc0B3e3E83eD45d96526C4367A458a58EC7",
-      "4": "0xC1BE999de97dE9EB87Ef119bAB9dc396e4Eaf70C"
+      "4": "0x9B1a9cC8E578A2Ee0A23DeD4CBC8a2125c78050a"
     }
   },
   {
@@ -18,7 +18,14 @@
     "tokenA": "Wrapped Ether [WETH]",
     "tokenB": "Raiden [RDN]",
     "Coordinator": {
-      "4": "0x3E46d875f7E88974117ABFA560c3A7250a39E1bd"
+      "4": "0x6436Ad5A7E0E3d3fE32b73e55Ea384b499F401f8"
+    }
+  },
+  {
+    "tokenA": "Wrapped Ether [WETH]",
+    "tokenB": "OmiseGO [OMG]",
+    "Coordinator": {
+      "4": "0xe413C9F690b8E4d421488Ba6f34d98cb3095dF54"
     }
   }
 ]
